@@ -9,6 +9,6 @@ import java.util.LinkedList;
  */
 public interface OSMSelectionListener {
 
-    public void selectedElementsChanged(LinkedList<OSMElement> selectedElements);
+    void selectedElementsChanged(LinkedList<OSMElement> selectedElements);
 
 }

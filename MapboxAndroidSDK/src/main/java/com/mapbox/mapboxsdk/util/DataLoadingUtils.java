@@ -249,7 +249,7 @@ public class DataLoadingUtils {
         return area > 0;
     }
 
-    private static double rad(double _) {
-        return _ * Math.PI / 180f;
+    private static double rad(double v) {
+        return v * Math.PI / 180f;
     }
 }

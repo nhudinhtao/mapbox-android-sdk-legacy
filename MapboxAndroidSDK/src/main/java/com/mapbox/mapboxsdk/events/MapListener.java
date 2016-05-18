@@ -11,16 +11,16 @@ public interface MapListener {
     /**
      * Called when a map is scrolled.
      */
-    public void onScroll(ScrollEvent event);
+	void onScroll(ScrollEvent event);
 
     /**
      * Called when a map is zoomed.
      */
-    public void onZoom(ZoomEvent event);
+	void onZoom(ZoomEvent event);
 
     /**
      * Called when a map is rotated.
      */
-    public void onRotate(RotateEvent event);
+	void onRotate(RotateEvent event);
 
 }

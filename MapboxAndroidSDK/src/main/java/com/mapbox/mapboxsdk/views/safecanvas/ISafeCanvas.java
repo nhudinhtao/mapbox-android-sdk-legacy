@@ -37,24 +37,24 @@ public interface ISafeCanvas {
     /**
      * Allows access to the original unsafe canvas.
      */
-    public interface UnsafeCanvasHandler {
+	interface UnsafeCanvasHandler {
         void onUnsafeCanvas(Canvas canvas);
     }
 
     /**
      * Gets the x-offset that will be used to adjust all drawing values.
      */
-    public int getXOffset();
+	int getXOffset();
 
     /**
      * Gets the y-offset that will be used to adjust all drawing values.
      */
-    public int getYOffset();
+	int getYOffset();
 
     /**
      * Allows access to the original unsafe canvas through an {@link UnsafeCanvasHandler}.
      */
-    public void getUnsafeCanvas(UnsafeCanvasHandler handler);
+	void getUnsafeCanvas(UnsafeCanvasHandler handler);
 
     /**
      * Gets the wrapped canvas. This canvas will have a coordinate system where the origin is at
@@ -62,14 +62,14 @@ public interface ISafeCanvas {
      * center of the screen, but will not automatically adjust values passed to its drawing
      * methods.
      */
-    public Canvas getWrappedCanvas();
+	Canvas getWrappedCanvas();
 
     /**
      * Gets this safe canvas as an Android {@link Native} class. This canvas will have a coordinate
      * system where the origin is at the center of the screen, and will automatically adjust values
      * passed to its drawing methods by {@link #getXOffset()} and {@link #getYOffset()}.
      */
-    public Canvas getSafeCanvas();
+	Canvas getSafeCanvas();
 
     /**
      * Specify a bitmap for the canvas to draw into. As a side-effect, also updates the canvas's
@@ -79,7 +79,7 @@ public interface ISafeCanvas {
      * @see #setDensity(int)
      * @see #getDensity()
      */
-    public abstract void setBitmap(Bitmap bitmap);
+	void setBitmap(Bitmap bitmap);
 
     /**
      * Return true if the device that the current layer draws into is opaque (i.e. does not support
@@ -87,21 +87,21 @@ public interface ISafeCanvas {
      *
      * @return true if the device that the current layer draws into is opaque
      */
-    public abstract boolean isOpaque();
+	boolean isOpaque();
 
     /**
      * Returns the width of the current drawing layer
      *
      * @return the width of the current drawing layer
      */
-    public abstract int getWidth();
+	int getWidth();
 
     /**
      * Returns the height of the current drawing layer
      *
      * @return the height of the current drawing layer
      */
-    public abstract int getHeight();
+	int getHeight();
 
     /**
      * <p>
@@ -114,7 +114,7 @@ public interface ISafeCanvas {
      * @see #setDensity(int)
      * @see Bitmap#getDensity()
      */
-    public abstract int getDensity();
+	int getDensity();
 
     /**
      * <p/>
@@ -128,7 +128,7 @@ public interface ISafeCanvas {
      * @see #getDensity()
      * @see Bitmap#setDensity(int)
      */
-    public abstract void setDensity(int density);
+	void setDensity(int density);
 
     /**
      * Saves the current matrix and clip onto a private stack. Subsequent calls to
@@ -139,7 +139,7 @@ public interface ISafeCanvas {
      *
      * @return The value to pass to restoreToCount() to balance this save()
      */
-    public abstract int save();
+	int save();
 
     /**
      * Based on saveFlags, can save the current matrix and clip onto a private stack. Subsequent
@@ -150,7 +150,7 @@ public interface ISafeCanvas {
      * @param saveFlags flag bits that specify which parts of the Canvas state to save/restore
      * @return The value to pass to restoreToCount() to balance this save()
      */
-    public abstract int save(int saveFlags);
+	int save(int saveFlags);
 
     /**
      * This behaves the same as save(), but in addition it allocates an offscreen bitmap. All
@@ -166,13 +166,12 @@ public interface ISafeCanvas {
      * @param saveFlags see _SAVE_FLAG constants
      * @return value to pass to restoreToCount() to balance this save()
      */
-    public abstract int saveLayer(Rect bounds, SafePaint paint, int saveFlags);
+	int saveLayer(Rect bounds, SafePaint paint, int saveFlags);
 
     /**
      * Helper version of saveLayer() that takes 4 values rather than a RectF.
      */
-    public abstract int saveLayer(double left, double top, double right, double bottom,
-            SafePaint paint, int saveFlags);
+	int saveLayer(double left, double top, double right, double bottom, SafePaint paint, int saveFlags);
 
     /**
      * This behaves the same as save(), but in addition it allocates an offscreen bitmap. All
@@ -187,26 +186,25 @@ public interface ISafeCanvas {
      * @param saveFlags see _SAVE_FLAG constants
      * @return value to pass to restoreToCount() to balance this call
      */
-    public abstract int saveLayerAlpha(Rect bounds, int alpha, int saveFlags);
+	int saveLayerAlpha(Rect bounds, int alpha, int saveFlags);
 
     /**
      * Helper for saveLayerAlpha() that takes 4 values instead of a RectF.
      */
-    public abstract int saveLayerAlpha(double left, double top, double right, double bottom,
-            int alpha, int saveFlags);
+	int saveLayerAlpha(double left, double top, double right, double bottom, int alpha, int saveFlags);
 
     /**
      * This call balances a previous call to save(), and is used to remove all modifications to the
      * matrix/clip state since the last save call. It is an error to call restore() more times than
      * save() was called.
      */
-    public abstract void restore();
+	void restore();
 
     /**
      * Returns the number of matrix/clip states on the Canvas' private stack. This will equal #
      * save() calls - # restore() calls.
      */
-    public abstract int getSaveCount();
+	int getSaveCount();
 
     /**
      * Efficient way to pop any calls to save() that happened after the save count reached
@@ -218,7 +216,7 @@ public interface ISafeCanvas {
      *
      * @param saveCount The save level to restore to.
      */
-    public abstract void restoreToCount(int saveCount);
+	void restoreToCount(int saveCount);
 
     /**
      * Preconcat the current matrix with the specified translation
@@ -226,7 +224,7 @@ public interface ISafeCanvas {
      * @param dx The distance to translate in X
      * @param dy The distance to translate in Y
      */
-    public abstract void translate(float dx, float dy);
+	void translate(float dx, float dy);
 
     /**
      * Preconcat the current matrix with the specified scale.
@@ -234,7 +232,7 @@ public interface ISafeCanvas {
      * @param sx The amount to scale in X
      * @param sy The amount to scale in Y
      */
-    public abstract void scale(float sx, float sy);
+	void scale(float sx, float sy);
 
     /**
      * Preconcat the current matrix with the specified scale.
@@ -244,14 +242,14 @@ public interface ISafeCanvas {
      * @param px The x-coord for the pivot point (unchanged by the scale)
      * @param py The y-coord for the pivot point (unchanged by the scale)
      */
-    public abstract void scale(float sx, float sy, double px, double py);
+	void scale(float sx, float sy, double px, double py);
 
     /**
      * Preconcat the current matrix with the specified rotation.
      *
      * @param degrees The amount to rotate, in degrees
      */
-    public abstract void rotate(float degrees);
+	void rotate(float degrees);
 
     /**
      * Preconcat the current matrix with the specified rotation.
@@ -260,7 +258,7 @@ public interface ISafeCanvas {
      * @param px The x-coord for the pivot point (unchanged by the rotation)
      * @param py The y-coord for the pivot point (unchanged by the rotation)
      */
-    public abstract void rotate(float degrees, double px, double py);
+	void rotate(float degrees, double px, double py);
 
     /**
      * Preconcat the current matrix with the specified skew.
@@ -268,14 +266,14 @@ public interface ISafeCanvas {
      * @param sx The amount to skew in X
      * @param sy The amount to skew in Y
      */
-    public abstract void skew(float sx, float sy);
+	void skew(float sx, float sy);
 
     /**
      * Preconcat the current matrix with the specified matrix.
      *
      * @param matrix The matrix to preconcatenate with the current matrix
      */
-    public abstract void concat(Matrix matrix);
+	void concat(Matrix matrix);
 
     /**
      * Completely replace the current matrix with the specified matrix. If the matrix parameter is
@@ -284,18 +282,18 @@ public interface ISafeCanvas {
      * @param matrix The matrix to replace the current matrix with. If it is null, set the current
      * matrix to identity.
      */
-    public abstract void setMatrix(Matrix matrix);
+	void setMatrix(Matrix matrix);
 
     /**
      * Return, in ctm, the current transformation matrix. This does not alter the matrix in the
      * canvas, but just returns a copy of it.
      */
-    public abstract void getMatrix(Matrix ctm);
+	void getMatrix(Matrix ctm);
 
     /**
      * Return a new matrix with a copy of the canvas' current transformation matrix.
      */
-    public abstract Matrix getMatrix();
+	Matrix getMatrix();
 
     /**
      * Modify the current clip with the specified rectangle, which is expressed in local
@@ -305,7 +303,7 @@ public interface ISafeCanvas {
      * @param op How the clip is modified
      * @return true if the resulting clip is non-empty
      */
-    public abstract boolean clipRect(Rect rect, Region.Op op);
+	boolean clipRect(Rect rect, Region.Op op);
 
     /**
      * Intersect the current clip with the specified rectangle, which is expressed in local
@@ -314,7 +312,7 @@ public interface ISafeCanvas {
      * @param rect The rectangle to intersect with the current clip.
      * @return true if the resulting clip is non-empty
      */
-    public abstract boolean clipRect(Rect rect);
+	boolean clipRect(Rect rect);
 
     /**
      * Modify the current clip with the specified rectangle, which is expressed in local
@@ -327,8 +325,7 @@ public interface ISafeCanvas {
      * @param op How the clip is modified
      * @return true if the resulting clip is non-empty
      */
-    public abstract boolean clipRect(double left, double top, double right, double bottom,
-            Region.Op op);
+	boolean clipRect(double left, double top, double right, double bottom, Region.Op op);
 
     /**
      * Intersect the current clip with the specified rectangle, which is expressed in local
@@ -340,7 +337,7 @@ public interface ISafeCanvas {
      * @param bottom The bottom of the rectangle to intersect with the current clip
      * @return true if the resulting clip is non-empty
      */
-    public abstract boolean clipRect(double left, double top, double right, double bottom);
+	boolean clipRect(double left, double top, double right, double bottom);
 
     /**
      * Intersect the current clip with the specified rectangle, which is expressed in local
@@ -352,7 +349,7 @@ public interface ISafeCanvas {
      * @param bottom The bottom of the rectangle to intersect with the current clip
      * @return true if the resulting clip is non-empty
      */
-    public abstract boolean clipRect(int left, int top, int right, int bottom);
+	boolean clipRect(int left, int top, int right, int bottom);
 
     /**
      * Modify the current clip with the specified path.
@@ -361,7 +358,7 @@ public interface ISafeCanvas {
      * @param op How the clip is modified
      * @return true if the resulting is non-empty
      */
-    public abstract boolean clipPath(SafeTranslatedPath path, Region.Op op);
+	boolean clipPath(SafeTranslatedPath path, Region.Op op);
 
     /**
      * Intersect the current clip with the specified path.
@@ -369,7 +366,7 @@ public interface ISafeCanvas {
      * @param path The path to intersect with the current clip
      * @return true if the resulting is non-empty
      */
-    public abstract boolean clipPath(SafeTranslatedPath path);
+	boolean clipPath(SafeTranslatedPath path);
 
     /**
      * Modify the current clip with the specified region. Note that unlike clipRect() and
@@ -382,7 +379,7 @@ public interface ISafeCanvas {
      * @param op How the clip is modified
      * @return true if the resulting is non-empty
      */
-    public abstract boolean clipRegion(Region region, Region.Op op);
+	boolean clipRegion(Region region, Region.Op op);
 
     /**
      * Intersect the current clip with the specified region. Note that unlike clipRect() and
@@ -393,11 +390,11 @@ public interface ISafeCanvas {
      * @param region The region to operate on the current clip, based on op
      * @return true if the resulting is non-empty
      */
-    public abstract boolean clipRegion(Region region);
+	boolean clipRegion(Region region);
 
-    public abstract DrawFilter getDrawFilter();
+    DrawFilter getDrawFilter();
 
-    public abstract void setDrawFilter(DrawFilter filter);
+    void setDrawFilter(DrawFilter filter);
 
     /**
      * Return true if the specified rectangle, after being transformed by the current matrix, would
@@ -409,7 +406,7 @@ public interface ISafeCanvas {
      * @return true if the rect (transformed by the canvas' matrix) does not intersect with the
      * canvas' clip
      */
-    public abstract boolean quickReject(Rect rect, EdgeType type);
+	boolean quickReject(Rect rect, EdgeType type);
 
     /**
      * Return true if the specified path, after being transformed by the current matrix, would lie
@@ -426,7 +423,7 @@ public interface ISafeCanvas {
      * @return true if the path (transformed by the canvas' matrix) does not intersect with the
      * canvas' clip
      */
-    public abstract boolean quickReject(SafeTranslatedPath path, EdgeType type);
+	boolean quickReject(SafeTranslatedPath path, EdgeType type);
 
     /**
      * Return true if the specified rectangle, after being transformed by the current matrix, would
@@ -443,8 +440,7 @@ public interface ISafeCanvas {
      * @return true if the rect (transformed by the canvas' matrix) does not intersect with the
      * canvas' clip
      */
-    public abstract boolean quickReject(double left, double top, double right, double bottom,
-            EdgeType type);
+	boolean quickReject(double left, double top, double right, double bottom, EdgeType type);
 
     /**
      * Retrieve the clip bounds, returning true if they are non-empty.
@@ -454,14 +450,14 @@ public interface ISafeCanvas {
      * current clip is non-empty.
      * @return true if the current clip is non-empty.
      */
-    public abstract boolean getClipBounds(Rect bounds);
+	boolean getClipBounds(Rect bounds);
 
     /**
      * Retrieve the clip bounds.
      *
      * @return the clip bounds, or [0, 0, 0, 0] if the clip is empty.
      */
-    public abstract Rect getClipBounds();
+	Rect getClipBounds();
 
     /**
      * Fill the entire canvas' bitmap (restricted to the current clip) with the specified RGB
@@ -472,7 +468,7 @@ public interface ISafeCanvas {
      * @param g green component (0..255) of the color to draw onto the canvas
      * @param b blue component (0..255) of the color to draw onto the canvas
      */
-    public abstract void drawRGB(int r, int g, int b);
+	void drawRGB(int r, int g, int b);
 
     /**
      * Fill the entire canvas' bitmap (restricted to the current clip) with the specified ARGB
@@ -483,7 +479,7 @@ public interface ISafeCanvas {
      * @param g green component (0..255) of the color to draw onto the canvas
      * @param b blue component (0..255) of the color to draw onto the canvas
      */
-    public abstract void drawARGB(int a, int r, int g, int b);
+	void drawARGB(int a, int r, int g, int b);
 
     /**
      * Fill the entire canvas' bitmap (restricted to the current clip) with the specified color,
@@ -491,7 +487,7 @@ public interface ISafeCanvas {
      *
      * @param color the color to draw onto the canvas
      */
-    public abstract void drawColor(int color);
+	void drawColor(int color);
 
     /**
      * Fill the entire canvas' bitmap (restricted to the current clip) with the specified color and
@@ -500,7 +496,7 @@ public interface ISafeCanvas {
      * @param color the color to draw with
      * @param mode the porter-duff mode to apply to the color
      */
-    public abstract void drawColor(int color, PorterDuff.Mode mode);
+	void drawColor(int color, PorterDuff.Mode mode);
 
     /**
      * Fill the entire canvas' bitmap (restricted to the current clip) with the specified paint.
@@ -509,7 +505,7 @@ public interface ISafeCanvas {
      *
      * @param paint The paint used to draw onto the canvas
      */
-    public abstract void drawPaint(SafePaint paint);
+	void drawPaint(SafePaint paint);
 
     /**
      * Draw a series of points. Each point is centered at the coordinate specified by pts[], and
@@ -525,17 +521,17 @@ public interface ISafeCanvas {
      * uses two values, the number of "points" that are drawn is really (count >> 1).
      * @param paint The paint used to draw the points
      */
-    public abstract void drawPoints(double[] pts, int offset, int count, SafePaint paint);
+	void drawPoints(double[] pts, int offset, int count, SafePaint paint);
 
     /**
      * Helper for drawPoints() that assumes you want to draw the entire array
      */
-    public abstract void drawPoints(double[] pts, SafePaint paint);
+	void drawPoints(double[] pts, SafePaint paint);
 
     /**
      * Helper for drawPoints() for drawing a single point.
      */
-    public abstract void drawPoint(double x, double y, SafePaint paint);
+	void drawPoint(double x, double y, SafePaint paint);
 
     /**
      * Draw a line segment with the specified start and stop x,y coordinates, using the specified
@@ -545,8 +541,7 @@ public interface ISafeCanvas {
      * @param startY The y-coordinate of the start point of the line
      * @param paint The paint used to draw the line
      */
-    public abstract void drawLine(double startX, double startY, double stopX, double stopY,
-            SafePaint paint);
+	void drawLine(double startX, double startY, double stopX, double stopY, SafePaint paint);
 
     /**
      * Draw a series of lines. Each line is taken from 4 consecutive values in the pts array. Thus
@@ -561,9 +556,9 @@ public interface ISafeCanvas {
      * (count >> 2).
      * @param paint The paint used to draw the points
      */
-    public abstract void drawLines(double[] pts, int offset, int count, SafePaint paint);
+	void drawLines(double[] pts, int offset, int count, SafePaint paint);
 
-    public abstract void drawLines(double[] pts, SafePaint paint);
+    void drawLines(double[] pts, SafePaint paint);
 
     /**
      * Draw the specified Rect using the specified Paint. The rectangle will be filled or framed
@@ -572,7 +567,7 @@ public interface ISafeCanvas {
      * @param r The rectangle to be drawn.
      * @param paint The paint used to draw the rectangle
      */
-    public abstract void drawRect(Rect r, SafePaint paint);
+	void drawRect(Rect r, SafePaint paint);
 
     /**
      * Draw the specified Rect using the specified paint. The rectangle will be filled or framed
@@ -584,8 +579,7 @@ public interface ISafeCanvas {
      * @param bottom The bottom side of the rectangle to be drawn
      * @param paint The paint used to draw the rect
      */
-    public abstract void drawRect(double left, double top, double right, double bottom,
-            SafePaint paint);
+	void drawRect(double left, double top, double right, double bottom, SafePaint paint);
 
     /**
      * Draw the specified oval using the specified paint. The oval will be filled or framed based
@@ -594,7 +588,7 @@ public interface ISafeCanvas {
      *
      * @param oval The rectangle bounds of the oval to be drawn
      */
-    public abstract void drawOval(Rect oval, SafePaint paint);
+	void drawOval(Rect oval, SafePaint paint);
 
     /**
      * Draw the specified circle using the specified paint. If radius is <= 0, then nothing will be
@@ -605,7 +599,7 @@ public interface ISafeCanvas {
      * @param radius The radius of the cirle to be drawn
      * @param paint The paint used to draw the circle
      */
-    public abstract void drawCircle(double cx, double cy, float radius, SafePaint paint);
+	void drawCircle(double cx, double cy, float radius, SafePaint paint);
 
     /**
      * <p>
@@ -636,8 +630,7 @@ public interface ISafeCanvas {
      * stroked. This will draw a wedge
      * @param paint The paint used to draw the arc
      */
-    public abstract void drawArc(Rect oval, float startAngle, float sweepAngle, boolean useCenter,
-            SafePaint paint);
+	void drawArc(Rect oval, float startAngle, float sweepAngle, boolean useCenter, SafePaint paint);
 
     /**
      * Draw the specified round-rect using the specified paint. The roundrect will be filled or
@@ -648,7 +641,7 @@ public interface ISafeCanvas {
      * @param ry The y-radius of the oval used to round the corners
      * @param paint The paint used to draw the roundRect
      */
-    public abstract void drawRoundRect(Rect rect, float rx, float ry, SafePaint paint);
+	void drawRoundRect(Rect rect, float rx, float ry, SafePaint paint);
 
     /**
      * Draw the specified path using the specified paint. The path will be filled or framed based
@@ -658,7 +651,7 @@ public interface ISafeCanvas {
      * @param path The path to be drawn
      * @param paint The paint used to draw the path
      */
-    public abstract void drawPath(SafeTranslatedPath path, SafePaint paint);
+	void drawPath(SafeTranslatedPath path, SafePaint paint);
 
     /**
      * Draw the specified bitmap, with its top/left corner at (x,y), using the specified paint,
@@ -680,7 +673,7 @@ public interface ISafeCanvas {
      * @param top The position of the top side of the bitmap being drawn
      * @param paint The paint used to draw the bitmap (may be null)
      */
-    public abstract void drawBitmap(Bitmap bitmap, double left, double top, SafePaint paint);
+	void drawBitmap(Bitmap bitmap, double left, double top, SafePaint paint);
 
     /**
      * Draw the specified bitmap, scaling/translating automatically to fill the destination
@@ -705,7 +698,7 @@ public interface ISafeCanvas {
      * @param dst The rectangle that the bitmap will be scaled/translated to fit into
      * @param paint May be null. The paint used to draw the bitmap
      */
-    public abstract void drawBitmap(Bitmap bitmap, Rect src, Rect dst, SafePaint paint);
+	void drawBitmap(Bitmap bitmap, Rect src, Rect dst, SafePaint paint);
 
     /**
      * Treat the specified array of colors as a bitmap, and draw it. This gives the same result as
@@ -726,14 +719,12 @@ public interface ISafeCanvas {
      * byte is ignored (assumed to be 0xFF for every pixel).
      * @param paint May be null. The paint used to draw the bitmap
      */
-    public abstract void drawBitmap(int[] colors, int offset, int stride, double x, double y,
-            int width, int height, boolean hasAlpha, SafePaint paint);
+	void drawBitmap(int[] colors, int offset, int stride, double x, double y, int width, int height, boolean hasAlpha, SafePaint paint);
 
     /**
      * Legacy version of drawBitmap(int[] colors, ...) that took ints for x,y
      */
-    public abstract void drawBitmap(int[] colors, int offset, int stride, int x, int y, int width,
-            int height, boolean hasAlpha, SafePaint paint);
+	void drawBitmap(int[] colors, int offset, int stride, int x, int y, int width, int height, boolean hasAlpha, SafePaint paint);
 
     /**
      * Draw the bitmap using the specified matrix.
@@ -742,7 +733,7 @@ public interface ISafeCanvas {
      * @param matrix The matrix used to transform the bitmap when it is drawn
      * @param paint May be null. The paint used to draw the bitmap
      */
-    public abstract void drawBitmap(Bitmap bitmap, Matrix matrix, SafePaint paint);
+	void drawBitmap(Bitmap bitmap, Matrix matrix, SafePaint paint);
 
     /**
      * Draw the bitmap through the mesh, where mesh vertices are evenly distributed across the
@@ -765,8 +756,7 @@ public interface ISafeCanvas {
      * @param colorOffset Number of color elements to skip before drawing
      * @param paint May be null. The paint used to draw the bitmap
      */
-    public abstract void drawBitmapMesh(Bitmap bitmap, int meshWidth, int meshHeight,
-            double[] verts, int vertOffset, int[] colors, int colorOffset, SafePaint paint);
+	void drawBitmapMesh(Bitmap bitmap, int meshWidth, int meshHeight, double[] verts, int vertOffset, int[] colors, int colorOffset, SafePaint paint);
 
     /**
      * Draw the array of vertices, interpreted as triangles (based on mode). The verts array is
@@ -800,9 +790,7 @@ public interface ISafeCanvas {
      * @param indexCount number of entries in the indices array (if not null).
      * @param paint Specifies the shader to use if the texs array is non-null.
      */
-    public abstract void drawVertices(VertexMode mode, int vertexCount, double[] verts,
-            int vertOffset, float[] texs, int texOffset, int[] colors, int colorOffset,
-            short[] indices, int indexOffset, int indexCount, SafePaint paint);
+	void drawVertices(VertexMode mode, int vertexCount, double[] verts, int vertOffset, float[] texs, int texOffset, int[] colors, int colorOffset, short[] indices, int indexOffset, int indexCount, SafePaint paint);
 
     /**
      * Draw the text, with origin at (x,y), using the specified paint. The origin is interpreted
@@ -812,8 +800,7 @@ public interface ISafeCanvas {
      * @param x The x-coordinate of the origin of the text being drawn
      * @param paint The paint used for the text (e.g. color, size, style)
      */
-    public abstract void drawText(char[] text, int index, int count, double x, double y,
-            SafePaint paint);
+	void drawText(char[] text, int index, int count, double x, double y, SafePaint paint);
 
     /**
      * Draw the text, with origin at (x,y), using the specified paint. The origin is interpreted
@@ -824,7 +811,7 @@ public interface ISafeCanvas {
      * @param y The y-coordinate of the origin of the text being drawn
      * @param paint The paint used for the text (e.g. color, size, style)
      */
-    public abstract void drawText(String text, double x, double y, SafePaint paint);
+	void drawText(String text, double x, double y, SafePaint paint);
 
     /**
      * Draw the text, with origin at (x,y), using the specified paint. The origin is interpreted
@@ -837,8 +824,7 @@ public interface ISafeCanvas {
      * @param y The y-coordinate of the origin of the text being drawn
      * @param paint The paint used for the text (e.g. color, size, style)
      */
-    public abstract void drawText(String text, int start, int end, double x, double y,
-            SafePaint paint);
+	void drawText(String text, int start, int end, double x, double y, SafePaint paint);
 
     /**
      * Draw the specified range of text, specified by start/end, with its origin at (x,y), in the
@@ -851,8 +837,7 @@ public interface ISafeCanvas {
      * @param y The y-coordinate of origin for where to draw the text
      * @param paint The paint used for the text (e.g. color, size, style)
      */
-    public abstract void drawText(CharSequence text, int start, int end, double x, double y,
-            SafePaint paint);
+	void drawText(CharSequence text, int start, int end, double x, double y, SafePaint paint);
 
     /**
      * Draw the text in the array, with each character's origin specified by the pos array.
@@ -863,8 +848,7 @@ public interface ISafeCanvas {
      * @param pos Array of [x,y] positions, used to position each character
      * @param paint The paint used for the text (e.g. color, size, style)
      */
-    public abstract void drawPosText(char[] text, int index, int count, double[] pos,
-            SafePaint paint);
+	void drawPosText(char[] text, int index, int count, double[] pos, SafePaint paint);
 
     /**
      * Draw the text in the array, with each character's origin specified by the pos array.
@@ -873,7 +857,7 @@ public interface ISafeCanvas {
      * @param pos Array of [x,y] positions, used to position each character
      * @param paint The paint used for the text (e.g. color, size, style)
      */
-    public abstract void drawPosText(String text, double[] pos, SafePaint paint);
+	void drawPosText(String text, double[] pos, SafePaint paint);
 
     /**
      * Draw the text, with origin at (x,y), using the specified paint, along the specified path.
@@ -886,8 +870,7 @@ public interface ISafeCanvas {
      * @param vOffset The distance above(-) or below(+) the path to position the text
      * @param paint The paint used for the text (e.g. color, size, style)
      */
-    public abstract void drawTextOnPath(char[] text, int index, int count, SafeTranslatedPath path,
-            float hOffset, float vOffset, SafePaint paint);
+	void drawTextOnPath(char[] text, int index, int count, SafeTranslatedPath path, float hOffset, float vOffset, SafePaint paint);
 
     /**
      * Draw the text, with origin at (x,y), using the specified paint, along the specified path.
@@ -900,8 +883,7 @@ public interface ISafeCanvas {
      * @param vOffset The distance above(-) or below(+) the path to position the text
      * @param paint The paint used for the text (e.g. color, size, style)
      */
-    public abstract void drawTextOnPath(String text, SafeTranslatedPath path, float hOffset,
-            float vOffset, SafePaint paint);
+	void drawTextOnPath(String text, SafeTranslatedPath path, float hOffset, float vOffset, SafePaint paint);
 
     /**
      * Save the canvas state, draw the picture, and restore the canvas state. This differs from
@@ -909,10 +891,10 @@ public interface ISafeCanvas {
      *
      * @param picture The picture to be drawn
      */
-    public abstract void drawPicture(Picture picture);
+	void drawPicture(Picture picture);
 
     /**
      * Draw the picture, stretched to fit into the dst rectangle.
      */
-    public abstract void drawPicture(Picture picture, Rect dst);
+	void drawPicture(Picture picture, Rect dst);
 }

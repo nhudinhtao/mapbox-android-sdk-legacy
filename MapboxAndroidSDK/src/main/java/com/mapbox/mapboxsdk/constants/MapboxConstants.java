@@ -10,13 +10,13 @@ public interface MapboxConstants {
     /**
      * The default base endpoint of Mapbox services.
      */
-    public static final String MAPBOX_BASE_URL_V4 = "https://a.tiles.mapbox.com/v4/";
+	String MAPBOX_BASE_URL_V4 = "https://a.tiles.mapbox.com/v4/";
 
-    public static final String USER_AGENT = "Mapbox Android SDK/0.7.0";
+    String USER_AGENT = "Mapbox Android SDK/0.7.0";
 
-    public static final Locale MAPBOX_LOCALE = Locale.US;
+    Locale MAPBOX_LOCALE = Locale.US;
 
-    public enum RasterImageQuality {
+    enum RasterImageQuality {
         /** Full image quality. */
         MBXRasterImageQualityFull(0),
         /** 32 color indexed PNG. */

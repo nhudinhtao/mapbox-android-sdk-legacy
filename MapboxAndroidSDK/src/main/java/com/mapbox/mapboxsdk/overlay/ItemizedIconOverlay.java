@@ -253,13 +253,13 @@ public class ItemizedIconOverlay extends ItemizedOverlay {
      * When the item is touched one of these methods may be invoked depending on the type of touch.
      * Each of them returns true if the event was completely handled.
      */
-    public static interface OnItemGestureListener<T> {
-        public boolean onItemSingleTapUp(final int index, final T item);
+    public interface OnItemGestureListener<T> {
+        boolean onItemSingleTapUp(final int index, final T item);
 
-        public boolean onItemLongPress(final int index, final T item);
+        boolean onItemLongPress(final int index, final T item);
     }
 
-    public static interface ActiveItem {
-        public boolean run(final int aIndex);
+    public interface ActiveItem {
+        boolean run(final int aIndex);
     }
 }

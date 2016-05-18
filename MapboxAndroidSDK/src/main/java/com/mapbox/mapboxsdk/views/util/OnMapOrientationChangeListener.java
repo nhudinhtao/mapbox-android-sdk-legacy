@@ -9,5 +9,5 @@ public interface OnMapOrientationChangeListener {
     /**
      * @param angle the new map orientation angle
      */
-    public void onMapOrientationChange(float angle);
+	void onMapOrientationChange(float angle);
 }

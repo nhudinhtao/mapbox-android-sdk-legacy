@@ -8,5 +8,5 @@ package com.mapbox.mapboxsdk.views.util;
 import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 
 public interface TileLoadedListener {
-    public CacheableBitmapDrawable onTileLoaded(CacheableBitmapDrawable pDrawable);
+    CacheableBitmapDrawable onTileLoaded(CacheableBitmapDrawable pDrawable);
 }
