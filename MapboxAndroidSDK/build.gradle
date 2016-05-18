@@ -24,8 +24,8 @@ repositories {
 dependencies {
     compile 'com.vividsolutions:jts:1.13'
     compile 'com.android.support:support-v4:23.4.0'
-    compile 'com.squareup.okhttp:okhttp:2.4.0'
-    compile 'com.squareup.okhttp:okhttp-urlconnection:2.4.0'
+	compile 'com.squareup.okhttp3:okhttp:3.2.0'
+	compile 'com.squareup.okhttp3:okhttp-urlconnection:3.2.0'
     compile 'com.jakewharton:disklrucache:2.0.2'
 }
 
