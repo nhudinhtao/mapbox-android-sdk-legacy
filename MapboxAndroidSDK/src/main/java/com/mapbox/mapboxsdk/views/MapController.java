@@ -1,21 +1,24 @@
 package com.mapbox.mapboxsdk.views;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
+import android.animation.TypeEvaluator;
 import android.graphics.PointF;
 import android.view.animation.LinearInterpolator;
+
 import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.views.util.Projection;
 import com.mapbox.mapboxsdk.views.util.constants.MapViewConstants;
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.AnimatorListenerAdapter;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.PropertyValuesHolder;
-import com.nineoldandroids.animation.TypeEvaluator;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class MapController implements MapViewConstants {
 
-    public class PointEvaluator implements TypeEvaluator<PointF> {
+    public class PointEvaluator implements TypeEvaluator<PointF>
+	{
 
         public PointEvaluator() {
         }

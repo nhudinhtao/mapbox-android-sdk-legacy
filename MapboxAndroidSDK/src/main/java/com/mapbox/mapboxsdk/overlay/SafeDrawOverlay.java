@@ -3,10 +3,11 @@ package com.mapbox.mapboxsdk.overlay;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+
 import com.mapbox.mapboxsdk.views.MapView;
 import com.mapbox.mapboxsdk.views.safecanvas.ISafeCanvas;
 import com.mapbox.mapboxsdk.views.safecanvas.SafeTranslatedCanvas;
-import com.nineoldandroids.view.ViewHelper;
+
 
 /**
  * An overlay class that uses the safe drawing canvas to draw itself and can be zoomed in to high
@@ -54,8 +55,8 @@ public abstract class SafeDrawOverlay extends Overlay {
             final int floatErrorY = screenRect.top - (int) (float) screenRect.top;
 
             // Translate the coordinates
-            final float scaleX = ViewHelper.getScaleX(mapView);
-            final float scaleY = ViewHelper.getScaleY(mapView);
+            final float scaleX = mapView.getScaleX();
+            final float scaleY = mapView.getScaleY();
             c.translate(screenRect.left * scaleX, screenRect.top * scaleY);
             c.translate(floatErrorX, floatErrorY);
 
