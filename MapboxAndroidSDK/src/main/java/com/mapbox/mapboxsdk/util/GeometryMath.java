@@ -13,8 +13,7 @@ public class GeometryMath {
     public static final double DEG2RAD = (Math.PI / 180.0);
     public static final double RAD2DEG = (180.0 / Math.PI);
 
-    public static final Rect getBoundingBoxForRotatedRectangle(final Rect rect, final float centerX,
-            final float centerY, final float angle, final Rect reuse) {
+    public static Rect getBoundingBoxForRotatedRectangle(final Rect rect, final float centerX, final float centerY, final float angle, final Rect reuse) {
         final Rect out = GeometryMath.reusable(reuse);
         if (angle % 360 == 0) {
             out.set(rect);
@@ -46,7 +45,7 @@ public class GeometryMath {
         return out;
     }
 
-    public static final PointF reusable(final PointF reuse) {
+    public static PointF reusable(final PointF reuse) {
         final PointF out;
         if (reuse != null) {
             out = reuse;
@@ -56,7 +55,7 @@ public class GeometryMath {
         return out;
     }
 
-    public static final Point reusable(Point reuse) {
+    public static Point reusable(Point reuse) {
         final Point out;
         if (reuse != null) {
             out = reuse;
@@ -66,7 +65,7 @@ public class GeometryMath {
         return out;
     }
 
-    public static final RectF reusable(final RectF reuse) {
+    public static RectF reusable(final RectF reuse) {
         final RectF out;
         if (reuse != null) {
             out = reuse;
@@ -76,7 +75,7 @@ public class GeometryMath {
         return out;
     }
 
-    public static final Rect reusable(final Rect reuse) {
+    public static Rect reusable(final Rect reuse) {
         final Rect out;
         if (reuse != null) {
             out = reuse;

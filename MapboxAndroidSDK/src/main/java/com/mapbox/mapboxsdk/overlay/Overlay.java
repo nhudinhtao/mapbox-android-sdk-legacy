@@ -99,7 +99,7 @@ public abstract class Overlay {
      *
      * @return an integer suitable to be used as a menu identifier
      */
-    protected static final int getSafeMenuId() {
+    protected static int getSafeMenuId() {
         return sOrdinal.getAndIncrement();
     }
 

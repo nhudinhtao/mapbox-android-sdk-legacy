@@ -13,6 +13,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.Charset;
 
+/**
+ * @deprecated
+ * NOT NEEDED FOR KMT !!!
+ */
 public class BingTileLayer extends WebSourceTileLayer {
 
     public static String TAG = "BingTileLayer";

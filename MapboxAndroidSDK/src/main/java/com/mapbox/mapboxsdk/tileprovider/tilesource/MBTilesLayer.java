@@ -77,7 +77,7 @@ public class MBTilesLayer extends TileLayer implements MapViewConstants, MapboxC
      * @param path
      * @return the filename of the backing mbtiles file
      */
-    private static final String getFileName(final String path) {
+    private static String getFileName(final String path) {
         return path.substring(path.lastIndexOf('/') + 1, path.lastIndexOf('.'));
     }
 

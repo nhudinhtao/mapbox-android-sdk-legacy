@@ -9,6 +9,8 @@ import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.constants.MathConstants;
 import com.mapbox.mapboxsdk.exceptions.MissingTokenException;
 
+import java.util.Locale;
+
 public class MapboxUtils implements MapboxConstants {
 
     private static final String TAG = "MapboxUtils";
@@ -130,6 +132,6 @@ public class MapboxUtils implements MapboxConstants {
         int x = Double.valueOf(Math.floor(((latLng.getLongitude() + 180.0) / 360.0) * tilesPerSide)).intValue();
         int y = Double.valueOf(Math.floor((1.0 - (Math.log(Math.tan(latLng.getLatitude() * MathConstants.PI / 180.0) + 1.0 / Math.cos(latLng.getLatitude() * MathConstants.PI / 180.0)) / MathConstants.PI)) / 2.0 * tilesPerSide)).intValue();
 
-        return String.format("%d/%d/%d", zoom, x, y);
+        return String.format(Locale.ENGLISH, "%d/%d/%d", zoom, x, y);
     }
 }
