@@ -30,11 +30,46 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
  * see {@link MapTile} for an overview of how tiles are acquired by this overlay.
  */
 
-public class TilesOverlay extends SafeDrawOverlay {
+public class TilesOverlay extends SafeDrawOverlay
+{
+	// Constants
+	// =================================================================================================================================================================================================
 
     private static final String TAG = "TilesOverlay";
 
     public static final int MENU_OFFLINE = getSafeMenuId();
+
+	// Static Vars
+	// =================================================================================================================================================================================================
+
+	/* to avoid allocations during draw */
+	protected static SafePaint mDebugPaint = null;
+	protected static SafePaint mLoadingTilePaint = null;
+	protected static Bitmap mLoadingTileBitmap = null;
+
+	// Static Methods
+	// =================================================================================================================================================================================================
+
+	/**
+	 *
+	 * @return
+	 */
+	public static SafePaint getDebugPaint()
+	{
+		if (mDebugPaint == null)
+		{
+			mDebugPaint = new SafePaint();
+			mDebugPaint.setAntiAlias(true);
+			mDebugPaint.setFilterBitmap(true);
+			mDebugPaint.setColor(Color.RED);
+			mDebugPaint.setStyle(Paint.Style.STROKE);
+		}
+		return mDebugPaint;
+	}
+
+	// Instance Vars
+	// =================================================================================================================================================================================================
+
     private int mNuberOfTiles;
 
     /**
@@ -42,10 +77,6 @@ public class TilesOverlay extends SafeDrawOverlay {
      */
     protected final MapTileLayerBase mTileProvider;
 
-    /* to avoid allocations during draw */
-    protected static SafePaint mDebugPaint = null;
-    protected static SafePaint mLoadingTilePaint = null;
-    protected static Bitmap mLoadingTileBitmap = null;
     protected Paint mLoadingPaint = null;
     private final Rect mTileRect = new Rect();
     private final Rect mViewPort = new Rect();
@@ -61,15 +92,25 @@ public class TilesOverlay extends SafeDrawOverlay {
     private int mLoadingLineColor = Color.rgb(200, 192, 192);
     private boolean mDrawLoadingTile = true;
 
-    public TilesOverlay(final MapTileLayerBase aTileProvider) {
+	// Constructors
+	// =================================================================================================================================================================================================
+
+	/**
+	 *
+	 * @param aTileProvider
+	 */
+    public TilesOverlay(final MapTileLayerBase aTileProvider)
+	{
         super();
-        if (aTileProvider == null) {
+
+        if (aTileProvider == null)
             throw new IllegalArgumentException("You must pass a valid tile provider to the tiles overlay.");
-        }
+
         this.mTileProvider = aTileProvider;
-        if (UtilConstants.DEBUGMODE) {
+
+		if (UtilConstants.DEBUGMODE)
             getDebugPaint();
-        }
+
         mLoadingPaint = new Paint();
         mLoadingPaint.setAntiAlias(true);
         mLoadingPaint.setFilterBitmap(true);
@@ -78,29 +119,15 @@ public class TilesOverlay extends SafeDrawOverlay {
         mNuberOfTiles = 0;
     }
 
-    public static SafePaint getDebugPaint() {
-        if (mDebugPaint == null) {
-            mDebugPaint = new SafePaint();
-            mDebugPaint.setAntiAlias(true);
-            mDebugPaint.setFilterBitmap(true);
-            mDebugPaint.setColor(Color.RED);
-            mDebugPaint.setStyle(Paint.Style.STROKE);
-        }
-        return mDebugPaint;
-    }
+	// Public Methods
+	// =================================================================================================================================================================================================
 
     @Override
-    public void onDetach(final MapView pMapView) {
-        this.mTileProvider.detach();
-    }
+    public void onDetach(final MapView pMapView) { this.mTileProvider.detach(); }
 
-    public float getMinimumZoomLevel() {
-        return mTileProvider.getMinimumZoomLevel();
-    }
+    public float getMinimumZoomLevel() { return mTileProvider.getMinimumZoomLevel(); }
 
-    public float getMaximumZoomLevel() {
-        return mTileProvider.getMaximumZoomLevel();
-    }
+    public float getMaximumZoomLevel() { return mTileProvider.getMaximumZoomLevel(); }
 
     /**
      * Whether to use the network connection if it's available.
@@ -122,11 +149,11 @@ public class TilesOverlay extends SafeDrawOverlay {
     }
 
     @Override
-    protected void drawSafe(final ISafeCanvas c, final MapView mapView, final boolean shadow) {
-
-        if (shadow) {
+    protected void drawSafe(final ISafeCanvas c, final MapView mapView, final boolean shadow)
+	{
+        if (shadow)
             return;
-        }
+
         //Commented for now. It needs heavy testing to see if we actually need it
         isAnimating = mapView.isAnimating();
 
@@ -141,22 +168,24 @@ public class TilesOverlay extends SafeDrawOverlay {
 
         int tileSize = Projection.getTileSize();
         // Draw the tiles!
-        if (tileSize > 0) {
-            if (mDrawLoadingTile) {
+        if (tileSize > 0)
+		{
+            if (mDrawLoadingTile)
                 drawLoadingTile(c.getSafeCanvas(), mapView, zoomLevel, mClipRect);
-            }
+
             drawTiles(c.getSafeCanvas(), zoomLevel, tileSize, mViewPort, mClipRect);
         }
 
-        if (UtilConstants.DEBUGMODE && mapView.getScrollableAreaLimit() != null) {
+        if (UtilConstants.DEBUGMODE && mapView.getScrollableAreaLimit() != null)
+		{
             SafePaint paint = new SafePaint();
             paint.setColor(Color.BLUE);
             paint.setStyle(Paint.Style.STROKE);
             Rect rect = new Rect();
             mapView.getScrollableAreaLimit().round(rect);
-            if (mapView.getScrollableAreaLimit() != null) {
+
+            if (mapView.getScrollableAreaLimit() != null)
                 c.drawRect(rect, paint);
-            }
         }
     }
 
@@ -168,7 +197,8 @@ public class TilesOverlay extends SafeDrawOverlay {
      * @param zoomLevel
      * @param viewPort
      */
-    public void drawLoadingTile(final Canvas c, final MapView mapView, final float zoomLevel, final Rect viewPort) {
+    public void drawLoadingTile(final Canvas c, final MapView mapView, final float zoomLevel, final Rect viewPort)
+	{
         ISafeCanvas canvas = (ISafeCanvas) c;
         canvas.save();
         canvas.translate(-mapView.getScrollX(), -mapView.getScrollY());
@@ -182,63 +212,69 @@ public class TilesOverlay extends SafeDrawOverlay {
      * than the upper-left corner). Once the tile is ready to be drawn, it is passed to
      * onTileReadyToDraw where custom manipulations can be made before drawing the tile.
      */
-    public void drawTiles(final Canvas c, final float zoomLevel, final int tileSizePx,
-                          final Rect viewPort, final Rect pClipRect) {
-
+    public void drawTiles(final Canvas c, final float zoomLevel, final int tileSizePx, final Rect viewPort, final Rect pClipRect)
+	{
         mNuberOfTiles = mTileLooper.loop(c, mTileProvider.getCacheKey(), zoomLevel, tileSizePx, viewPort, pClipRect);
 
         // draw a cross at center in debug mode
-        if (UtilConstants.DEBUGMODE) {
+        if (UtilConstants.DEBUGMODE)
+		{
             ISafeCanvas canvas = (ISafeCanvas) c;
-            final Point centerPoint =
-                    new Point(viewPort.centerX() - mWorldSize_2, viewPort.centerY() - mWorldSize_2);
-            canvas.drawLine(centerPoint.x, centerPoint.y - 9, centerPoint.x, centerPoint.y + 9,
-                    getDebugPaint());
-            canvas.drawLine(centerPoint.x - 9, centerPoint.y, centerPoint.x + 9, centerPoint.y,
-                    getDebugPaint());
+            final Point centerPoint = new Point(viewPort.centerX() - mWorldSize_2, viewPort.centerY() - mWorldSize_2);
+            canvas.drawLine(centerPoint.x, centerPoint.y - 9, centerPoint.x, centerPoint.y + 9, getDebugPaint());
+            canvas.drawLine(centerPoint.x - 9, centerPoint.y, centerPoint.x + 9, centerPoint.y, getDebugPaint());
         }
     }
 
-    private final TileLooper mTileLooper = new TileLooper() {
+    private final TileLooper mTileLooper = new TileLooper()
+	{
         @Override
-        public void initializeLoop(final float pZoomLevel, final int pTileSizePx) {
-
+        public void initializeLoop(final float pZoomLevel, final int pTileSizePx)
+		{
             final int roundedZoom = (int) Math.floor(pZoomLevel);
-            if (roundedZoom != pZoomLevel) {
+            if (roundedZoom != pZoomLevel)
+			{
                 final int mapTileUpperBound = 1 << roundedZoom;
-                mCurrentZoomFactor =
-                        (float) Projection.mapSize(pZoomLevel) / mapTileUpperBound / pTileSizePx;
-            } else {
+                mCurrentZoomFactor = (float) Projection.mapSize(pZoomLevel) / mapTileUpperBound / pTileSizePx;
+            }
+			else
+			{
                 mCurrentZoomFactor = 1.0f;
             }
         }
 
         @Override
-        public void handleTile(final Canvas pCanvas, final String pCacheKey, final int pTileSizePx,
-                               final MapTile pTile, final int pX, final int pY, final Rect pClipRect) {
+        public void handleTile(final Canvas pCanvas, final String pCacheKey, final int pTileSizePx, final MapTile pTile, final int pX, final int pY, final Rect pClipRect)
+		{
             final double factor = pTileSizePx * mCurrentZoomFactor;
             double x = pX * factor - mWorldSize_2;
             double y = pY * factor - mWorldSize_2;
+
             mTileRect.set((int) x, (int) y, (int) (x + factor), (int) (y + factor));
-            if (!Rect.intersects(mTileRect, pClipRect)) {
-                return;
-            }
-            pTile.setTileRect(mTileRect);
+
+			if (!Rect.intersects(mTileRect, pClipRect))
+			    return;
+
+			pTile.setTileRect(mTileRect);
             Drawable drawable = mTileProvider.getMapTile(pTile, !isAnimating);
             boolean isReusable = drawable instanceof CacheableBitmapDrawable;
 
-            if (drawable != null) {
-                if (isReusable) {
+            if (drawable != null)
+			{
+                if (isReusable)
                     mBeingUsedDrawables.add((CacheableBitmapDrawable) drawable);
-                }
+
                 drawable.setBounds(mTileRect);
                 drawable.draw(pCanvas);
-            } else {
+            }
+			else
+			{
                 mTileProvider.memoryCacheNeedsMoreMemory(mNuberOfTiles);
                 //Log.w(TAG, "tile should have been drawn to canvas, but it was null.  tile = '" + pTile + "'");
             }
 
-            if (UtilConstants.DEBUGMODE) {
+            if (UtilConstants.DEBUGMODE)
+			{
                 ISafeCanvas canvas = (ISafeCanvas) pCanvas;
                 canvas.drawText(pTile.toString(), mTileRect.left + 1, mTileRect.top + getDebugPaint().getTextSize(), getDebugPaint());
                 canvas.drawRect(mTileRect, getDebugPaint());
@@ -246,9 +282,11 @@ public class TilesOverlay extends SafeDrawOverlay {
         }
     };
 
-    public int getLoadingBackgroundColor() {
-        return mLoadingBackgroundColor;
-    }
+	/**
+	 *
+	 * @return
+	 */
+    public int getLoadingBackgroundColor() { return mLoadingBackgroundColor; }
 
     /**
      * Set the color to use to draw the background while we're waiting for the tile to load.
@@ -257,19 +295,32 @@ public class TilesOverlay extends SafeDrawOverlay {
      *                                then there will be no
      *                                loading tile.
      */
-    public void setLoadingBackgroundColor(final int pLoadingBackgroundColor) {
-        if (mLoadingBackgroundColor != pLoadingBackgroundColor) {
+    public void setLoadingBackgroundColor(final int pLoadingBackgroundColor)
+	{
+        if (mLoadingBackgroundColor != pLoadingBackgroundColor)
+		{
             mLoadingBackgroundColor = pLoadingBackgroundColor;
             clearLoadingTile();
         }
     }
 
-    public int getLoadingLineColor() {
+	/**
+	 *
+	 * @return
+	 */
+    public int getLoadingLineColor()
+	{
         return mLoadingLineColor;
     }
 
-    public void setLoadingLineColor(final int pLoadingLineColor) {
-        if (mLoadingLineColor != pLoadingLineColor) {
+	/**
+	 *
+	 * @param pLoadingLineColor
+	 */
+    public void setLoadingLineColor(final int pLoadingLineColor)
+	{
+        if (mLoadingLineColor != pLoadingLineColor)
+		{
             mLoadingLineColor = pLoadingLineColor;
             mLoadingPaint.setColor(mLoadingLineColor);
             clearLoadingTile();
@@ -281,31 +332,71 @@ public class TilesOverlay extends SafeDrawOverlay {
      * If it shouldn't be, then a transparent background will be displayed.
      * @param pDrawLoadingTile True if loading tiles should be displayed (default), False if not (aka: transparent background)
      */
-    public void setDrawLoadingTile(final boolean pDrawLoadingTile) {
+    public void setDrawLoadingTile(final boolean pDrawLoadingTile)
+	{
         this.mDrawLoadingTile = pDrawLoadingTile;
     }
+
+	/**
+	 * Recreate the cache using scaled versions of the tiles currently in it
+	 *
+	 * @param pNewZoomLevel the zoom level that we need now
+	 * @param pOldZoomLevel the previous zoom level that we should get the tiles to rescale
+	 * @param projection    the projection to compute view port
+	 */
+	public void rescaleCache(final float pNewZoomLevel, final float pOldZoomLevel, final Projection projection)
+	{
+		if (mTileProvider.hasNoSource() || Math.floor(pNewZoomLevel) == Math.floor(pOldZoomLevel) || projection == null || Math.abs(pOldZoomLevel - pNewZoomLevel) > mRescaleZoomDiffMax)
+			return;
+
+		final long startMs = System.currentTimeMillis();
+
+		if (UtilConstants.DEBUGMODE)
+			Log.d(TAG, "rescale tile cache from " + pOldZoomLevel + " to " + pNewZoomLevel);
+
+		final int tileSize = Projection.getTileSize();
+		final Rect viewPort = GeometryMath.viewPortRectForTileDrawing(pNewZoomLevel, projection, null);
+
+		final ScaleTileLooper tileLooper = pNewZoomLevel > pOldZoomLevel ? new ZoomInTileLooper(pOldZoomLevel) : new ZoomOutTileLooper(pOldZoomLevel);
+		tileLooper.loop(null, mTileProvider.getCacheKey(), pNewZoomLevel, tileSize, viewPort, null);
+
+		final long endMs = System.currentTimeMillis();
+
+		if (UtilConstants.DEBUGMODE)
+			Log.d(TAG, "Finished rescale in " + (endMs - startMs) + "ms");
+	}
+
+	// Private Methods
+	// =================================================================================================================================================================================================
 
     /**
      * Draw a 'loading' placeholder with a canvas.
      */
-    private SafePaint getLoadingTilePaint() {
-        if (mLoadingTilePaint == null && mLoadingBackgroundColor != Color.TRANSPARENT) {
-            try {
-                final int tileSize =
-                        mTileProvider.getTileSource() != null ? mTileProvider.getTileSource()
-                                .getTileSizePixels() : 256;
-                mLoadingTileBitmap =
-                        Bitmap.createBitmap(tileSize, tileSize, Bitmap.Config.ARGB_8888);
+    private SafePaint getLoadingTilePaint()
+	{
+        if (mLoadingTilePaint == null && mLoadingBackgroundColor != Color.TRANSPARENT)
+		{
+            try
+			{
+                final int tileSize = mTileProvider.getTileSource() != null ? mTileProvider.getTileSource() .getTileSizePixels() : 256;
+                mLoadingTileBitmap = Bitmap.createBitmap(tileSize, tileSize, Bitmap.Config.ARGB_8888);
+
                 final Canvas canvas = new Canvas(mLoadingTileBitmap);
                 canvas.drawColor(mLoadingBackgroundColor);
+
                 final int lineSize = tileSize / 16;
-                for (int a = 0; a < tileSize; a += lineSize) {
+
+                for (int a = 0; a < tileSize; a += lineSize)
+				{
                     canvas.drawLine(0, a, tileSize, a, mLoadingPaint);
                     canvas.drawLine(a, 0, a, tileSize, mLoadingPaint);
                 }
+
                 mLoadingTilePaint = new SafePaint();
                 mLoadingTilePaint.setShader(new BitmapShader(mLoadingTileBitmap, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT));
-            } catch (final OutOfMemoryError e) {
+            }
+			catch (final OutOfMemoryError e)
+			{
                 Log.e(TAG, "OutOfMemoryError getting loading tile: " + e.toString());
                 System.gc();
             }
@@ -313,54 +404,26 @@ public class TilesOverlay extends SafeDrawOverlay {
         return mLoadingTilePaint;
     }
 
-    private void clearLoadingTile() {
+    private void clearLoadingTile()
+	{
         mLoadingTilePaint = null;
         // Only recycle if we are running on a project less than 2.3.3 Gingerbread.
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
-            if (mLoadingTileBitmap != null) {
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD)
+		{
+            if (mLoadingTileBitmap != null)
+			{
                 mLoadingTileBitmap.recycle();
                 mLoadingTileBitmap = null;
             }
         }
     }
 
-    /**
-     * Recreate the cache using scaled versions of the tiles currently in it
-     *
-     * @param pNewZoomLevel the zoom level that we need now
-     * @param pOldZoomLevel the previous zoom level that we should get the tiles to rescale
-     * @param projection    the projection to compute view port
-     */
-    public void rescaleCache(final float pNewZoomLevel, final float pOldZoomLevel,
-                             final Projection projection) {
+	// Inner Classes
+	// =================================================================================================================================================================================================
 
-        if (mTileProvider.hasNoSource() || Math.floor(pNewZoomLevel) == Math.floor(pOldZoomLevel) || projection == null || Math.abs(pOldZoomLevel - pNewZoomLevel) > mRescaleZoomDiffMax) {
-            return;
-        }
-
-        final long startMs = System.currentTimeMillis();
-
-        if (UtilConstants.DEBUGMODE) {
-            Log.d(TAG, "rescale tile cache from " + pOldZoomLevel + " to " + pNewZoomLevel);
-        }
-
-        final int tileSize = Projection.getTileSize();
-        final Rect viewPort =
-                GeometryMath.viewPortRectForTileDrawing(pNewZoomLevel, projection, null);
-
-        final ScaleTileLooper tileLooper =
-                pNewZoomLevel > pOldZoomLevel ? new ZoomInTileLooper(pOldZoomLevel)
-                        : new ZoomOutTileLooper(pOldZoomLevel);
-        tileLooper.loop(null, mTileProvider.getCacheKey(), pNewZoomLevel, tileSize, viewPort, null);
-
-        final long endMs = System.currentTimeMillis();
-        if (UtilConstants.DEBUGMODE) {
-            Log.d(TAG, "Finished rescale in " + (endMs - startMs) + "ms");
-        }
-    }
-
-    private abstract class ScaleTileLooper extends TileLooper {
-
+    private abstract class ScaleTileLooper extends TileLooper
+	{
         /**
          * new (scaled) tiles to add to cache
          * NB first generate all and then put all in cache,
@@ -377,81 +440,96 @@ public class TilesOverlay extends SafeDrawOverlay {
         protected Rect mDestRect;
         protected Paint mDebugPaint;
 
-        public ScaleTileLooper(final float pOldZoomLevel) {
+		/**
+		 *
+		 * @param pOldZoomLevel
+		 */
+        public ScaleTileLooper(final float pOldZoomLevel)
+		{
             mOldZoomLevel = pOldZoomLevel;
             mOldZoomRound = (int) Math.floor(mOldZoomLevel);
             mOldTileUpperBound = 1 << mOldZoomRound;
-            mNewTiles = new HashMap<MapTile, Bitmap>();
+            mNewTiles = new HashMap<>();
             mSrcRect = new Rect();
             mDestRect = new Rect();
             mDebugPaint = new Paint();
         }
 
         @Override
-        public void initializeLoop(final float pZoomLevel, final int pTileSizePx) {
+        public void initializeLoop(final float pZoomLevel, final int pTileSizePx)
+		{
             mDiff = (float) Math.abs(Math.floor(pZoomLevel) - Math.floor(mOldZoomLevel));
             mTileSize_2 = (int) GeometryMath.rightShift(pTileSizePx, mDiff);
         }
 
         @Override
-        public void handleTile(final Canvas pCanvas, final String pCacheKey, final int pTileSizePx,
-                               final MapTile pTile, final int pX, final int pY, final Rect pClipRect) {
-
+        public void handleTile(final Canvas pCanvas, final String pCacheKey, final int pTileSizePx, final MapTile pTile, final int pX, final int pY, final Rect pClipRect)
+		{
             // Get tile from cache.
             // If it's found then no need to created scaled version.
             // If not found (null) them we've initiated a new request for it,
             // and now we'll create a scaled version until the request completes.
             final Drawable requestedTile = mTileProvider.getMapTile(pTile, !isAnimating);
-            if (requestedTile == null) {
-                try {
+
+            if (requestedTile == null)
+			{
+                try
+				{
                     handleScaleTile(pCacheKey, pTileSizePx, pTile, pX, pY);
-                } catch (final OutOfMemoryError e) {
+                }
+				catch (final OutOfMemoryError e)
+				{
                     Log.e(TAG, "OutOfMemoryError rescaling cache");
                 }
             }
         }
 
         @Override
-        public void finalizeLoop() {
+        public void finalizeLoop()
+		{
             super.finalizeLoop();
             // now add the new ones, pushing out the old ones
-            while (!mNewTiles.isEmpty()) {
-
+            while (!mNewTiles.isEmpty())
+			{
                 final MapTile tile = mNewTiles.keySet().iterator().next();
                 final Bitmap bitmap = mNewTiles.remove(tile);
                 mTileProvider.putExpiredTileIntoCache(tile, bitmap);
             }
         }
 
-        protected abstract void handleScaleTile(final String pCacheKey, final int pTileSizePx,
-                                                final MapTile pTile, final int pX, final int pY);
+        protected abstract void handleScaleTile(final String pCacheKey, final int pTileSizePx, final MapTile pTile, final int pX, final int pY);
     }
 
-    private class ZoomInTileLooper extends ScaleTileLooper {
-        public ZoomInTileLooper(final float pOldZoomLevel) {
+    private class ZoomInTileLooper extends ScaleTileLooper
+	{
+        public ZoomInTileLooper(final float pOldZoomLevel)
+		{
             super(pOldZoomLevel);
         }
 
         @Override
-        public void handleScaleTile(final String pCacheKey, final int pTileSizePx,
-                                    final MapTile pTile, final int pX, final int pY) {
+        public void handleScaleTile(final String pCacheKey, final int pTileSizePx, final MapTile pTile, final int pX, final int pY)
+		{
             int oldTileX = GeometryMath.mod((int) GeometryMath.rightShift(pX, mDiff), mOldTileUpperBound);
             int oldTileY = GeometryMath.mod((int) GeometryMath.rightShift(pY, mDiff), mOldTileUpperBound);
 
             // get the correct fraction of the tile from cache and scale up
-            final MapTile oldTile = new MapTile(pCacheKey,
-                    mOldZoomRound, oldTileX, oldTileY);
+            final MapTile oldTile = new MapTile(pCacheKey, mOldZoomRound, oldTileX, oldTileY);
             final Drawable oldDrawable = mTileProvider.getMapTileFromMemory(oldTile);
 
-            if (oldDrawable instanceof BitmapDrawable) {
+            if (oldDrawable instanceof BitmapDrawable)
+			{
                 final boolean isReusable = oldDrawable instanceof CacheableBitmapDrawable;
-                if (isReusable) {
+
+                if (isReusable)
+				{
                     ((CacheableBitmapDrawable) oldDrawable).setBeingUsed(true);
                     mBeingUsedDrawables.add((CacheableBitmapDrawable) oldDrawable);
                 }
 
                 final Bitmap oldBitmap = ((BitmapDrawable) oldDrawable).getBitmap();
-                if (oldBitmap != null) {
+                if (oldBitmap != null)
+				{
                     final int xx = (pX % (int) GeometryMath.leftShift(1, mDiff)) * mTileSize_2;
                     final int yy = (pY % (int) GeometryMath.leftShift(1, mDiff)) * mTileSize_2;
                     mSrcRect.set(xx, yy, xx + mTileSize_2, yy + mTileSize_2);
@@ -460,31 +538,34 @@ public class TilesOverlay extends SafeDrawOverlay {
                     // Try to get a bitmap from the pool, otherwise allocate a new one
                     Bitmap bitmap = mTileProvider.getBitmapFromRemoved(pTileSizePx, pTileSizePx);
 
-                    if (bitmap == null) {
+                    if (bitmap == null)
                         bitmap = Bitmap.createBitmap(pTileSizePx, pTileSizePx, Bitmap.Config.ARGB_8888);
-                    }
-                    final Canvas canvas = new Canvas(bitmap);
-                    canvas.drawBitmap(oldBitmap, mSrcRect, mDestRect, null);
-                    mNewTiles.put(pTile, bitmap);
+
+					if (bitmap != null)
+					{
+						final Canvas canvas = new Canvas(bitmap);
+						canvas.drawBitmap(oldBitmap, mSrcRect, mDestRect, null);
+						mNewTiles.put(pTile, bitmap);
+					}
                 }
             }
         }
     }
 
-    private class ZoomOutTileLooper extends ScaleTileLooper {
+    private class ZoomOutTileLooper extends ScaleTileLooper
+	{
         private static final int MAX_ZOOM_OUT_DIFF = 8;
 
-        public ZoomOutTileLooper(final float pOldZoomLevel) {
+        public ZoomOutTileLooper(final float pOldZoomLevel)
+		{
             super(pOldZoomLevel);
         }
 
         @Override
-        protected void handleScaleTile(final String pCacheKey, final int pTileSizePx,
-                                       final MapTile pTile, final int pX, final int pY) {
-
-            if (mDiff >= MAX_ZOOM_OUT_DIFF) {
+        protected void handleScaleTile(final String pCacheKey, final int pTileSizePx, final MapTile pTile, final int pX, final int pY)
+		{
+            if (mDiff >= MAX_ZOOM_OUT_DIFF)
                 return;
-            }
 
             // get many tiles from cache and make one tile from them
             final int xx = (int) GeometryMath.leftShift(pX, mDiff);
@@ -494,43 +575,54 @@ public class TilesOverlay extends SafeDrawOverlay {
             int oldTileX, oldTileY;
             Bitmap bitmap = null;
             Canvas canvas = null;
-            for (int x = 0; x < numTiles; x++) {
-                for (int y = 0; y < numTiles; y++) {
+
+            for (int x = 0; x < numTiles; x++)
+			{
+                for (int y = 0; y < numTiles; y++)
+				{
                     oldTileY = GeometryMath.mod(yy + y, mOldTileUpperBound);
                     oldTileX = GeometryMath.mod(xx + x, mOldTileUpperBound);
-                    final MapTile oldTile = new MapTile(pCacheKey,
-                            mOldZoomRound, oldTileX, oldTileY);
+
+                    final MapTile oldTile = new MapTile(pCacheKey, mOldZoomRound, oldTileX, oldTileY);
                     Drawable oldDrawable = mTileProvider.getMapTileFromMemory(oldTile);
 
-                    if (oldDrawable instanceof BitmapDrawable) {
+                    if (oldDrawable instanceof BitmapDrawable)
+					{
                         final boolean isReusable = oldDrawable instanceof CacheableBitmapDrawable;
-                        if (isReusable) {
+
+						if (isReusable)
+						{
                             ((CacheableBitmapDrawable) oldDrawable).setBeingUsed(true);
                             mBeingUsedDrawables.add((CacheableBitmapDrawable) oldDrawable);
                         }
-                        final Bitmap oldBitmap = ((BitmapDrawable) oldDrawable).getBitmap();
-                        if (oldBitmap != null) {
-                            if (bitmap == null) {
+
+						final Bitmap oldBitmap = ((BitmapDrawable) oldDrawable).getBitmap();
+
+						if (oldBitmap != null)
+						{
+                            if (bitmap == null)
+							{
                                 // Try to get a bitmap from the pool, otherwise allocate a new one
-                                bitmap = mTileProvider.getBitmapFromRemoved(pTileSizePx,
-                                        pTileSizePx);
-                                if (bitmap == null) {
-                                    bitmap = Bitmap.createBitmap(pTileSizePx, pTileSizePx,
-                                            Bitmap.Config.ARGB_8888);
-                                }
-                                canvas = new Canvas(bitmap);
+                                bitmap = mTileProvider.getBitmapFromRemoved(pTileSizePx, pTileSizePx);
+
+                                if (bitmap == null)
+								    bitmap = Bitmap.createBitmap(pTileSizePx, pTileSizePx, Bitmap.Config.ARGB_8888);
+
+								if (bitmap != null)
+									canvas = new Canvas(bitmap);
                             }
-                            mDestRect.set(x * mTileSize_2, y * mTileSize_2, (x + 1) * mTileSize_2,
-                                    (y + 1) * mTileSize_2);
-                            canvas.drawBitmap(oldBitmap, null, mDestRect, null);
+
+                            mDestRect.set(x * mTileSize_2, y * mTileSize_2, (x + 1) * mTileSize_2, (y + 1) * mTileSize_2);
+
+							if (canvas != null)
+                            	canvas.drawBitmap(oldBitmap, null, mDestRect, null);
                         }
                     }
                 }
             }
 
-            if (bitmap != null) {
+            if (bitmap != null)
                 mNewTiles.put(pTile, bitmap);
-            }
         }
     }
 }
