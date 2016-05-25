@@ -186,9 +186,8 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
      *                 type
      *                 of baselayer
      */
-    protected MapView(final Context aContext, final int tileSizePixels,
-                      MapTileLayerBase tileProvider, final Handler tileRequestCompleteHandler,
-                      final AttributeSet attrs) {
+    protected MapView(final Context aContext, final int tileSizePixels, MapTileLayerBase tileProvider, final Handler tileRequestCompleteHandler, final AttributeSet attrs)
+	{
         super(aContext, attrs);
         setWillNotDraw(false);
         mLayedOut = false;
@@ -201,9 +200,7 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
             tileProvider = new MapTileLayerBasic(aContext, null, this);
         }
 
-        mTileRequestCompleteHandler =
-                tileRequestCompleteHandler == null ? new SimpleInvalidationHandler(this)
-                        : tileRequestCompleteHandler;
+        mTileRequestCompleteHandler = tileRequestCompleteHandler == null ? new SimpleInvalidationHandler(this) : tileRequestCompleteHandler;
         mTileProvider = tileProvider;
         mTileProvider.setTileRequestCompleteHandler(mTileRequestCompleteHandler);
 

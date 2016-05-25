@@ -10,7 +10,8 @@ import com.mapbox.mapboxsdk.views.MapView;
 /**
  * A base class for tile layers to built, this is a simple collection of tile sources.
  */
-public class MapTileLayerBasic extends MapTileLayerArray implements IMapTileProviderCallback {
+public class MapTileLayerBasic extends MapTileLayerArray implements IMapTileProviderCallback
+{
     Context mContext;
     MapView mMapView;
 
@@ -19,18 +20,18 @@ public class MapTileLayerBasic extends MapTileLayerArray implements IMapTileProv
      * @param pTileSource
      * @param mapView
      */
-    public MapTileLayerBasic(final Context pContext, final ITileLayer pTileSource,
-            MapView mapView) {
+    public MapTileLayerBasic(final Context pContext, final ITileLayer pTileSource, MapView mapView)
+	{
         super(pContext, pTileSource, new SimpleRegisterReceiver(pContext));
         this.mContext = pContext;
         this.mMapView = mapView;
 
         this.setTileRequestCompleteHandler(mMapView.getTileRequestCompleteHandler());
 
-        final MapTileDownloader downloaderProvider =
-                new MapTileDownloader(pTileSource, mTileCache, mNetworkAvailabilityCheck, mMapView);
+        final MapTileDownloader downloaderProvider = new MapTileDownloader(pTileSource, mTileCache, mNetworkAvailabilityCheck, mMapView);
 
-        for (MapTileModuleLayerBase provider : mTileProviderList) {
+        for (MapTileModuleLayerBase provider : mTileProviderList)
+		{
             if (provider.getClass().isInstance(MapTileDownloader.class)) {
                 mTileProviderList.remove(provider);
             }

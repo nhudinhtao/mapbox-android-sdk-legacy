@@ -13,16 +13,15 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 /**
  * A class that will loop around all the map tiles in the given viewport.
  */
-public abstract class TileLooper {
-
+public abstract class TileLooper
+{
     protected final Point mUpperLeft = new Point();
     protected final Point mLowerRight = new Point();
     protected final Point center = new Point();
-    protected List<CacheableBitmapDrawable> mBeingUsedDrawables =
-            new ArrayList<CacheableBitmapDrawable>();
+    protected List<CacheableBitmapDrawable> mBeingUsedDrawables = new ArrayList<CacheableBitmapDrawable>();
 
-    public final int loop(final Canvas pCanvas, final String pCacheKey, final float pZoomLevel,
-            final int pTileSizePx, final Rect pViewPort, final Rect pClipRect) {
+    public final int loop(final Canvas pCanvas, final String pCacheKey, final float pZoomLevel, final int pTileSizePx, final Rect pViewPort, final Rect pClipRect)
+	{
         // Calculate the amount of tiles needed for each side around the center one.
         Projection.pixelXYToTileXY(pViewPort.left, pViewPort.top, mUpperLeft);
         mUpperLeft.offset(-1, -1);
@@ -54,10 +53,10 @@ public abstract class TileLooper {
 
     public abstract void initializeLoop(float pZoomLevel, int pTileSizePx);
 
-    public abstract void handleTile(Canvas pCanvas, final String pCacheKey, int pTileSizePx,
-            MapTile pTile, int pX, int pY, final Rect pClipRect);
+    public abstract void handleTile(Canvas pCanvas, final String pCacheKey, int pTileSizePx, MapTile pTile, int pX, int pY, final Rect pClipRect);
 
-    public void finalizeLoop() {
+    public void finalizeLoop()
+	{
         //we delay just to make sure drawable bitmaps are not reused while being drawn.
         (new Handler()).postDelayed(new Runnable() {
             @Override

@@ -24,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Looper;
 import android.os.Process;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.jakewharton.disklrucache.DiskLruCache;
@@ -215,7 +216,8 @@ public class BitmapLruCache {
      * @return {@code true} if the Memory Cache is enabled and contains the specified URL, {@code
      *         false} otherwise.
      */
-    public boolean containsInMemoryCache(String url) {
+    public boolean containsInMemoryCache(String url)
+	{
         return null != mMemoryCache && null != mMemoryCache.get(url);
     }
 
@@ -224,7 +226,10 @@ public class BitmapLruCache {
      * have the disk cache enabled, you should not call this method from main/UI thread.
      *
      * @param url - String representing the URL of the image
+	 * @return
+	 * can be null
      */
+	@Nullable
     public CacheableBitmapDrawable get(String url) {
         return get(url, null);
     }
@@ -235,14 +240,20 @@ public class BitmapLruCache {
      *
      * @param url        - String representing the URL of the image
      * @param decodeOpts - Options used for decoding the contents from the disk cache only.
+	 *
+	 * @return
+	 * can be null
      */
-    public CacheableBitmapDrawable get(String url, BitmapFactory.Options decodeOpts) {
+	@Nullable
+    public CacheableBitmapDrawable get(String url, BitmapFactory.Options decodeOpts)
+	{
         CacheableBitmapDrawable result;
 
         // First try Memory Cache
         result = getFromMemoryCache(url);
 
-        if (null == result) {
+        if (null == result)
+		{
             // Memory Cache failed, so try Disk Cache
             result = getFromDiskCache(url, decodeOpts);
         }
@@ -261,29 +272,38 @@ public class BitmapLruCache {
      * @return Value for {@code url} from disk cache, or {@code null} if the disk cache is not
      *         enabled.
      */
-    public CacheableBitmapDrawable getFromDiskCache(final String url,
-            final BitmapFactory.Options decodeOpts) {
+	@Nullable
+    public CacheableBitmapDrawable getFromDiskCache(final String url, final BitmapFactory.Options decodeOpts)
+	{
         CacheableBitmapDrawable result = null;
 
-        if (null != mDiskCache) {
+        if (null != mDiskCache)
+		{
             checkNotOnMainThread();
 
-            try {
+            try
+			{
                 final String key = transformUrlForDiskCacheKey(url);
                 // Try and decode bitmap
                 result = decodeBitmapToDrawable(new SnapshotInputStreamProvider(key), url, decodeOpts);
 
-                if (null != result) {
-                    if (null != mMemoryCache) {
+                if (null != result)
+				{
+                    if (null != mMemoryCache)
+					{
                         mMemoryCache.put(result);
                     }
-                } else {
+                }
+				else
+				{
                     // If we get here, the file in the cache can't be
                     // decoded. Remove it and schedule a flush.
                     mDiskCache.remove(key);
                     scheduleDiskCacheFlush();
                 }
-            } catch (IOException e) {
+            }
+			catch (IOException e)
+			{
                 e.printStackTrace();
             }
         }
@@ -300,15 +320,20 @@ public class BitmapLruCache {
      * @return Value for {@code url} from memory cache, or {@code null} if the disk cache is not
      *         enabled.
      */
-    public CacheableBitmapDrawable getFromMemoryCache(final String url) {
+	@Nullable
+    public CacheableBitmapDrawable getFromMemoryCache(final String url)
+	{
         CacheableBitmapDrawable result = null;
 
-        if (null != mMemoryCache) {
-            synchronized (mMemoryCache) {
+        if (null != mMemoryCache)
+		{
+            synchronized (mMemoryCache)
+			{
                 result = mMemoryCache.get(url);
 
                 // If we get a value, but it has a invalid bitmap, remove it
-                if (null != result && !result.isBitmapValid()) {
+                if (null != result && !result.isBitmapValid())
+				{
                     mMemoryCache.remove(url);
                     result = null;
                 }
@@ -318,10 +343,13 @@ public class BitmapLruCache {
         return result;
     }
 
-
-    public Bitmap getBitmapFromRemoved(final int width, final int height) {
-        if (null != mMemoryCache) {
-            synchronized (mMemoryCache) {
+	@Nullable
+    public Bitmap getBitmapFromRemoved(final int width, final int height)
+	{
+        if (null != mMemoryCache)
+		{
+            synchronized (mMemoryCache)
+			{
                 return mMemoryCache.getBitmapFromRemoved(width, height);
             }
         }

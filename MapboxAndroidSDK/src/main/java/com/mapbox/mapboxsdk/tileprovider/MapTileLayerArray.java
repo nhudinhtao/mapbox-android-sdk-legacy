@@ -2,6 +2,8 @@ package com.mapbox.mapboxsdk.tileprovider;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
+
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.tileprovider.modules.MapTileModuleLayerBase;
@@ -30,8 +32,8 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
  *
  * @author Marc Kurtz
  */
-public class MapTileLayerArray extends MapTileLayerBase {
-
+public class MapTileLayerArray extends MapTileLayerBase
+{
     protected final HashMap<MapTile, MapTileRequestState> mWorking;
 
     protected final List<MapTileModuleLayerBase> mTileProviderList;
@@ -111,8 +113,10 @@ public class MapTileLayerArray extends MapTileLayerBase {
         return false;
     }
 
+	@Nullable
     @Override
-    public Drawable getMapTile(final MapTile pTile, final boolean allowRemote) {
+    public Drawable getMapTile(final MapTile pTile, final boolean allowRemote)
+	{
         //       Log.d(TAG, "getMapTile() with pTile (CacheKey) = '" + pTile.getCacheKey() + "'; allowRemote = '" + allowRemote + "'");
         if (tileUnavailable(pTile)) {
 //            Log.d(TAG, "MapTileLayerArray.getMapTile() tileUnavailable: " + pTile);
@@ -121,28 +125,37 @@ public class MapTileLayerArray extends MapTileLayerBase {
 
         CacheableBitmapDrawable tileDrawable = mTileCache.getMapTileFromMemory(pTile);
 
-        if (tileDrawable != null && tileDrawable.isBitmapValid() && !BitmapUtils.isCacheDrawableExpired(tileDrawable)) {
+        if (tileDrawable != null && tileDrawable.isBitmapValid() && !BitmapUtils.isCacheDrawableExpired(tileDrawable))
+		{
             tileDrawable.setBeingUsed(true);
 //            Log.d(TAG, "Found tile(" + pTile.getCacheKey() + ") in memory, so returning for drawing.");
+
             return tileDrawable;
-        } else if (allowRemote) {
+        }
+		else if (allowRemote)
+		{
 //            Log.d(TAG, "Tile not found in memory so will load from remote.");
             boolean alreadyInProgress = false;
-            synchronized (mWorking) {
+
+			synchronized (mWorking)
+			{
                 alreadyInProgress = mWorking.containsKey(pTile);
             }
 
-            if (!alreadyInProgress) {
+            if (!alreadyInProgress)
+			{
 //                Log.d(TAG, "MapTileLayerArray.getMapTile() requested but not in cache, trying from async providers: " + pTile);
 
                 final MapTileRequestState state;
 
-                synchronized (mTileProviderList) {
+                synchronized (mTileProviderList)
+				{
                     final MapTileModuleLayerBase[] providerArray = new MapTileModuleLayerBase[mTileProviderList.size()];
                     state = new MapTileRequestState(pTile, mTileProviderList.toArray(providerArray), this);
                 }
 
-                synchronized (mWorking) {
+                synchronized (mWorking)
+				{
                     // Check again
                     alreadyInProgress = mWorking.containsKey(pTile);
                     if (alreadyInProgress) {
@@ -152,9 +165,13 @@ public class MapTileLayerArray extends MapTileLayerBase {
                 }
 
                 final MapTileModuleLayerBase provider = findNextAppropriateProvider(state);
-                if (provider != null) {
+
+                if (provider != null)
+				{
                     provider.loadMapTileAsync(state);
-                } else {
+                }
+				else
+				{
                     mapTileRequestFailed(state);
                 }
             }
