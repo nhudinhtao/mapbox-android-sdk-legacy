@@ -22,6 +22,8 @@ import com.mapbox.mapboxsdk.views.safecanvas.ISafeCanvas;
 import com.mapbox.mapboxsdk.views.safecanvas.SafePaint;
 import com.mapbox.mapboxsdk.views.util.Projection;
 import java.util.HashMap;
+import java.util.Iterator;
+
 import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 
 /**
@@ -488,12 +490,18 @@ public class TilesOverlay extends SafeDrawOverlay
         public void finalizeLoop()
 		{
             super.finalizeLoop();
+
             // now add the new ones, pushing out the old ones
-            while (!mNewTiles.isEmpty())
+            while (mNewTiles.isEmpty() == false)
 			{
-                final MapTile tile = mNewTiles.keySet().iterator().next();
-                final Bitmap bitmap = mNewTiles.remove(tile);
-                mTileProvider.putExpiredTileIntoCache(tile, bitmap);
+				Iterator<MapTile> newTilesIterator = mNewTiles.keySet().iterator();
+
+				if (newTilesIterator.hasNext())
+				{
+					final MapTile tile = newTilesIterator.next();
+					final Bitmap bitmap = mNewTiles.remove(tile);
+					mTileProvider.putExpiredTileIntoCache(tile, bitmap);
+				}
             }
         }
 
