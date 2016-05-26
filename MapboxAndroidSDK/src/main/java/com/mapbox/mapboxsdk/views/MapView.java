@@ -23,7 +23,9 @@ import android.view.ViewGroup;
 import android.widget.Scroller;
 
 import com.almeros.android.multitouch.RotateGestureDetector;
+
 import com.cocoahero.android.geojson.FeatureCollection;
+
 import com.mapbox.mapboxsdk.R;
 import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
@@ -76,9 +78,15 @@ import java.util.concurrent.atomic.AtomicInteger;
  * state of a single map, including layers, markers,
  * and interaction code.
  */
-public class MapView extends ViewGroup implements MapViewConstants, MapEventsReceiver, MapboxConstants {
+public class MapView extends ViewGroup implements MapViewConstants, MapEventsReceiver, MapboxConstants
+{
+	// Constants
+	// =================================================================================================================================================================================================
 
     private static final String TAG = "Mapbox MapView";
+
+	// Instance Vars
+	// =================================================================================================================================================================================================
 
     /**
      * The default marker Overlay, automatically added to the view to add markers directly.
@@ -87,7 +95,8 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
     /**
      * List linked to the default marker overlay.
      */
-    private ArrayList<Marker> defaultMarkerList = new ArrayList<Marker>();
+    private ArrayList<Marker> defaultMarkerList = new ArrayList<>();
+
     /**
      * Overlay for basic map touch events.
      */
@@ -95,7 +104,8 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
     /**
      * A copy of the app context.
      */
-    private Context context;
+    private final Context context;
+
     /**
      * Whether or not a marker has been placed already.
      */
@@ -178,6 +188,9 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
     private float mMinZoomForClustering = 22;
     private boolean mShouldDisplayBubble = true;
 
+	// Constructors
+	// =================================================================================================================================================================================================
+
     /**
      * Constructor for XML layout calls. Should not be used programmatically.
      *
@@ -189,6 +202,7 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
     protected MapView(final Context aContext, final int tileSizePixels, MapTileLayerBase tileProvider, final Handler tileRequestCompleteHandler, final AttributeSet attrs)
 	{
         super(aContext, attrs);
+
         setWillNotDraw(false);
         mLayedOut = false;
         mConstraintRegionFit = false;
@@ -196,7 +210,8 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         this.mScroller = new Scroller(aContext);
         Projection.setTileSize(tileSizePixels);
 
-        if (tileProvider == null) {
+        if (tileProvider == null)
+		{
             tileProvider = new MapTileLayerBasic(aContext, null, this);
         }
 
@@ -207,14 +222,11 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         mTilesOverlay = new TilesOverlay(mTileProvider);
         mOverlayManager = new OverlayManager(mTilesOverlay);
 
-        this.mGestureDetector =
-                new GestureDetector(aContext, new MapViewGestureDetectorListener(this));
-
-        this.mScaleGestureDetector =
-                new ScaleGestureDetector(aContext, new MapViewScaleGestureDetectorListener(this));
-        this.mRotateGestureDetector =
-                new RotateGestureDetector(aContext, new MapViewRotateGestureDetectorListener(this));
+        this.mGestureDetector = new GestureDetector(aContext, new MapViewGestureDetectorListener(this));
+        this.mScaleGestureDetector = new ScaleGestureDetector(aContext, new MapViewScaleGestureDetectorListener(this));
+        this.mRotateGestureDetector = new RotateGestureDetector(aContext, new MapViewRotateGestureDetectorListener(this));
         this.context = aContext;
+
         MapboxUtils.setVersionNumber(context.getResources().getString(R.string.mapboxAndroidSDKVersion));
         eventsOverlay = new MapEventsOverlay(aContext, this);
         this.getOverlays().add(eventsOverlay);
@@ -222,28 +234,39 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MapView);
         String mapid = a.getString(R.styleable.MapView_mapid);
         MapboxUtils.setAccessToken(a.getString(R.styleable.MapView_accessToken));
+
         if (!TextUtils.isEmpty(mapid)) {
             setTileSource(new MapboxTileLayer(mapid));
         } else {
             Log.w(TAG, "mapid not set.");
         }
+
         String centerLat = a.getString(R.styleable.MapView_centerLat);
         String centerLng = a.getString(R.styleable.MapView_centerLng);
-        if (centerLat != null && centerLng != null) {
+
+        if (centerLat != null && centerLng != null)
+		{
             double lat, lng;
             lat = Double.parseDouble(centerLat);
             lng = Double.parseDouble(centerLng);
             this.setCenter(new LatLng(lat, lng));
-        } else {
+        }
+		else
+		{
             Log.d(TAG, "centerLatLng is not specified in XML.");
         }
+
         String zoomLvl = a.getString(R.styleable.MapView_zoomLevel);
-        if (zoomLvl != null) {
+        if (zoomLvl != null)
+		{
             float lvl = Float.parseFloat(zoomLvl);
             this.setZoom(lvl);
-        } else {
+        }
+		else
+		{
             Log.d(TAG, "zoomLevel is not specified in XML.");
         }
+
         a.recycle();
     }
 
@@ -258,6 +281,9 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
     protected MapView(Context aContext, int tileSizePixels, MapTileLayerBase aTileProvider) {
         this(aContext, tileSizePixels, aTileProvider, null, null);
     }
+
+	// Public Methods
+	// =================================================================================================================================================================================================
 
     /**
      * Add a new MapListener that observes changes in this map.
@@ -397,7 +423,8 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
      * @param marker the marker object to be added
      * @return the marker object
      */
-    public Marker addMarker(final Marker marker) {
+    public Marker addMarker(final Marker marker)
+	{
         if (firstMarker) {
             defaultMarkerList.add(marker);
             setDefaultItemizedOverlay();
@@ -414,7 +441,8 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         return marker;
     }
 
-    public void addMarkers(final List<Marker> markers) {
+    public void addMarkers(final List<Marker> markers)
+	{
         if (firstMarker) {
             defaultMarkerList.addAll(markers);
             setDefaultItemizedOverlay();

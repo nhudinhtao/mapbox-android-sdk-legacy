@@ -65,7 +65,10 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author Chris Banes
  */
-public class BitmapLruCache {
+public class BitmapLruCache
+{
+	// Constants
+	// =================================================================================================================================================================================================
 
     /**
      * The recycle policy controls if the {@link android.graphics.Bitmap#recycle()} is automatically
@@ -73,7 +76,7 @@ public class BitmapLruCache {
      * Builder#setRecyclePolicy(uk.co.senab.bitmapcache.BitmapLruCache.RecyclePolicy)
      * Builder.setRecyclePolicy()} method.
      */
-    public static enum RecyclePolicy {
+    public enum RecyclePolicy {
         /**
          * The Bitmap is never recycled automatically.
          */
@@ -116,6 +119,9 @@ public class BitmapLruCache {
     // flushed
     static final int DISK_CACHE_FLUSH_DELAY_SECS = 5;
 
+	// Static Methods
+	// =================================================================================================================================================================================================
+
     /**
      * @throws IllegalStateException if the calling thread is the main/UI thread.
      */
@@ -125,6 +131,9 @@ public class BitmapLruCache {
                     "This method should not be called from the main/UI thread.");
         }
     }
+
+	// Static Vars
+	// =================================================================================================================================================================================================
 
     /**
      * The disk cache only accepts a reduced range of characters for the key values. This method
@@ -138,9 +147,11 @@ public class BitmapLruCache {
         return Md5.encode(url);
     }
 
-    private File mTempDir;
+	// Instance Vars
+	// =================================================================================================================================================================================================
 
-    private Resources mResources;
+    private final File mTempDir;
+    private final Resources mResources;
 
     /**
      * Memory Cache Variables
@@ -164,14 +175,23 @@ public class BitmapLruCache {
     // Transient
     private ScheduledFuture<?> mDiskCacheFuture;
 
-    BitmapLruCache(Context context) {
-        if (null != context) {
-            // Make sure we have the application context
-            context = context.getApplicationContext();
+	// Constructor
+	// =================================================================================================================================================================================================
 
-            mTempDir = context.getCacheDir();
-            mResources = context.getResources();
-        }
+	/**
+	 *
+	 * @param context
+	 */
+    BitmapLruCache(Context context)
+	{
+		if (context == null)
+			throw new IllegalArgumentException();
+
+		// Make sure we have the application context
+		context = context.getApplicationContext();
+
+		mTempDir = context.getCacheDir();
+		mResources = context.getResources();
     }
 
     /**
@@ -564,49 +584,64 @@ public class BitmapLruCache {
      *                    disk cache (if enabled).
      * @return CacheableBitmapDrawable which can be used to display the bitmap.
      */ //todo
-    public CacheableBitmapDrawable put(final String url, final InputStream inputStream,
-            final BitmapFactory.Options decodeOpts) {
-        if (inputStream == null) return null;
-        checkNotOnMainThread();
+    public CacheableBitmapDrawable put(final String url, final InputStream inputStream, final BitmapFactory.Options decodeOpts)
+	{
+        if (inputStream == null)
+			return null;
+
+		checkNotOnMainThread();
 
         // First we need to save the stream contents to a temporary file, so it
         // can be read multiple times
         File tmpFile = null;
-        try {
+        try
+		{
             tmpFile = File.createTempFile("bitmapcache_", null, mTempDir);
 
             // Pipe InputStream to file
             IoUtils.copy(inputStream, tmpFile);
-        } catch (IOException e) {
+        }
+		catch (IOException e)
+		{
             Log.e(Constants.LOG_TAG, "Error writing to saving stream to temp file: " + url, e);
         }
 
         CacheableBitmapDrawable d = null;
 
-        if (null != tmpFile) {
+        if (null != tmpFile)
+		{
             // Try and decode File
             d = decodeBitmapToDrawable(new FileInputStreamProvider(tmpFile), url, decodeOpts);
 
-            if (d != null) {
-                if (null != mMemoryCache) {
+            if (d != null)
+			{
+                if (null != mMemoryCache)
+				{
                     d.setCached(true);
-                    synchronized (mMemoryCache) {
+                    synchronized (mMemoryCache)
+					{
                         mMemoryCache.put(d.getUrl(), d);
                     }
                 }
 
-                if (null != mDiskCache) {
+                if (null != mDiskCache)
+				{
                     final String key = transformUrlForDiskCacheKey(url);
                     final ReentrantLock lock = getLockForDiskCacheEdit(url);
                     lock.lock();
 
-                    try {
+                    try
+					{
                         DiskLruCache.Editor editor = mDiskCache.edit(key);
                         IoUtils.copy(tmpFile, editor.newOutputStream(0));
                         editor.commit();
-                    } catch (IOException e) {
+                    }
+					catch (IOException e)
+					{
                         Log.e(Constants.LOG_TAG, "Error writing to disk cache. URL: " + url, e);
-                    } finally {
+                    }
+					finally
+					{
                         lock.unlock();
                         scheduleDiskCacheFlush();
                     }
@@ -624,14 +659,18 @@ public class BitmapLruCache {
      * Removes the entry for {@code url} from all enabled caches, if it exists. <p/> If you have the
      * disk cache enabled, you should not call this method from main/UI thread.
      */
-    public void remove(String url) {
-        if (null != mMemoryCache) {
-            synchronized (mMemoryCache) {
+    public void remove(String url)
+	{
+        if (null != mMemoryCache)
+		{
+            synchronized (mMemoryCache)
+			{
                 mMemoryCache.remove(url);
             }
         }
 
-        if (null != mDiskCache) {
+        if (null != mDiskCache)
+		{
             checkNotOnMainThread();
 
             try {
@@ -646,7 +685,8 @@ public class BitmapLruCache {
     /**
      * Removes the entry for {@code url} from memory, if it exists. <p/>
      */
-    public void removeFromMemoryCache(String url) {
+    public void removeFromMemoryCache(String url)
+	{
         if (null != mMemoryCache) {
             synchronized (mMemoryCache) {
                 mMemoryCache.remove(url);
@@ -657,7 +697,8 @@ public class BitmapLruCache {
     /**
      * Removes the entry for {@code url} from disk cache, if it exists. <p/> You should not call this method from main/UI thread.
      */
-    public void removeFromDiskCache(String url) {
+    public void removeFromDiskCache(String url)
+	{
         if (null != mDiskCache) {
             checkNotOnMainThread();
 
@@ -851,8 +892,8 @@ public class BitmapLruCache {
      *
      * @author Chris Banes
      */
-    public final static class Builder {
-
+    public final static class Builder
+	{
         static final int MEGABYTE = 1024 * 1024;
 
         static final float DEFAULT_MEMORY_CACHE_HEAP_RATIO = 1f / 8f;
@@ -866,8 +907,7 @@ public class BitmapLruCache {
         static final RecyclePolicy DEFAULT_RECYCLE_POLICY = RecyclePolicy.PRE_HONEYCOMB_ONLY;
 
         // Only used for Javadoc
-        static final float DEFAULT_MEMORY_CACHE_HEAP_PERCENTAGE = DEFAULT_MEMORY_CACHE_HEAP_RATIO
-                * 100;
+        static final float DEFAULT_MEMORY_CACHE_HEAP_PERCENTAGE = DEFAULT_MEMORY_CACHE_HEAP_RATIO * 100;
 
         static final float MAX_MEMORY_CACHE_HEAP_PERCENTAGE = MAX_MEMORY_CACHE_HEAP_RATIO * 100;
 
@@ -875,7 +915,7 @@ public class BitmapLruCache {
             return Runtime.getRuntime().maxMemory();
         }
 
-        private Context mContext;
+        private final Context mContext;
 
         private boolean mDiskCacheEnabled;
 
@@ -889,15 +929,15 @@ public class BitmapLruCache {
 
         private RecyclePolicy mRecyclePolicy;
 
-        /**
-         * @deprecated You should now use {@link Builder(Context)}. This is so that we can reliably
-         *             set up correctly.
-         */
-        public Builder() {
-            this(null);
-        }
+		/**
+		 *
+		 * @param context
+		 */
+        public Builder(Context context)
+		{
+			if (context == null)
+				throw new IllegalArgumentException();
 
-        public Builder(Context context) {
             mContext = context;
 
             // Disk Cache is disabled by default, but it's default size is set
@@ -913,21 +953,25 @@ public class BitmapLruCache {
          * @return A new {@link BitmapLruCache} created with the arguments supplied to this
          *         builder.
          */
-        public BitmapLruCache build() {
+        public BitmapLruCache build()
+		{
             final BitmapLruCache cache = new BitmapLruCache(mContext);
 
-            if (isValidOptionsForMemoryCache()) {
+            if (isValidOptionsForMemoryCache())
+			{
                 if (Constants.DEBUG) {
                     Log.d("BitmapLruCache.Builder", "Creating Memory Cache");
                 }
                 cache.setMemoryCache(new BitmapMemoryLruCache(mMemoryCacheMaxSize, mRecyclePolicy));
             }
 
-            if (isValidOptionsForDiskCache()) {
-                new AsyncTask<Void, Void, DiskLruCache>() {
-
+            if (isValidOptionsForDiskCache())
+			{
+                new AsyncTask<Void, Void, DiskLruCache>()
+				{
                     @Override
-                    protected DiskLruCache doInBackground(Void... params) {
+                    protected DiskLruCache doInBackground(Void... params)
+					{
                         try {
                             return DiskLruCache.open(mDiskCacheLocation, 0, 1, mDiskCacheMaxSize);
                         } catch (IOException e) {
@@ -952,7 +996,8 @@ public class BitmapLruCache {
          *
          * @return This Builder object to allow for chaining of calls to set methods.
          */
-        public Builder setDiskCacheEnabled(boolean enabled) {
+        public Builder setDiskCacheEnabled(boolean enabled)
+		{
             mDiskCacheEnabled = enabled;
             return this;
         }
@@ -962,7 +1007,8 @@ public class BitmapLruCache {
          *
          * @return This Builder object to allow for chaining of calls to set methods.
          */
-        public Builder setDiskCacheLocation(File location) {
+        public Builder setDiskCacheLocation(File location)
+		{
             mDiskCacheLocation = location;
             return this;
         }
@@ -973,7 +1019,8 @@ public class BitmapLruCache {
          *
          * @return This Builder object to allow for chaining of calls to set methods.
          */
-        public Builder setDiskCacheMaxSize(long maxSize) {
+        public Builder setDiskCacheMaxSize(long maxSize)
+		{
             mDiskCacheMaxSize = maxSize;
             return this;
         }
@@ -983,7 +1030,8 @@ public class BitmapLruCache {
          *
          * @return This Builder object to allow for chaining of calls to set methods.
          */
-        public Builder setMemoryCacheEnabled(boolean enabled) {
+        public Builder setMemoryCacheEnabled(boolean enabled)
+		{
             mMemoryCacheEnabled = enabled;
             return this;
         }
@@ -994,7 +1042,8 @@ public class BitmapLruCache {
          *
          * @return This Builder object to allow for chaining of calls to set methods.
          */
-        public Builder setMemoryCacheMaxSize(int size) {
+        public Builder setMemoryCacheMaxSize(int size)
+		{
             mMemoryCacheMaxSize = size;
             return this;
         }

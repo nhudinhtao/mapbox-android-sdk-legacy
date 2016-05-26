@@ -10,10 +10,12 @@ import com.mapbox.mapboxsdk.tileprovider.modules.MapTileModuleLayerBase;
 import com.mapbox.mapboxsdk.tileprovider.modules.NetworkAvailabilityCheck;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.ITileLayer;
 import com.mapbox.mapboxsdk.util.BitmapUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+
 import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 
 /**
@@ -34,6 +36,9 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
  */
 public class MapTileLayerArray extends MapTileLayerBase
 {
+	// Instance Vars
+	// =================================================================================================================================================================================================
+
     protected final HashMap<MapTile, MapTileRequestState> mWorking;
 
     protected final List<MapTileModuleLayerBase> mTileProviderList;
@@ -42,13 +47,16 @@ public class MapTileLayerArray extends MapTileLayerBase
 
     protected final NetworkAvailabilityCheck mNetworkAvailabilityCheck;
 
+	// Constructors
+	// =================================================================================================================================================================================================
+
     /**
      * Creates an {@link MapTileLayerArray} with no tile providers.
      *
      * @param pRegisterReceiver a {@link IRegisterReceiver}
      */
-    protected MapTileLayerArray(final Context context, final ITileLayer pTileSource,
-                                final IRegisterReceiver pRegisterReceiver) {
+    protected MapTileLayerArray(final Context context, final ITileLayer pTileSource, final IRegisterReceiver pRegisterReceiver)
+	{
         this(context, pTileSource, pRegisterReceiver, null);
     }
 
@@ -58,22 +66,26 @@ public class MapTileLayerArray extends MapTileLayerBase
      * @param aRegisterReceiver  a {@link IRegisterReceiver}
      * @param pTileProviderArray an array of {@link com.mapbox.mapboxsdk.tileprovider.modules.MapTileModuleLayerBase}
      */
-    public MapTileLayerArray(final Context context, final ITileLayer pTileSource,
-                             final IRegisterReceiver aRegisterReceiver,
-                             final MapTileModuleLayerBase[] pTileProviderArray) {
+    public MapTileLayerArray(final Context context, final ITileLayer pTileSource, final IRegisterReceiver aRegisterReceiver, final MapTileModuleLayerBase[] pTileProviderArray)
+	{
         super(context, pTileSource);
 
-        mWorking = new HashMap<MapTile, MapTileRequestState>();
-        mUnaccessibleTiles = new ArrayList<MapTile>();
+        mWorking = new HashMap<>();
+        mUnaccessibleTiles = new ArrayList<>();
 
         mNetworkAvailabilityCheck = new NetworkAvailabilityCheck(context);
 
-        mTileProviderList = new ArrayList<MapTileModuleLayerBase>();
-        if (pTileProviderArray != null) {
+        mTileProviderList = new ArrayList<>();
+
+		if (pTileProviderArray != null)
+		{
             mCacheKey = pTileProviderArray[0].getCacheKey();
             Collections.addAll(mTileProviderList, pTileProviderArray);
         }
     }
+
+	// Public Methods
+	// =================================================================================================================================================================================================
 
     @Override
     public void detach() {
@@ -92,6 +104,10 @@ public class MapTileLayerArray extends MapTileLayerBase
         }
     }
 
+	/**
+	 *
+	 * @return
+	 */
     private boolean networkAvailable() {
         return mNetworkAvailabilityCheck == null || mNetworkAvailabilityCheck.getNetworkAvailable();
     }
@@ -187,8 +203,8 @@ public class MapTileLayerArray extends MapTileLayerBase
     }
 
     @Override
-    public void mapTileRequestCompleted(final MapTileRequestState aState,
-                                        final Drawable aDrawable) {
+    public void mapTileRequestCompleted(final MapTileRequestState aState, final Drawable aDrawable)
+	{
         synchronized (mWorking) {
             mWorking.remove(aState.getMapTile());
         }

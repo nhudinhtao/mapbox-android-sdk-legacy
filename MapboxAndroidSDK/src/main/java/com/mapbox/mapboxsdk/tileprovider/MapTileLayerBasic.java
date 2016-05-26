@@ -12,14 +12,20 @@ import com.mapbox.mapboxsdk.views.MapView;
  */
 public class MapTileLayerBasic extends MapTileLayerArray implements IMapTileProviderCallback
 {
+	// Instance Vars
+	// =================================================================================================================================================================================================
+
     Context mContext;
     MapView mMapView;
 
-    /**
-     * @param pContext
-     * @param pTileSource
-     * @param mapView
-     */
+	// Constructors
+	// =================================================================================================================================================================================================
+
+	/**
+	 * @param pContext
+	 * @param pTileSource
+	 * @param mapView
+	 */
     public MapTileLayerBasic(final Context pContext, final ITileLayer pTileSource, MapView mapView)
 	{
         super(pContext, pTileSource, new SimpleRegisterReceiver(pContext));
@@ -38,6 +44,9 @@ public class MapTileLayerBasic extends MapTileLayerArray implements IMapTileProv
         }
         addTileSource(pTileSource);
     }
+
+	// Public Methods
+	// =================================================================================================================================================================================================
 
     @Override
     public void setTileSource(final ITileLayer aTileSource) {

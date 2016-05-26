@@ -4,10 +4,13 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Handler;
+
 import com.mapbox.mapboxsdk.tileprovider.MapTile;
 import com.mapbox.mapboxsdk.views.util.Projection;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 
 /**
@@ -20,6 +23,16 @@ public abstract class TileLooper
     protected final Point center = new Point();
     protected List<CacheableBitmapDrawable> mBeingUsedDrawables = new ArrayList<CacheableBitmapDrawable>();
 
+	/**
+	 *
+	 * @param pCanvas
+	 * @param pCacheKey
+	 * @param pZoomLevel
+	 * @param pTileSizePx
+	 * @param pViewPort
+	 * @param pClipRect
+	 * @return
+	 */
     public final int loop(final Canvas pCanvas, final String pCacheKey, final float pZoomLevel, final int pTileSizePx, final Rect pViewPort, final Rect pClipRect)
 	{
         // Calculate the amount of tiles needed for each side around the center one.
@@ -37,8 +50,10 @@ public abstract class TileLooper
 
         int tileX, tileY;
 
-        for (int y = mUpperLeft.y; y <= mLowerRight.y; y++) {
-            for (int x = mUpperLeft.x; x <= mLowerRight.x; x++) {
+        for (int y = mUpperLeft.y; y <= mLowerRight.y; y++)
+		{
+            for (int x = mUpperLeft.x; x <= mLowerRight.x; x++)
+			{
                 tileY = GeometryMath.mod(y, mapTileUpperBound);
                 tileX = GeometryMath.mod(x, mapTileUpperBound);
                 final MapTile tile = new MapTile(pCacheKey, roundedZoom, tileX, tileY);
@@ -58,10 +73,13 @@ public abstract class TileLooper
     public void finalizeLoop()
 	{
         //we delay just to make sure drawable bitmaps are not reused while being drawn.
-        (new Handler()).postDelayed(new Runnable() {
+        (new Handler()).postDelayed(new Runnable()
+		{
             @Override
-            public void run() {
-                for (CacheableBitmapDrawable drawable : mBeingUsedDrawables) {
+            public void run()
+			{
+                for (CacheableBitmapDrawable drawable : mBeingUsedDrawables)
+				{
                     drawable.setBeingUsed(false);
                 }
                 mBeingUsedDrawables.clear();

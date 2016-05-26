@@ -27,7 +27,16 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
  * @author Marc Kurtz
  * @author Nicolas Gramlich
  */
-public abstract class MapTileLayerBase implements IMapTileProviderCallback, TileLayerConstants {
+public abstract class MapTileLayerBase implements IMapTileProviderCallback, TileLayerConstants
+{
+	// Constants
+	// =================================================================================================================================================================================================
+
+	private static final String TAG = "MapTileLayerBase";
+
+	// Instance Vars
+	// =================================================================================================================================================================================================
+
     protected Context context;
     protected final MapTileCache mTileCache;
     private Handler mTileRequestCompleteHandler;
@@ -35,6 +44,45 @@ public abstract class MapTileLayerBase implements IMapTileProviderCallback, Tile
 
     private ITileLayer mTileSource;
     protected String mCacheKey = "";
+
+	// Constructors
+	// =================================================================================================================================================================================================
+
+	/**
+	 * Creates a {@link MapTileCache} to be used to cache tiles in memory.
+	 *
+	 * @param aContext
+	 * @return
+	 */
+	public MapTileCache createTileCache(final Context aContext) {
+		return new MapTileCache(aContext);
+	}
+
+	/**
+	 *
+	 * @param aContext
+	 * @param pTileSource
+	 */
+	public MapTileLayerBase(final Context aContext, final ITileLayer pTileSource) {
+		this(aContext, pTileSource, null);
+	}
+
+	/**
+	 *
+	 * @param aContext
+	 * @param pTileSource
+	 * @param pDownloadFinishedListener
+	 */
+	public MapTileLayerBase(final Context aContext, final ITileLayer pTileSource, final Handler pDownloadFinishedListener)
+	{
+		this.context = aContext;
+		mTileRequestCompleteHandler = pDownloadFinishedListener;
+		mTileSource = pTileSource;
+		mTileCache = this.createTileCache(aContext);
+	}
+
+	// Public Methods
+	// =================================================================================================================================================================================================
 
     /**
      * Attempts to get a Drawable that represents a {@link MapTile}. If the tile is not immediately
@@ -108,10 +156,12 @@ public abstract class MapTileLayerBase implements IMapTileProviderCallback, Tile
      *
      * @param pTileSource the tile source
      */
-    public void setTileSource(final ITileLayer pTileSource) {
+    public void setTileSource(final ITileLayer pTileSource)
+	{
         if (mTileSource != null) {
             mTileSource.detach();
         }
+
         mTileSource = pTileSource;
         if (mTileSource != null) {
             mCacheKey = mTileSource.getCacheKey();
@@ -134,25 +184,6 @@ public abstract class MapTileLayerBase implements IMapTileProviderCallback, Tile
      */
     public String getCacheKey() {
         return mCacheKey;
-    }
-
-    /**
-     * Creates a {@link MapTileCache} to be used to cache tiles in memory.
-     */
-    public MapTileCache createTileCache(final Context aContext) {
-        return new MapTileCache(aContext);
-    }
-
-    public MapTileLayerBase(final Context aContext, final ITileLayer pTileSource) {
-        this(aContext, pTileSource, null);
-    }
-
-    public MapTileLayerBase(final Context aContext, final ITileLayer pTileSource,
-            final Handler pDownloadFinishedListener) {
-        this.context = aContext;
-        mTileRequestCompleteHandler = pDownloadFinishedListener;
-        mTileSource = pTileSource;
-        mTileCache = this.createTileCache(aContext);
     }
 
     /**
@@ -324,6 +355,4 @@ public abstract class MapTileLayerBase implements IMapTileProviderCallback, Tile
             mTileCache.removeTileFromMemory(aTile);
         }
     }
-
-    private static final String TAG = "MapTileLayerBase";
 }

@@ -15,17 +15,34 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class OverlayManager extends AbstractList<Overlay> {
+/**
+ *
+ */
+public class OverlayManager extends AbstractList<Overlay>
+{
+	// Instance Vars
+	// =================================================================================================================================================================================================
 
     private TilesOverlay mTilesOverlay;
     private boolean mUseSafeCanvas = true;
 
     private final CopyOnWriteArrayList<Overlay> mOverlayList;
 
-    public OverlayManager(final TilesOverlay tilesOverlay) {
+	// Constructors
+	// =================================================================================================================================================================================================
+
+	/**
+	 *
+	 * @param tilesOverlay
+	 */
+    public OverlayManager(final TilesOverlay tilesOverlay)
+	{
         setTilesOverlay(tilesOverlay);
-        mOverlayList = new CopyOnWriteArrayList<Overlay>();
+        mOverlayList = new CopyOnWriteArrayList<>();
     }
+
+	// Public Methods
+	// =================================================================================================================================================================================================
 
     @Override
     public Overlay get(final int pIndex) {
