@@ -7,20 +7,25 @@ package com.mapbox.mapboxsdk.events;
  *
  * @author Theodore Hong
  */
-public interface MapListener {
-    /**
-     * Called when a map is scrolled.
-     */
+public interface MapListener
+{
+	/**
+	 * Called when a map is scrolled.
+	 *
+	 * @param event
+	 */
 	void onScroll(ScrollEvent event);
 
-    /**
-     * Called when a map is zoomed.
-     */
+	/**
+	 * Called when a map is zoomed.
+	 * @param event
+	 */
 	void onZoom(ZoomEvent event);
 
-    /**
-     * Called when a map is rotated.
-     */
+	/**
+	 * Called when a map is rotated.
+	 * @param event
+	 */
 	void onRotate(RotateEvent event);
 
 }
