@@ -14,8 +14,8 @@ import com.mapbox.mapboxsdk.tileprovider.constants.TileLayerConstants;
  * {@link com.mapbox.mapboxsdk.overlay.TilesOverlay}). Tiles are typically images (e.g. png or
  * jpeg).
  */
-public class MapTile implements GeoConstants, MapboxConstants, TileLayerConstants {
-
+public class MapTile implements GeoConstants, MapboxConstants, TileLayerConstants
+{
     public static final int MAPTILE_SUCCESS_ID = 0;
     public static final int MAPTILE_FAIL_ID = MAPTILE_SUCCESS_ID + 1;
 
@@ -34,15 +34,36 @@ public class MapTile implements GeoConstants, MapboxConstants, TileLayerConstant
     private double originShift = 2 * Math.PI * RADIUS_EARTH_METERS / 2.0;
     private double initialResolution = 2 * Math.PI * RADIUS_EARTH_METERS / tileSize;
 
-    public MapTile(final int az, final int ax, final int ay) {
+	/**
+	 *
+	 * @param az
+	 * @param ax
+	 * @param ay
+	 */
+    public MapTile(final int az, final int ax, final int ay)
+	{
         this("", az, ax, ay);
     }
 
-    public MapTile(final String aCacheKey, final int az, final int ax, final int ay) {
+	/**
+	 *
+	 * @param aCacheKey
+	 * @param az
+	 * @param ax
+	 * @param ay
+	 */
+    public MapTile(final String aCacheKey, final int az, final int ax, final int ay)
+	{
         this.z = az;
         this.x = ax;
         this.y = ay;
-        this.path = (new StringBuilder()).append(z).append('/').append(x).append('/').append(y).toString();
+
+		final StringBuilder builder = new StringBuilder();
+		builder.append(z).append('/');
+		builder.append(x).append('/');
+		builder.append(y);
+
+        this.path = builder.toString();
         this.cacheKey = aCacheKey + "/" + path;
         this.code = ((17 * (37 + z)) * (37 * x)) * (37 + y);
     }
