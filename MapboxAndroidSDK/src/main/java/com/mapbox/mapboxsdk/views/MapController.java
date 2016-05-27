@@ -75,16 +75,21 @@ public class MapController implements MapViewConstants {
         aboutToStartAnimation(latlong, mapCoords);
     }
 
-    protected void aboutToStartAnimation(final PointF mapCoords) {
+    protected void aboutToStartAnimation(final PointF mapCoords)
+	{
         final float zoom = mMapView.getZoomLevel(false);
         final double worldSize_2 = mMapView.getProjection().mapSize(zoom) >> 1;
-        final ILatLng latlong = mMapView.getProjection()
-                .pixelXYToLatLong(mapCoords.x + worldSize_2,
-                        mapCoords.y + worldSize_2, zoom);
+        final ILatLng latlong = mMapView.getProjection().pixelXYToLatLong(mapCoords.x + worldSize_2, mapCoords.y + worldSize_2, zoom);
         aboutToStartAnimation(latlong, mapCoords);
     }
 
-    protected void aboutToStartAnimation(final float screenX, final float screenY) {
+	/**
+	 *
+	 * @param screenX
+	 * @param screenY
+	 */
+    protected void aboutToStartAnimation(final float screenX, final float screenY)
+	{
         final float width_2 = mMapView.getMeasuredWidth() / 2.0f;
         final float height_2 = mMapView.getMeasuredHeight() / 2.0f;
         final PointF scrollPoint = mMapView.getScrollPoint();
@@ -92,8 +97,9 @@ public class MapController implements MapViewConstants {
         final double mapY = screenY + scrollPoint.y - height_2;
         final float zoom = mMapView.getZoomLevel(false);
         final double worldSize_2 = mMapView.getProjection().mapSize(zoom) >> 1;
-        zoomOnLatLong = mMapView.getProjection().pixelXYToLatLong(mapX + worldSize_2,
-                        mapY + worldSize_2, zoom);
+
+        zoomOnLatLong = mMapView.getProjection().pixelXYToLatLong(mapX + worldSize_2, mapY + worldSize_2, zoom);
+
         mMapView.mMultiTouchScalePoint.set((float) mapX, (float) mapY);
         zoomDeltaScroll.set(width_2 - screenX, height_2 - screenY);
     }

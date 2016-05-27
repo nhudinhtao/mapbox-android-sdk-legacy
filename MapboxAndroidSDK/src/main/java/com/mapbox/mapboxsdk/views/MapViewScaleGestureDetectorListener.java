@@ -8,8 +8,8 @@ import android.view.ScaleGestureDetector;
  * A custom gesture detector that processes gesture events and dispatches them
  * to the map's overlay system.
  */
-public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector.OnScaleGestureListener {
-
+public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector.OnScaleGestureListener
+{
     private static String TAG = "MapViewScaleListener";
 
     /**
@@ -34,7 +34,8 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
     }
 
     @Override
-    public boolean onScaleBegin(ScaleGestureDetector detector) {
+    public boolean onScaleBegin(ScaleGestureDetector detector)
+	{
         lastFocusX = detector.getFocusX();
         lastFocusY = detector.getFocusY();
         firstSpan = detector.getCurrentSpan();
@@ -48,7 +49,8 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
     }
 
     @Override
-    public boolean onScale(ScaleGestureDetector detector) {
+    public boolean onScale(ScaleGestureDetector detector)
+	{
         if (!scaling) {
             return true;
         }
@@ -67,7 +69,8 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
     }
 
     @Override
-    public void onScaleEnd(ScaleGestureDetector detector) {
+    public void onScaleEnd(ScaleGestureDetector detector)
+	{
         if (!scaling) {
             return;
         }
@@ -75,9 +78,10 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
         //delaying the "end" will prevent some crazy scroll events when finishing
         //scaling by getting 2 fingers very close to each other
         final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
+        handler.postDelayed(new Runnable()
+		{
+            public void run()
+			{
                 float preZoom = mapView.getZoomLevel(false);
                 float newZoom = (float) (Math.log(currentScale) / Math.log(2d) + preZoom);
                 //set animated zoom so that animationEnd will correctly set it in the mapView

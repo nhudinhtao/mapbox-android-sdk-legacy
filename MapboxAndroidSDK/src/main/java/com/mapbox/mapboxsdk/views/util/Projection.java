@@ -336,7 +336,8 @@ public class Projection implements GeoConstants {
      * @param levelOfDetail Level of detail, from 1 (lowest detail) to 23 (highest detail)
      * @return The map width and height in pixels
      */
-    public static int mapSize(final float levelOfDetail) {
+    public static int mapSize(final float levelOfDetail)
+	{
         return (int) (GeometryMath.leftShift(mTileSize, levelOfDetail));
     }
 
@@ -435,9 +436,13 @@ public class Projection implements GeoConstants {
      * @param levelOfDetail Level of detail, from 1 (lowest detail) to 23 (highest detail)
      * @return Output parameter receiving the latitude and longitude in degrees.
      */
-    public static LatLng pixelXYToLatLong(double pixelX, double pixelY, final float levelOfDetail) {
+    public static LatLng pixelXYToLatLong(double pixelX, double pixelY, final float levelOfDetail)
+	{
+		if (levelOfDetail <= 0f)
+			throw new IllegalArgumentException();
+
         final double mapSize = mapSize(levelOfDetail);
-        final double maxSize = mapSize - 1.0;
+        final double maxSize = mapSize - 1.0d;
         double x = wrap(pixelX, 0, maxSize, mapSize);
         double y = wrap(pixelY, 0, maxSize, mapSize);
 
@@ -507,15 +512,16 @@ public class Projection implements GeoConstants {
      * @return a value that lies within <code>minValue</code> and <code>maxValue</code> by
      * subtracting/adding <code>interval</code>
      */
-    private static double wrap(double n, final double minValue, final double maxValue,
-            final double interval) {
-        if (minValue > maxValue) {
-            throw new IllegalArgumentException(
-                    "minValue must be smaller than maxValue: " + minValue + ">" + maxValue);
+    private static double wrap(double n, final double minValue, final double maxValue, final double interval)
+	{
+        if (minValue > maxValue)
+		{
+            throw new IllegalArgumentException("minValue must be smaller than maxValue: " + minValue + ">" + maxValue);
         }
-        if (interval > maxValue - minValue + 1) {
-            throw new IllegalArgumentException(
-                    "interval must be equal or smaller than maxValue-minValue: "
+
+        if (interval > maxValue - minValue + 1)
+		{
+            throw new IllegalArgumentException("interval must be equal or smaller than maxValue-minValue: "
                             + "min: "
                             + minValue
                             + " max:"
@@ -524,13 +530,18 @@ public class Projection implements GeoConstants {
                             + interval
             );
         }
-        while (n < minValue) {
+
+        while (n < minValue)
+		{
             n += interval;
         }
-        while (n > maxValue) {
+
+		while (n > maxValue)
+		{
             n -= interval;
         }
-        return n;
+
+		return n;
     }
 
     public void rotatePoints(final float[] pRotatePoints) {

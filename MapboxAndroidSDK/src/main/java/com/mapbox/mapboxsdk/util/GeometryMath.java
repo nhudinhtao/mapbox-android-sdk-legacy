@@ -158,7 +158,8 @@ public class GeometryMath {
         }
     }
 
-    public static int mod(int number, final int modulus) {
+    public static int mod(int number, final int modulus)
+	{
         if (number > 0) {
             return number % modulus;
         }
@@ -176,7 +177,8 @@ public class GeometryMath {
      * @param multiplier
      * @return
      */
-    public static float leftShift(final float value, final float multiplier) {
+    public static float leftShift(final float value, final float multiplier)
+	{
         return (float) (value * Math.pow(2, multiplier));
     }
 

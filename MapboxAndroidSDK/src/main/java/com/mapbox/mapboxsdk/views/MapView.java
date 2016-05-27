@@ -865,11 +865,17 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         return setZoomInternal(aZoomLevel, null, null);
     }
 
-    protected MapView setZoomInternal(final float aZoomLevel, ILatLng center, final PointF decale) {
-
-        if (center == null) {
+	/**
+	 *
+	 * @param aZoomLevel
+	 * @param center
+	 * @param decale
+	 * @return
+	 */
+    protected MapView setZoomInternal(final float aZoomLevel, ILatLng center, final PointF decale)
+	{
+        if (center == null)
             center = getCenter();
-        }
 
         final float newZoomLevel = getClampedZoomLevel(aZoomLevel);
         final float curZoomLevel = this.mZoomLevel;
@@ -878,7 +884,8 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         mMultiTouchScale = 1.0f;
         mInvTransformMatrix.reset();
 
-        if (newZoomLevel != curZoomLevel) {
+        if (newZoomLevel != curZoomLevel)
+		{
             this.mZoomLevel = newZoomLevel;
             // just to be sure any one got the right one
             setAnimatedZoom(this.mZoomLevel);
@@ -1059,7 +1066,13 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         return zoomToBoundingBox(boundingBox, false);
     }
 
-    public float getClampedZoomLevel(float zoom) {
+	/**
+	 *
+	 * @param zoom
+	 * @return
+	 */
+    public float getClampedZoomLevel(float zoom)
+	{
         final float minZoomLevel = getMinZoomLevel();
         final float maxZoomLevel = getMaxZoomLevel();
 
@@ -1076,19 +1089,23 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         return getZoomLevel(true);
     }
 
-    protected float getAnimatedZoom() {
+    protected float getAnimatedZoom()
+	{
         return Float.intBitsToFloat(mTargetZoomLevel.get());
     }
 
-    protected void setAnimatedZoom(float value) {
+    protected void setAnimatedZoom(float value)
+	{
         mTargetZoomLevel.set(Float.floatToIntBits(value));
     }
 
-    protected void clearAnimatedZoom(float value) {
+    protected void clearAnimatedZoom(float value)
+	{
         Float.floatToIntBits(-1);
     }
 
-    protected boolean isAnimatedZoomSet() {
+    protected boolean isAnimatedZoomSet()
+	{
         return Float.intBitsToFloat(mTargetZoomLevel.get()) != -1;
     }
 
@@ -1099,10 +1116,14 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
      *                 towards, otherwise return the current zoom level
      * @return the zoom level
      */
-    public float getZoomLevel(final boolean aPending) {
-        if (aPending && isAnimating()) {
+    public float getZoomLevel(final boolean aPending)
+	{
+        if (aPending && isAnimating())
+		{
             return getAnimatedZoom();
-        } else {
+        }
+		else
+		{
             return mZoomLevel;
         }
     }
