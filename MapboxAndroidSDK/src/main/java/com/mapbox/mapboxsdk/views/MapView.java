@@ -886,7 +886,7 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
 
         if (newZoomLevel != curZoomLevel)
 		{
-            this.mZoomLevel = newZoomLevel;
+            this.mZoomLevel = newZoomLevel;					// TODO prevent to set zoom == 0
             // just to be sure any one got the right one
             setAnimatedZoom(this.mZoomLevel);
             mScroller.forceFinished(true);
