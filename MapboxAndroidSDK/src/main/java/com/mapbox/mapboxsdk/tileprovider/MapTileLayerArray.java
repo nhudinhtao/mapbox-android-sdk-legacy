@@ -36,6 +36,9 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
  */
 public class MapTileLayerArray extends MapTileLayerBase
 {
+	// Constants
+	// =================================================================================================================================================================================================
+
 	// Instance Vars
 	// =================================================================================================================================================================================================
 
@@ -88,18 +91,19 @@ public class MapTileLayerArray extends MapTileLayerBase
 	// =================================================================================================================================================================================================
 
     @Override
-    public void detach() {
-        if (getTileSource() != null) {
+    public final void detach()
+	{
+        if (getTileSource() != null)
             getTileSource().detach();
-        }
 
-        synchronized (mTileProviderList) {
-            for (final MapTileModuleLayerBase tileProvider : mTileProviderList) {
+        synchronized (mTileProviderList)
+		{
+            for (final MapTileModuleLayerBase tileProvider : mTileProviderList)
                 tileProvider.detach();
-            }
         }
 
-        synchronized (mWorking) {
+        synchronized (mWorking)
+		{
             mWorking.clear();
         }
     }
@@ -108,7 +112,8 @@ public class MapTileLayerArray extends MapTileLayerBase
 	 *
 	 * @return
 	 */
-    private boolean networkAvailable() {
+    private final boolean networkAvailable()
+	{
         return mNetworkAvailabilityCheck == null || mNetworkAvailabilityCheck.getNetworkAvailable();
     }
 
@@ -118,11 +123,16 @@ public class MapTileLayerArray extends MapTileLayerBase
      * @param pTile the tile in question
      * @return whether the tile is unavailable
      */
-    private boolean tileUnavailable(final MapTile pTile) {
-        if (mUnaccessibleTiles.size() > 0) {
-            if (networkAvailable() || !useDataConnection()) {
+    private final boolean tileUnavailable(final MapTile pTile)
+	{
+        if (mUnaccessibleTiles.size() > 0)
+		{
+            if (networkAvailable() || !useDataConnection())
+			{
                 mUnaccessibleTiles.clear();
-            } else if (mUnaccessibleTiles.contains(pTile)) {
+            }
+			else if (mUnaccessibleTiles.contains(pTile))
+			{
                 return true;
             }
         }
@@ -133,24 +143,18 @@ public class MapTileLayerArray extends MapTileLayerBase
     @Override
     public Drawable getMapTile(final MapTile pTile, final boolean allowRemote)
 	{
-        //       Log.d(TAG, "getMapTile() with pTile (CacheKey) = '" + pTile.getCacheKey() + "'; allowRemote = '" + allowRemote + "'");
-        if (tileUnavailable(pTile)) {
-//            Log.d(TAG, "MapTileLayerArray.getMapTile() tileUnavailable: " + pTile);
-            return null;
-        }
+        if (tileUnavailable(pTile))
+		    return null;
 
         CacheableBitmapDrawable tileDrawable = mTileCache.getMapTileFromMemory(pTile);
 
         if (tileDrawable != null && tileDrawable.isBitmapValid() && !BitmapUtils.isCacheDrawableExpired(tileDrawable))
 		{
             tileDrawable.setBeingUsed(true);
-//            Log.d(TAG, "Found tile(" + pTile.getCacheKey() + ") in memory, so returning for drawing.");
-
             return tileDrawable;
         }
 		else if (allowRemote)
 		{
-//            Log.d(TAG, "Tile not found in memory so will load from remote.");
             boolean alreadyInProgress = false;
 
 			synchronized (mWorking)
@@ -160,8 +164,6 @@ public class MapTileLayerArray extends MapTileLayerBase
 
             if (!alreadyInProgress)
 			{
-//                Log.d(TAG, "MapTileLayerArray.getMapTile() requested but not in cache, trying from async providers: " + pTile);
-
                 final MapTileRequestState state;
 
                 synchronized (mTileProviderList)
@@ -174,9 +176,10 @@ public class MapTileLayerArray extends MapTileLayerBase
 				{
                     // Check again
                     alreadyInProgress = mWorking.containsKey(pTile);
-                    if (alreadyInProgress) {
+
+					if (alreadyInProgress)
                         return null;
-                    }
+
                     mWorking.put(pTile, state);
                 }
 
@@ -193,53 +196,61 @@ public class MapTileLayerArray extends MapTileLayerBase
             }
             return tileDrawable;
         }
-/*
-        else
-        {
-//            Log.w(TAG, "Tile not found in memory, and not allowed to load from remote source.");
-        }
-*/
+
         return null;
     }
 
     @Override
     public void mapTileRequestCompleted(final MapTileRequestState aState, final Drawable aDrawable)
 	{
-        synchronized (mWorking) {
+        synchronized (mWorking)
+		{
             mWorking.remove(aState.getMapTile());
         }
-        super.mapTileRequestCompleted(aState, aDrawable);
+
+		super.mapTileRequestCompleted(aState, aDrawable);
     }
 
     @Override
-    public void mapTileRequestFailed(final MapTileRequestState aState) {
+    public void mapTileRequestFailed(final MapTileRequestState aState)
+	{
         final MapTileModuleLayerBase nextProvider = findNextAppropriateProvider(aState);
-        if (nextProvider != null) {
+        if (nextProvider != null)
+		{
             nextProvider.loadMapTileAsync(aState);
-        } else {
-            synchronized (mWorking) {
+        }
+		else
+		{
+            synchronized (mWorking)
+			{
                 mWorking.remove(aState.getMapTile());
             }
-            if (!networkAvailable()) {
-                mUnaccessibleTiles.add(aState.getMapTile());
-            }
-            super.mapTileRequestFailed(aState);
+
+			if (!networkAvailable())
+			    mUnaccessibleTiles.add(aState.getMapTile());
+
+			super.mapTileRequestFailed(aState);
         }
     }
 
     @Override
-    public void mapTileRequestExpiredTile(MapTileRequestState aState,
-                                          CacheableBitmapDrawable aDrawable) {
+    public void mapTileRequestExpiredTile(MapTileRequestState aState, CacheableBitmapDrawable aDrawable)
+	{
         // Call through to the super first so aState.getCurrentProvider() still contains the proper
         // provider.
         super.mapTileRequestExpiredTile(aState, aDrawable);
 
         // Continue through the provider chain
         final MapTileModuleLayerBase nextProvider = findNextAppropriateProvider(aState);
-        if (nextProvider != null) {
+
+        if (nextProvider != null)
+		{
             nextProvider.loadMapTileAsync(aState);
-        } else {
-            synchronized (mWorking) {
+        }
+		else
+		{
+            synchronized (mWorking)
+			{
                 mWorking.remove(aState.getMapTile());
             }
         }
@@ -250,7 +261,8 @@ public class MapTileLayerArray extends MapTileLayerBase
      * use
      * a provider that requires a data connection when one is not available.
      */
-    protected MapTileModuleLayerBase findNextAppropriateProvider(final MapTileRequestState aState) {
+    protected MapTileModuleLayerBase findNextAppropriateProvider(final MapTileRequestState aState)
+	{
         MapTileModuleLayerBase provider = null;
         boolean providerDoesntExist = false,
                 providerCantGetDataConnection = false,
@@ -258,77 +270,103 @@ public class MapTileLayerArray extends MapTileLayerBase
         // The logic of the while statement is
         // "Keep looping until you get null, or a provider that still exists
         // and has a data connection if it needs one and can service the zoom level,"
-        do {
+        do
+		{
             provider = aState.getNextProvider();
             // Perform some checks to see if we can use this provider
             // If any of these are true, then that disqualifies the provider for this tile request.
-            if (provider != null) {
+            if (provider != null)
+			{
                 providerDoesntExist = !this.getProviderExists(provider);
-                providerCantGetDataConnection =
-                        !useDataConnection() && provider.getUsesDataConnection();
+                providerCantGetDataConnection = !useDataConnection() && provider.getUsesDataConnection();
                 int zoomLevel = aState.getMapTile().getZ();
-                providerCantServiceZoomlevel = zoomLevel > provider.getMaximumZoomLevel()
-                        || zoomLevel < provider.getMinimumZoomLevel();
+                providerCantServiceZoomlevel = zoomLevel > provider.getMaximumZoomLevel() || zoomLevel < provider.getMinimumZoomLevel();
             }
-        } while ((provider != null) && (providerDoesntExist
+        }
+		while ((provider != null) && (providerDoesntExist
                 || providerCantGetDataConnection
                 || providerCantServiceZoomlevel));
         return provider;
     }
 
-    public boolean getProviderExists(final MapTileModuleLayerBase provider) {
-        synchronized (mTileProviderList) {
+	/**
+	 *
+	 * @param provider
+	 * @return
+	 */
+    public boolean getProviderExists(final MapTileModuleLayerBase provider)
+	{
+        synchronized (mTileProviderList)
+		{
             return mTileProviderList.contains(provider);
         }
     }
 
     @Override
-    public float getMinimumZoomLevel() {
+    public float getMinimumZoomLevel()
+	{
         float result = MINIMUM_ZOOMLEVEL;
-        synchronized (mTileProviderList) {
-            for (final MapTileModuleLayerBase tileProvider : mTileProviderList) {
+
+		synchronized (mTileProviderList)
+		{
+            for (final MapTileModuleLayerBase tileProvider : mTileProviderList)
                 result = Math.max(result, tileProvider.getMinimumZoomLevel());
-            }
         }
+
         return result;
     }
 
     @Override
-    public float getMaximumZoomLevel() {
+    public float getMaximumZoomLevel()
+	{
         float result = MAXIMUM_ZOOMLEVEL;
-        synchronized (mTileProviderList) {
-            for (final MapTileModuleLayerBase tileProvider : mTileProviderList) {
+
+        synchronized (mTileProviderList)
+		{
+            for (final MapTileModuleLayerBase tileProvider : mTileProviderList)
                 result = Math.min(result, tileProvider.getMaximumZoomLevel());
-            }
         }
+
         return result;
     }
 
     @Override
-    public void setTileSource(final ITileLayer aTileSource) {
+    public void setTileSource(final ITileLayer aTileSource)
+	{
         super.setTileSource(aTileSource);
         mUnaccessibleTiles.clear();
-        synchronized (mTileProviderList) {
+
+		synchronized (mTileProviderList)
+		{
             mTileProviderList.clear();
         }
     }
 
     @Override
-    public boolean hasNoSource() {
-        synchronized (mTileProviderList) {
+    public boolean hasNoSource()
+	{
+        synchronized (mTileProviderList)
+		{
             return mTileProviderList.size() == 0;
         }
     }
 
     @Override
-    public BoundingBox getBoundingBox() {
+    public BoundingBox getBoundingBox()
+	{
         BoundingBox result = null;
-        synchronized (mTileProviderList) {
-            for (final MapTileModuleLayerBase tileProvider : mTileProviderList) {
+        synchronized (mTileProviderList)
+		{
+            for (final MapTileModuleLayerBase tileProvider : mTileProviderList)
+			{
                 BoundingBox providerBox = tileProvider.getBoundingBox();
-                if (result == null) {
+
+                if (result == null)
+				{
                     result = providerBox;
-                } else {
+                }
+				else
+				{
                     result = result.union(providerBox);
                 }
             }
@@ -337,21 +375,29 @@ public class MapTileLayerArray extends MapTileLayerBase
     }
 
     @Override
-    public LatLng getCenterCoordinate() {
+    public LatLng getCenterCoordinate()
+	{
         float latitude = 0;
         float longitude = 0;
         int nb = 0;
-        synchronized (mTileProviderList) {
-            for (final MapTileModuleLayerBase tileProvider : mTileProviderList) {
+
+		synchronized (mTileProviderList)
+		{
+            for (final MapTileModuleLayerBase tileProvider : mTileProviderList)
+			{
                 LatLng providerCenter = tileProvider.getCenterCoordinate();
-                if (providerCenter != null) {
+
+                if (providerCenter != null)
+				{
                     latitude += providerCenter.getLatitude();
                     longitude += providerCenter.getLongitude();
                     nb++;
                 }
             }
         }
-        if (nb > 0) {
+
+        if (nb > 0)
+		{
             latitude /= nb;
             longitude /= nb;
             return new LatLng(latitude, longitude);
@@ -360,15 +406,19 @@ public class MapTileLayerArray extends MapTileLayerBase
     }
 
     @Override
-    public float getCenterZoom() {
+    public float getCenterZoom()
+	{
         float centerZoom = 0;
         int nb = 0;
-        synchronized (mTileProviderList) {
-            for (final MapTileModuleLayerBase tileProvider : mTileProviderList) {
+        synchronized (mTileProviderList)
+		{
+            for (final MapTileModuleLayerBase tileProvider : mTileProviderList)
+			{
                 centerZoom += tileProvider.getCenterZoom();
                 nb++;
             }
         }
+
         if (centerZoom > 0) {
             return centerZoom / nb;
         }
@@ -377,16 +427,17 @@ public class MapTileLayerArray extends MapTileLayerBase
     }
 
     @Override
-    public int getTileSizePixels() {
+    public int getTileSizePixels()
+	{
         int result = 0;
-        synchronized (mTileProviderList) {
-            for (final MapTileModuleLayerBase tileProvider : mTileProviderList) {
+        synchronized (mTileProviderList)
+		{
+            for (final MapTileModuleLayerBase tileProvider : mTileProviderList)
+			{
                 result += tileProvider.getTileSizePixels();
                 break;
             }
         }
         return result;
     }
-
-    private static final String TAG = "MapTileLayerArray";
 }
