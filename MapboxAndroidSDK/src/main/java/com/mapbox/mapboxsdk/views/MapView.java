@@ -104,7 +104,7 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
     /**
      * A copy of the app context.
      */
-    private final Context context;
+    private final Context mContext;
 
     /**
      * Whether or not a marker has been placed already.
@@ -134,6 +134,7 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
     private final TilesOverlay mTilesOverlay;
 
     private final GestureDetector mGestureDetector;
+	private final MapViewGestureDetectorListener mGestureDetectorListener;
 
     /**
      * Handles map scrolling
@@ -222,16 +223,17 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         mTilesOverlay = new TilesOverlay(mTileProvider);
         mOverlayManager = new OverlayManager(mTilesOverlay);
 
-        this.mGestureDetector = new GestureDetector(aContext, new MapViewGestureDetectorListener(this));
-        this.mScaleGestureDetector = new ScaleGestureDetector(aContext, new MapViewScaleGestureDetectorListener(this));
-        this.mRotateGestureDetector = new RotateGestureDetector(aContext, new MapViewRotateGestureDetectorListener(this));
-        this.context = aContext;
+		mGestureDetectorListener = new MapViewGestureDetectorListener(this);
+        mGestureDetector = new GestureDetector(aContext, mGestureDetectorListener);
+        mScaleGestureDetector = new ScaleGestureDetector(aContext, new MapViewScaleGestureDetectorListener(this));
+        mRotateGestureDetector = new RotateGestureDetector(aContext, new MapViewRotateGestureDetectorListener(this));
+        mContext = aContext;
 
-        MapboxUtils.setVersionNumber(context.getResources().getString(R.string.mapboxAndroidSDKVersion));
+        MapboxUtils.setVersionNumber(mContext.getResources().getString(R.string.mapboxAndroidSDKVersion));
         eventsOverlay = new MapEventsOverlay(aContext, this);
         this.getOverlays().add(eventsOverlay);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.MapView);
+        TypedArray a = mContext.obtainStyledAttributes(attrs, R.styleable.MapView);
         String mapid = a.getString(R.styleable.MapView_mapid);
         MapboxUtils.setAccessToken(a.getString(R.styleable.MapView_accessToken));
 
@@ -290,22 +292,58 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
      *
      * @param listener
      */
-    public void addListener(final MapListener listener) {
-        if (!mListeners.contains(listener)) {
+    public void addListener(final MapListener listener)
+	{
+        if (!mListeners.contains(listener))
             mListeners.add(listener);
-        }
     }
+
+	/**
+	 *
+	 * @param pListener
+	 */
+	public final void addOnGestureListener(final GestureDetector.OnGestureListener pListener)
+	{
+		mGestureDetectorListener.addOnGestureListener(pListener);
+	}
+
+	/**
+	 *
+	 * @param pListener
+	 */
+	public final void addOnDoubleTapListener(final GestureDetector.OnDoubleTapListener pListener)
+	{
+		mGestureDetectorListener.addOnDoubleTapListener(pListener);
+	}
 
     /**
      * Remove a listener object that observed changes in this map.
      *
      * @param listener
      */
-    public void removeListener(MapListener listener) {
-        if (mListeners.contains(listener)) {
+    public void removeListener(MapListener listener)
+	{
+        if (mListeners.contains(listener))
             mListeners.remove(listener);
-        }
     }
+
+	/**
+	 *
+	 * @param pListener
+	 */
+	public final void removeOnGestureListener(final GestureDetector.OnGestureListener pListener)
+	{
+		mGestureDetectorListener.removeOnGestureListener(pListener);
+	}
+
+	/**
+	 *
+	 * @param pListener
+	 */
+	public final void removeOnDoubleTapListener(final GestureDetector.OnDoubleTapListener pListener)
+	{
+		mGestureDetectorListener.removeOnDoubleTapListener(pListener);
+	}
 
     /**
      * Add an overlay to this map. If the overlay is already included,
@@ -314,12 +352,14 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
      *
      * @param overlay
      */
-    public void addOverlay(final Overlay overlay) {
-        if (!mOverlayManager.contains(overlay)) {
+    public void addOverlay(final Overlay overlay)
+	{
+        if (! mOverlayManager.contains(overlay))
+		{
             mOverlayManager.add(overlay);
-            if (overlay instanceof MapListener) {
+
+            if (overlay instanceof MapListener)
                 addListener((MapListener) overlay);
-            }
         }
         invalidate();
     }
@@ -1698,18 +1738,19 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-//        Log.i(TAG, "onTouchEvent with event = " + event);
+    public boolean onTouchEvent(MotionEvent event)
+	{
         // If map rotation is enabled, propagate onTouchEvent to the rotate gesture detector
-        if (mMapRotationEnabled) {
-//            Log.i(TAG, "onTouchEvent with Rotation Enabled so passing it along to RotationGestureDetector.onTouchEvent()");
+        if (mMapRotationEnabled)
             mRotateGestureDetector.onTouchEvent(event);
-        }
+
         // Get rotated event for some touch listeners.
         MotionEvent rotatedEvent = rotateTouchEvent(event);
 
-        try {
-            if (this.getOverlayManager().onTouchEvent(rotatedEvent, this)) {
+        try
+		{
+            if (this.getOverlayManager().onTouchEvent(rotatedEvent, this))
+			{
                 Log.d(TAG, "OverlayManager handled onTouchEvent");
                 return true;
             }
@@ -1717,50 +1758,59 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
             // can't use the scale detector's onTouchEvent() result as it always returns true (Android issue #42591)
             //Android seems to be able to recognize a scale with one pointer ...
             // what a smart guy... let's prevent this
-            if (rotatedEvent.getPointerCount() != 1) {
-//                Log.i(TAG, "rotateEvent.getPointerCount() == 1");
-                mScaleGestureDetector.onTouchEvent(rotatedEvent);
-            }
+            if (rotatedEvent.getPointerCount() != 1)
+			    mScaleGestureDetector.onTouchEvent(rotatedEvent);
+
             boolean result = mScaleGestureDetector.isInProgress();
-//            Log.i(TAG, "mScaleGestureDector in progress? '" + result + "'");
-            if (!result) {
-//                Log.i(TAG, "mScaleGestureDector not in progress, forward on to mGestureDetector.onTouchEvent()");
+
+            if (!result)
+			{
                 result = mGestureDetector.onTouchEvent(rotatedEvent);
-            } else {
+            }
+			else
+			{
                 //needs to cancel two fingers tap
                 canTapTwoFingers = false;
             }
-            //handleTwoFingersTap should always be called because it counts pointers up/down
+
+			//handleTwoFingersTap should always be called because it counts pointers up/down
             result |= handleTwoFingersTap(rotatedEvent);
 
             return result;
-        } finally {
-            if (rotatedEvent != event) {
-                rotatedEvent.recycle();
-            }
+        }
+		finally
+		{
+            if (rotatedEvent != event)
+			    rotatedEvent.recycle();
         }
     }
 
-    private MotionEvent rotateTouchEvent(MotionEvent ev) {
-        if (this.getMapOrientation() == 0) {
+    private MotionEvent rotateTouchEvent(MotionEvent ev)
+	{
+        if (this.getMapOrientation() == 0)
             return ev;
-        }
+
         MotionEvent rotatedEvent = MotionEvent.obtain(ev);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB)
+		{
             mRotatePoints[0] = ev.getX();
             mRotatePoints[1] = ev.getY();
             getProjection().rotatePoints(mRotatePoints);
             rotatedEvent.setLocation(mRotatePoints[0], mRotatePoints[1]);
-        } else {
+        }
+		else
+		{
             // This method is preferred since it will rotate historical touch events too
-            try {
-                if (sMotionEventTransformMethod == null) {
-                    sMotionEventTransformMethod = MotionEvent.class.getDeclaredMethod("transform",
-                            new Class[]{Matrix.class});
-                }
-                sMotionEventTransformMethod.invoke(rotatedEvent,
-                        getProjection().getRotationMatrix());
-            } catch (Exception e) {
+            try
+			{
+                if (sMotionEventTransformMethod == null)
+                    sMotionEventTransformMethod = MotionEvent.class.getDeclaredMethod("transform", new Class[]{Matrix.class});
+
+                sMotionEventTransformMethod.invoke(rotatedEvent, getProjection().getRotationMatrix());
+            }
+			catch (Exception e)
+			{
                 e.printStackTrace();
             }
         }
@@ -1768,17 +1818,22 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
     }
 
     @Override
-    public void computeScroll() {
-        if (mScroller.computeScrollOffset()) {
-            if (mScroller.isFinished()) {
+    public void computeScroll()
+	{
+        if (mScroller.computeScrollOffset())
+		{
+            if (mScroller.isFinished())
+			{
                 // One last scrollTo to get to the final destination
                 scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
                 // snapping-to any Snappable points.
-                if (!isAnimating()) {
+                if (!isAnimating())
                     snapItems();
-                }
+
                 mIsFlinging = false;
-            } else {
+            }
+			else
+			{
                 scrollTo(mScroller.getCurrX(), mScroller.getCurrY());
             }
             postInvalidate(); // Keep on drawing until the animation has
