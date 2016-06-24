@@ -27,6 +27,8 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.support.annotation.Nullable;
+
 import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
 import com.mapbox.mapboxsdk.constants.GeoConstants;
@@ -224,13 +226,27 @@ public class Projection implements GeoConstants {
         return toMapPixels(latitude, longitude, getZoomLevel(), centerX, centerY, reuse);
     }
 
-    public static RectF toMapPixels(final BoundingBox box, final float zoom, final RectF reuse) {
+	/**
+	 *
+	 * @param box
+	 * @param zoom
+	 * @param reuse
+	 * can be null
+	 *
+	 * @return
+	 */
+    public static RectF toMapPixels(final BoundingBox box, final float zoom, @Nullable final RectF reuse)
+	{
         final RectF out;
-        if (reuse != null) {
+        if (reuse != null)
+		{
             out = reuse;
-        } else {
+        }
+		else
+		{
             out = new RectF();
         }
+
         final int mapSize_2 = mapSize(zoom) >> 1;
         PointF nw = latLongToPixelXY(box.getLatNorth(), box.getLonWest(), zoom, null);
         PointF se = latLongToPixelXY(box.getLatSouth(), box.getLonEast(), zoom, null);
@@ -246,14 +262,19 @@ public class Projection implements GeoConstants {
      * @param latitude the latitude of the point
      * @param longitude the longitude of the point
      * @param reuse just pass null if you do not have a Point to be 'recycled'.
+	 *
      * @return intermediate value to be stored and passed to toMapPixelsTranslated.
      */
-    public static PointF toMapPixelsProjected(final double latitude, final double longitude,
-            final PointF reuse) {
+    public static PointF toMapPixelsProjected(final double latitude, final double longitude, @Nullable final PointF reuse)
+	{
         final PointF out;
-        if (reuse != null) {
+
+        if (reuse != null)
+		{
             out = reuse;
-        } else {
+        }
+		else
+		{
             out = new PointF();
         }
         latLongToPixelXY(latitude, longitude, TileLayerConstants.MAXIMUM_ZOOMLEVEL, out);
@@ -269,11 +290,15 @@ public class Projection implements GeoConstants {
      * @return the Point containing the <I>Screen coordinates</I> of the initial LatLng passed
      * to the toMapPixelsProjected.
      */
-    public PointF toMapPixelsTranslated(final PointF in, final PointF reuse) {
+    public PointF toMapPixelsTranslated(final PointF in, final PointF reuse)
+	{
         final PointF out;
-        if (reuse != null) {
+        if (reuse != null)
+		{
             out = reuse;
-        } else {
+        }
+		else
+		{
             out = new PointF();
         }
 
@@ -283,7 +308,14 @@ public class Projection implements GeoConstants {
         return out;
     }
 
-    public double[] toMapPixelsTranslated(final double[] in, final double[] out) {
+	/**
+	 *
+	 * @param in
+	 * @param out
+	 * @return
+	 */
+    public double[] toMapPixelsTranslated(final double[] in, final double[] out)
+	{
         final float zoomDifference = TileLayerConstants.MAXIMUM_ZOOMLEVEL - getZoomLevel();
         out[0] = GeometryMath.rightShift(in[0], zoomDifference) + offsetX;
         out[1] = GeometryMath.rightShift(in[1], zoomDifference) + offsetY;
@@ -296,7 +328,8 @@ public class Projection implements GeoConstants {
      * @param in the rectangle in <I>screen coordinates</I>
      * @return a rectangle in </I>intermediate coordindates</I>.
      */
-    public Rect fromPixelsToProjected(final Rect in) {
+    public Rect fromPixelsToProjected(final Rect in)
+	{
         final Rect result = new Rect();
 
         final float zoomDifference = TileLayerConstants.MAXIMUM_ZOOMLEVEL - getZoomLevel();
@@ -310,7 +343,11 @@ public class Projection implements GeoConstants {
         return result;
     }
 
-    public static void setTileSize(final int tileSize) {
+    public static void setTileSize(final int tileSize)
+	{
+		if (tileSize <= 0)
+			throw new IllegalArgumentException();
+
         mTileSize = tileSize;
     }
 
@@ -326,7 +363,8 @@ public class Projection implements GeoConstants {
      * @param maxValue Maximum allowable value
      * @return The clipped value.
      */
-    private static double clip(final double n, final double minValue, final double maxValue) {
+    private static double clip(final double n, final double minValue, final double maxValue)
+	{
         return Math.min(Math.max(n, minValue), maxValue);
     }
 
@@ -335,9 +373,16 @@ public class Projection implements GeoConstants {
      *
      * @param levelOfDetail Level of detail, from 1 (lowest detail) to 23 (highest detail)
      * @return The map width and height in pixels
+	 * can be 0
      */
     public static int mapSize(final float levelOfDetail)
 	{
+		if (levelOfDetail < 1f)
+			throw new IllegalArgumentException();
+
+		if (levelOfDetail > 23)
+			throw new IllegalArgumentException();
+
         return (int) (GeometryMath.leftShift(mTileSize, levelOfDetail));
     }
 
@@ -434,11 +479,16 @@ public class Projection implements GeoConstants {
      * @param pixelX X coordinate of the point, in pixels
      * @param pixelY Y coordinate of the point, in pixels
      * @param levelOfDetail Level of detail, from 1 (lowest detail) to 23 (highest detail)
+	 *
+	 *
      * @return Output parameter receiving the latitude and longitude in degrees.
      */
     public static LatLng pixelXYToLatLong(double pixelX, double pixelY, final float levelOfDetail)
 	{
-		if (levelOfDetail <= 0f)
+		if (levelOfDetail < 1f)
+			throw new IllegalArgumentException();
+
+		if (levelOfDetail > 23)
 			throw new IllegalArgumentException();
 
         final double mapSize = mapSize(levelOfDetail);
@@ -463,7 +513,8 @@ public class Projection implements GeoConstants {
      * @param pixelY Y coordinate of the point, in pixels
      * @return Output parameter receiving the latitude and longitude in degrees.
      */
-    public LatLng pixelXYToLatLong(double pixelX, double pixelY) {
+    public LatLng pixelXYToLatLong(double pixelX, double pixelY)
+	{
         return pixelXYToLatLong(pixelX, pixelY, mZoomLevelProjection);
     }
 
@@ -474,9 +525,11 @@ public class Projection implements GeoConstants {
      * @param pixelX Pixel X coordinate
      * @param pixelY Pixel Y coordinate
      * @param reuse An optional Point to be recycled, or null to create a new one automatically
+	 *
      * @return Output parameter receiving the tile X and Y coordinates
      */
-    public static Point pixelXYToTileXY(final int pixelX, final int pixelY, final Point reuse) {
+    public static Point pixelXYToTileXY(final int pixelX, final int pixelY, @Nullable final Point reuse)
+	{
         final Point out = (reuse == null ? new Point() : reuse);
 
         out.x = pixelX / mTileSize;
@@ -493,7 +546,8 @@ public class Projection implements GeoConstants {
      * @param reuse An optional Point to be recycled, or null to create a new one automatically
      * @return Output parameter receiving the pixel X and Y coordinates
      */
-    public static Point tileXYToPixelXY(final int tileX, final int tileY, final Point reuse) {
+    public static Point tileXYToPixelXY(final int tileX, final int tileY, @Nullable final Point reuse)
+	{
         final Point out = (reuse == null ? new Point() : reuse);
 
         out.x = tileX * mTileSize;
