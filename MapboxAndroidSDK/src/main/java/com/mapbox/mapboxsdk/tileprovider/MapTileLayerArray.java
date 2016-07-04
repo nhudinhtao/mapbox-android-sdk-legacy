@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 
@@ -49,6 +50,8 @@ public class MapTileLayerArray extends MapTileLayerBase
     protected final List<MapTile> mUnaccessibleTiles;
 
     protected final NetworkAvailabilityCheck mNetworkAvailabilityCheck;
+
+	private final ReentrantReadWriteLock mLockWorkingTiles = new ReentrantReadWriteLock();
 
 	// Constructors
 	// =================================================================================================================================================================================================
@@ -102,11 +105,17 @@ public class MapTileLayerArray extends MapTileLayerBase
                 tileProvider.detach();
         }
 
-        synchronized (mWorking)
+		mLockWorkingTiles.writeLock().lock();
+
+		try
 		{
-            mWorking.clear();
+			mWorking.clear();
         }
-    }
+		finally
+		{
+			mLockWorkingTiles.writeLock().unlock();
+		}
+	}
 
 	/**
 	 *
@@ -157,10 +166,16 @@ public class MapTileLayerArray extends MapTileLayerBase
 		{
             boolean alreadyInProgress = false;
 
-			synchronized (mWorking)
+			mLockWorkingTiles.readLock().lock();
+
+			try
 			{
                 alreadyInProgress = mWorking.containsKey(pTile);
             }
+			finally
+			{
+				mLockWorkingTiles.readLock().unlock();
+			}
 
             if (!alreadyInProgress)
 			{
@@ -172,7 +187,9 @@ public class MapTileLayerArray extends MapTileLayerBase
                     state = new MapTileRequestState(pTile, mTileProviderList.toArray(providerArray), this);
                 }
 
-                synchronized (mWorking)
+				mLockWorkingTiles.readLock().lock();
+
+                try
 				{
                     // Check again
                     alreadyInProgress = mWorking.containsKey(pTile);
@@ -180,8 +197,22 @@ public class MapTileLayerArray extends MapTileLayerBase
 					if (alreadyInProgress)
                         return null;
 
-                    mWorking.put(pTile, state);
-                }
+				}
+				finally
+				{
+					mLockWorkingTiles.readLock().unlock();
+				}
+
+				mLockWorkingTiles.writeLock().lock();
+
+				try
+				{
+					mWorking.put(pTile, state);
+				}
+				finally
+				{
+					mLockWorkingTiles.writeLock().unlock();
+				}
 
                 final MapTileModuleLayerBase provider = findNextAppropriateProvider(state);
 
@@ -203,10 +234,16 @@ public class MapTileLayerArray extends MapTileLayerBase
     @Override
     public void mapTileRequestCompleted(final MapTileRequestState aState, final Drawable aDrawable)
 	{
-        synchronized (mWorking)
+		mLockWorkingTiles.writeLock().lock();
+
+        try
 		{
             mWorking.remove(aState.getMapTile());
         }
+		finally
+		{
+			mLockWorkingTiles.writeLock().unlock();
+		}
 
 		super.mapTileRequestCompleted(aState, aDrawable);
     }
@@ -221,10 +258,16 @@ public class MapTileLayerArray extends MapTileLayerBase
         }
 		else
 		{
-            synchronized (mWorking)
+            mLockWorkingTiles.writeLock().lock();
+
+			try
 			{
                 mWorking.remove(aState.getMapTile());
             }
+			finally
+			{
+				mLockWorkingTiles.writeLock().unlock();
+			}
 
 			if (!networkAvailable())
 			    mUnaccessibleTiles.add(aState.getMapTile());
@@ -249,11 +292,17 @@ public class MapTileLayerArray extends MapTileLayerBase
         }
 		else
 		{
-            synchronized (mWorking)
+			mLockWorkingTiles.writeLock().lock();
+
+            try
 			{
                 mWorking.remove(aState.getMapTile());
             }
-        }
+			finally
+			{
+				mLockWorkingTiles.writeLock().unlock();
+			}
+		}
     }
 
     /**
