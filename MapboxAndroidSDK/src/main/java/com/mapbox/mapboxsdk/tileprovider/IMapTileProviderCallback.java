@@ -3,8 +3,8 @@ package com.mapbox.mapboxsdk.tileprovider;
 import android.graphics.drawable.Drawable;
 import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 
-public interface IMapTileProviderCallback {
-
+public interface IMapTileProviderCallback
+{
     /**
      * The map tile request has completed.
      *
