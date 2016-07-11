@@ -394,16 +394,12 @@ public class BitmapLruCache
     /**
      * @return true if the Disk Cache is enabled.
      */
-    public boolean isDiskCacheEnabled() {
-        return null != mDiskCache;
-    }
+    public boolean isDiskCacheEnabled() { return null != mDiskCache; }
 
     /**
      * @return true if the Memory Cache is enabled.
      */
-    public boolean isMemoryCacheEnabled() {
-        return null != mMemoryCache;
-    }
+    public boolean isMemoryCacheEnabled() { return null != mMemoryCache; }
 
     /**
      * Caches {@code bitmap} for {@code url} into all enabled caches. If the disk cache is enabled,
@@ -414,7 +410,8 @@ public class BitmapLruCache
      * @param bitmap - Bitmap which has been decoded from {@code url}.
      * @return CacheableBitmapDrawable which can be used to display the bitmap.
      */
-    public CacheableBitmapDrawable put(final String url, final Bitmap bitmap) {
+    public CacheableBitmapDrawable put(final String url, final Bitmap bitmap)
+	{
         return put(url, bitmap, Bitmap.CompressFormat.PNG, 100);
     }
 
@@ -446,7 +443,8 @@ public class BitmapLruCache
 	 * @param bitmap
 	 * @return
 	 */
-    public CacheableBitmapDrawable putInMemoryCache(final String url, final Bitmap bitmap) {
+    public CacheableBitmapDrawable putInMemoryCache(final String url, final Bitmap bitmap)
+	{
         return putInMemoryCache(url, bitmap, Bitmap.CompressFormat.PNG, 100);
     }
 
@@ -456,7 +454,8 @@ public class BitmapLruCache
 	 * @param drawable
 	 * @return
 	 */
-    public CacheableBitmapDrawable putInMemoryCache(final String url, final CacheableBitmapDrawable drawable) {
+    public CacheableBitmapDrawable putInMemoryCache(final String url, final CacheableBitmapDrawable drawable)
+	{
         return putInMemoryCache(url, drawable, Bitmap.CompressFormat.PNG, 100);
     }
 
@@ -501,7 +500,8 @@ public class BitmapLruCache
 	 * @param bitmap
 	 * @return
 	 */
-    public CacheableBitmapDrawable putInDiskCache(final String url, final Bitmap bitmap) {
+    public CacheableBitmapDrawable putInDiskCache(final String url, final Bitmap bitmap)
+	{
         return putInDiskCache(url, bitmap, Bitmap.CompressFormat.PNG, 100);
     }
 
@@ -511,7 +511,8 @@ public class BitmapLruCache
 	 * @param drawable
 	 * @return
 	 */
-    public CacheableBitmapDrawable putInDiskCache(final String url, final CacheableBitmapDrawable drawable) {
+    public CacheableBitmapDrawable putInDiskCache(final String url, final CacheableBitmapDrawable drawable)
+	{
         return putInDiskCache(url, drawable, Bitmap.CompressFormat.PNG, 100);
     }
 
@@ -535,15 +536,20 @@ public class BitmapLruCache
 
             OutputStream os = null;
 
-            try {
+            try
+			{
                 DiskLruCache.Editor editor = mDiskCache.edit(key);
                 os = editor.newOutputStream(0);
                 drawable.getBitmap().compress(compressFormat, compressQuality, os);
                 os.flush();
                 editor.commit();
-            } catch (IOException e) {
+            }
+			catch (IOException e)
+			{
                 Log.e(Constants.LOG_TAG, "Error while writing to disk cache", e);
-            } finally {
+            }
+			finally
+			{
                 IoUtils.closeStream(os);
                 lock.unlock();
                 scheduleDiskCacheFlush();
@@ -553,11 +559,17 @@ public class BitmapLruCache
         return drawable;
     }
 
-    public CacheableBitmapDrawable putInDiskCache(final String url, final Bitmap bitmap,
-                                       Bitmap.CompressFormat compressFormat, int compressQuality) {
-
-        CacheableBitmapDrawable d = new CacheableBitmapDrawable(url, mResources, bitmap,
-                mRecyclePolicy, CacheableBitmapDrawable.SOURCE_UNKNOWN);
+	/**
+	 *
+	 * @param url
+	 * @param bitmap
+	 * @param compressFormat
+	 * @param compressQuality
+	 * @return
+	 */
+    public CacheableBitmapDrawable putInDiskCache(final String url, final Bitmap bitmap, Bitmap.CompressFormat compressFormat, int compressQuality)
+	{
+        CacheableBitmapDrawable d = new CacheableBitmapDrawable(url, mResources, bitmap, mRecyclePolicy, CacheableBitmapDrawable.SOURCE_UNKNOWN);
 
         return putInDiskCache(url, d, compressFormat, compressQuality);
     }
@@ -601,16 +613,19 @@ public class BitmapLruCache
      *            is cached in the disk cache (if enabled).
      * @return CacheableBitmapDrawable which can be used to display the bitmap.
      */
-    public CacheableBitmapDrawable put(final String url, final byte[] data,
-            final BitmapFactory.Options decodeOpts) {
+    public CacheableBitmapDrawable put(final String url, final byte[] data, final BitmapFactory.Options decodeOpts)
+	{
         checkNotOnMainThread();
 
-        if (null == mDiskCache) {
+        if (null == mDiskCache)
+		{
             // shortcut to avoid temporary storage on disk
-            CacheableBitmapDrawable d = decodeBitmapToDrawable(new ByteArrayInputStreamProvider(data), url,
-                    decodeOpts);
-            if (null != d) {
-                if (null != mMemoryCache) {
+            CacheableBitmapDrawable d = decodeBitmapToDrawable(new ByteArrayInputStreamProvider(data), url, decodeOpts);
+
+			if (null != d)
+			{
+                if (null != mMemoryCache)
+				{
                     d.setCached(true);
                     mMemoryCache.put(d.getUrl(), d);
                 }
@@ -861,6 +876,13 @@ public class BitmapLruCache
                         TimeUnit.SECONDS);
     }
 
+	/**
+	 *
+	 * @param bitmap
+	 * @param url
+	 * @param source
+	 * @return
+	 */
     public CacheableBitmapDrawable createCacheableBitmapDrawable(Bitmap bitmap, String url, int source)
     {
         if (bitmap != null) {
@@ -869,6 +891,13 @@ public class BitmapLruCache
         return null;
     }
 
+	/**
+	 *
+	 * @param ip
+	 * @param url
+	 * @param opts
+	 * @return
+	 */
     private CacheableBitmapDrawable decodeBitmapToDrawable(InputStreamProvider ip, String url, BitmapFactory.Options opts)
 	{
         AtomicInteger source = new AtomicInteger(0);
@@ -939,19 +968,30 @@ public class BitmapLruCache
         return bm;
     }
 
+	/**
+	 *
+	 * @param ip
+	 * @param opts
+	 * @return
+	 */
     private boolean addInBitmapOptions(InputStreamProvider ip, BitmapFactory.Options opts)
 	{
         // Create InputStream for decoding the bounds
         final InputStream is = ip.getInputStream();
         // Decode the bounds so we know what size Bitmap to look for
         opts.inJustDecodeBounds = true;
-        if (is == null && ip instanceof ByteArrayInputStreamProvider) {
+
+		if (is == null && ip instanceof ByteArrayInputStreamProvider)
+		{
             byte[] data = ((ByteArrayInputStreamProvider) ip).array;
             BitmapFactory.decodeByteArray(data, 0, data.length, opts);
-        } else {
+        }
+		else
+		{
             BitmapFactory.decodeStream(is, null, opts);
         }
-        IoUtils.closeStream(is);
+
+		IoUtils.closeStream(is);
 
         // Turn off just decoding bounds
         opts.inJustDecodeBounds = false;
@@ -962,12 +1002,13 @@ public class BitmapLruCache
         synchronized (mMemoryCache)
 		{
             Bitmap reusableBm = mMemoryCache.getBitmapFromRemoved(opts.outWidth, opts.outHeight);
+
             if (reusableBm != null)
 			{
-                if (Constants.DEBUG) {
-                    Log.i(Constants.LOG_TAG, "Using inBitmap");
-                }
-                SDK11.addInBitmapOption(opts, reusableBm);
+                if (Constants.DEBUG)
+				    Log.i(Constants.LOG_TAG, "Using inBitmap");
+
+				SDK11.addInBitmapOption(opts, reusableBm);
                 return true;
             }
         }
@@ -1071,16 +1112,21 @@ public class BitmapLruCache
                     @Override
                     protected DiskLruCache doInBackground(Void... params)
 					{
-                        try {
+                        try
+						{
                             return DiskLruCache.open(mDiskCacheLocation, 0, 1, mDiskCacheMaxSize);
-                        } catch (IOException e) {
+							// TODO MEMORY / RESOURCE LEAK FIXEN !!!!
+                        }
+						catch (IOException e)
+						{
                             e.printStackTrace();
                             return null;
                         }
                     }
 
                     @Override
-                    protected void onPostExecute(DiskLruCache result) {
+                    protected void onPostExecute(DiskLruCache result)
+					{
                         cache.setDiskCache(result);
                     }
 
@@ -1180,9 +1226,8 @@ public class BitmapLruCache
          */
         public Builder setRecyclePolicy(RecyclePolicy recyclePolicy)
 		{
-            if (null == recyclePolicy) {
+            if (null == recyclePolicy)
                 throw new IllegalArgumentException("The recycle policy can not be null");
-            }
 
             mRecyclePolicy = recyclePolicy;
             return this;
@@ -1192,14 +1237,16 @@ public class BitmapLruCache
 		{
             boolean valid = mDiskCacheEnabled;
 
-            if (valid) {
-                if (null == mDiskCacheLocation) {
-                    Log.i(Constants.LOG_TAG,
-                            "Disk Cache has been enabled, but no location given. Please call setDiskCacheLocation(...)");
+            if (valid)
+			{
+                if (null == mDiskCacheLocation)
+				{
+                    Log.i(Constants.LOG_TAG, "Disk Cache has been enabled, but no location given. Please call setDiskCacheLocation(...)");
                     valid = false;
-                } else if (!mDiskCacheLocation.canWrite()) {
-                    Log.i(Constants.LOG_TAG,
-                            "Disk Cache Location is not write-able, disabling disk caching.");
+                }
+				else if (!mDiskCacheLocation.canWrite())
+				{
+                    Log.i(Constants.LOG_TAG, "Disk Cache Location is not write-able, disabling disk caching.");
                     valid = false;
                 }
             }
@@ -1212,34 +1259,37 @@ public class BitmapLruCache
         }
     }
 
-    static final class DiskCacheFlushRunnable implements Runnable {
-
+    static final class DiskCacheFlushRunnable implements Runnable
+	{
         private final DiskLruCache mDiskCache;
 
         public DiskCacheFlushRunnable(DiskLruCache cache) {
             mDiskCache = cache;
         }
 
-        public void run() {
+        public void run()
+		{
             // Make sure we're running with a background priority
             Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
 
-            if (Constants.DEBUG) {
-                Log.d(Constants.LOG_TAG, "Flushing Disk Cache");
-            }
-            try {
+            if (Constants.DEBUG)
+			    Log.d(Constants.LOG_TAG, "Flushing Disk Cache");
+
+			try
+			{
                 mDiskCache.flush();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+			catch (IOException e) {}
         }
     }
 
-    public interface InputStreamProvider {
+    public interface InputStreamProvider
+	{
         InputStream getInputStream();
     }
 
-    public static class FileInputStreamProvider implements InputStreamProvider {
+    public static class FileInputStreamProvider implements InputStreamProvider
+	{
         final File mFile;
 
         public FileInputStreamProvider(File file) {
@@ -1247,17 +1297,22 @@ public class BitmapLruCache
         }
 
         @Override
-        public InputStream getInputStream() {
-            try {
+        public InputStream getInputStream()
+		{
+            try
+			{
                 return new FileInputStream(mFile);
-            } catch (FileNotFoundException e) {
+            }
+			catch (FileNotFoundException e)
+			{
                 Log.e(Constants.LOG_TAG, "Could not decode file: " + mFile.getAbsolutePath(), e);
             }
             return null;
         }
     }
 
-    public static class ByteArrayInputStreamProvider implements InputStreamProvider {
+    public static class ByteArrayInputStreamProvider implements InputStreamProvider
+	{
         final byte[] array;
 
         public ByteArrayInputStreamProvider(byte[] array) {
@@ -1275,7 +1330,8 @@ public class BitmapLruCache
         }
     }
 
-    final class SnapshotInputStreamProvider implements InputStreamProvider {
+    final class SnapshotInputStreamProvider implements InputStreamProvider
+	{
         final String mKey;
 
         SnapshotInputStreamProvider(String key) {
@@ -1283,15 +1339,22 @@ public class BitmapLruCache
         }
 
         @Override
-        public InputStream getInputStream() {
-            try {
+        public InputStream getInputStream()
+		{
+            try
+			{
                 DiskLruCache.Snapshot snapshot = mDiskCache.get(mKey);
-                if (snapshot != null) {
-                    return snapshot.getInputStream(0);
-                }
-            } catch (IOException e) {
+
+                if (snapshot != null)
+				    return snapshot.getInputStream(0);
+				else
+					return null;
+            }
+			catch (IOException e)
+			{
                 Log.e(Constants.LOG_TAG, "Could open disk cache for url: " + mKey, e);
             }
+
             return null;
         }
     }
