@@ -431,56 +431,102 @@ public class BitmapLruCache
      *
      * @see Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
      */
-    public CacheableBitmapDrawable put(final String url, final Bitmap bitmap,
-            Bitmap.CompressFormat compressFormat, int compressQuality) {
-
-        CacheableBitmapDrawable d = new CacheableBitmapDrawable(url, mResources, bitmap,
-                mRecyclePolicy, CacheableBitmapDrawable.SOURCE_UNKNOWN);
+    public CacheableBitmapDrawable put(final String url, final Bitmap bitmap, Bitmap.CompressFormat compressFormat, int compressQuality)
+	{
+        CacheableBitmapDrawable d = new CacheableBitmapDrawable(url, mResources, bitmap, mRecyclePolicy, CacheableBitmapDrawable.SOURCE_UNKNOWN);
 
         putInMemoryCache(url, d, compressFormat, compressQuality);
         putInDiskCache(url, d, compressFormat, compressQuality);
         return d;
     }
 
+	/**
+	 *
+	 * @param url
+	 * @param bitmap
+	 * @return
+	 */
     public CacheableBitmapDrawable putInMemoryCache(final String url, final Bitmap bitmap) {
         return putInMemoryCache(url, bitmap, Bitmap.CompressFormat.PNG, 100);
     }
 
+	/**
+	 *
+	 * @param url
+	 * @param drawable
+	 * @return
+	 */
     public CacheableBitmapDrawable putInMemoryCache(final String url, final CacheableBitmapDrawable drawable) {
         return putInMemoryCache(url, drawable, Bitmap.CompressFormat.PNG, 100);
     }
 
-    public CacheableBitmapDrawable putInMemoryCache(final String url, final CacheableBitmapDrawable drawable,
-                                                    Bitmap.CompressFormat compressFormat, int compressQuality) {
-        if (null != mMemoryCache) {
-            synchronized (mMemoryCache) {
+	/**
+	 *
+	 * @param url
+	 * @param drawable
+	 * @param compressFormat
+	 * @param compressQuality
+	 * @return
+	 */
+    public CacheableBitmapDrawable putInMemoryCache(final String url, final CacheableBitmapDrawable drawable, Bitmap.CompressFormat compressFormat, int compressQuality)
+	{
+        if (null != mMemoryCache)
+		{
+            synchronized (mMemoryCache)
+			{
                 mMemoryCache.put(drawable);
             }
         }
         return drawable;
     }
 
-    public CacheableBitmapDrawable putInMemoryCache(final String url, final Bitmap bitmap,
-                                       Bitmap.CompressFormat compressFormat, int compressQuality) {
-
-        CacheableBitmapDrawable d = new CacheableBitmapDrawable(url, mResources, bitmap,
-                mRecyclePolicy, CacheableBitmapDrawable.SOURCE_UNKNOWN);
+	/**
+	 *
+	 * @param url
+	 * @param bitmap
+	 * @param compressFormat
+	 * @param compressQuality
+	 * @return
+	 */
+    public CacheableBitmapDrawable putInMemoryCache(final String url, final Bitmap bitmap, Bitmap.CompressFormat compressFormat, int compressQuality)
+	{
+        CacheableBitmapDrawable d = new CacheableBitmapDrawable(url, mResources, bitmap, mRecyclePolicy, CacheableBitmapDrawable.SOURCE_UNKNOWN);
 
         return putInMemoryCache(url, d, compressFormat, compressQuality);
     }
 
+	/**
+	 *
+	 * @param url
+	 * @param bitmap
+	 * @return
+	 */
     public CacheableBitmapDrawable putInDiskCache(final String url, final Bitmap bitmap) {
         return putInDiskCache(url, bitmap, Bitmap.CompressFormat.PNG, 100);
     }
 
+	/**
+	 *
+	 * @param url
+	 * @param drawable
+	 * @return
+	 */
     public CacheableBitmapDrawable putInDiskCache(final String url, final CacheableBitmapDrawable drawable) {
         return putInDiskCache(url, drawable, Bitmap.CompressFormat.PNG, 100);
     }
 
-    public CacheableBitmapDrawable putInDiskCache(final String url, final CacheableBitmapDrawable drawable,
-                                                  Bitmap.CompressFormat compressFormat, int compressQuality) {
-
-        if (null != mDiskCache) {
+	/**
+	 *
+	 * @param url
+	 * @param drawable
+	 * @param compressFormat
+	 * @param compressQuality
+	 * @return
+	 */
+    public CacheableBitmapDrawable putInDiskCache(final String url, final CacheableBitmapDrawable drawable, Bitmap.CompressFormat compressFormat, int compressQuality)
+	{
+        if (null != mDiskCache)
+		{
             checkNotOnMainThread();
 
             final String key = transformUrlForDiskCacheKey(url);
@@ -743,16 +789,21 @@ public class BitmapLruCache
         }
     }
 
-    public void purgeMemoryCache() {
-        if (null != mMemoryCache) {
-            synchronized (mMemoryCache) {
+    public void purgeMemoryCache()
+	{
+        if (null != mMemoryCache)
+		{
+            synchronized (mMemoryCache)
+			{
                 mMemoryCache.evictAll();
             }
         }
     }
 
-    public void purgeDiskCache() {
-        if (null != mDiskCache) {
+    public void purgeDiskCache()
+	{
+        if (null != mDiskCache)
+		{
             checkNotOnMainThread();
             try {
                 mDiskCache.delete();
@@ -762,35 +813,45 @@ public class BitmapLruCache
         }
     }
 
-    synchronized void setDiskCache(DiskLruCache diskCache) {
+    synchronized void setDiskCache(DiskLruCache diskCache)
+	{
         mDiskCache = diskCache;
 
-        if (null != diskCache) {
-            mDiskCacheEditLocks = new HashMap<String, ReentrantLock>();
+        if (null != diskCache)
+		{
+            mDiskCacheEditLocks = new HashMap<>();
             mDiskCacheFlusherExecutor = new ScheduledThreadPoolExecutor(1);
             mDiskCacheFlusherRunnable = new DiskCacheFlushRunnable(diskCache);
         }
     }
 
-    void setMemoryCache(BitmapMemoryLruCache memoryCache) {
+    void setMemoryCache(BitmapMemoryLruCache memoryCache)
+	{
         mMemoryCache = memoryCache;
         mRecyclePolicy = memoryCache.getRecyclePolicy();
     }
 
-    private ReentrantLock getLockForDiskCacheEdit(String url) {
-        synchronized (mDiskCacheEditLocks) {
+    private ReentrantLock getLockForDiskCacheEdit(String url)
+	{
+        synchronized (mDiskCacheEditLocks)
+		{
             ReentrantLock lock = mDiskCacheEditLocks.get(url);
-            if (null == lock) {
+
+            if (null == lock)
+			{
                 lock = new ReentrantLock();
                 mDiskCacheEditLocks.put(url, lock);
             }
+
             return lock;
         }
     }
 
-    private void scheduleDiskCacheFlush() {
+    private void scheduleDiskCacheFlush()
+	{
         // If we already have a flush scheduled, cancel it
-        if (null != mDiskCacheFuture) {
+        if (null != mDiskCacheFuture)
+		{
             mDiskCacheFuture.cancel(false);
         }
 
@@ -808,26 +869,44 @@ public class BitmapLruCache
         return null;
     }
 
-    private CacheableBitmapDrawable decodeBitmapToDrawable(InputStreamProvider ip, String url,
-            BitmapFactory.Options opts) {
+    private CacheableBitmapDrawable decodeBitmapToDrawable(InputStreamProvider ip, String url, BitmapFactory.Options opts)
+	{
         AtomicInteger source = new AtomicInteger(0);
         Bitmap result = decodeBitmap(ip, opts, source);
         return createCacheableBitmapDrawable(result, url, source.get());
     }
 
+	/**
+	 *
+	 * @param ip
+	 * @param opts
+	 * @return
+	 */
     public Bitmap decodeBitmap(InputStreamProvider ip, BitmapFactory.Options opts) {
         return decodeBitmap(ip, opts, null);
     }
-    public Bitmap decodeBitmap(InputStreamProvider ip, BitmapFactory.Options opts,
-                               AtomicInteger source) {
+
+	/**
+	 *
+	 * @param ip
+	 * @param opts
+	 * @param source
+	 * @return
+	 */
+	public Bitmap decodeBitmap(InputStreamProvider ip, BitmapFactory.Options opts, AtomicInteger source)
+	{
         Bitmap bm = null;
         InputStream is = null;
-        if (source != null) {
+
+        if (source != null)
+		{
             source.set(CacheableBitmapDrawable.SOURCE_NEW);
         }
 
-        try {
-            if (mRecyclePolicy.canInBitmap()) {
+        try
+		{
+            if (mRecyclePolicy.canInBitmap())
+			{
                 // Create an options instance if we haven't been provided with one
                 if (opts == null) {
                     opts = new BitmapFactory.Options();
@@ -860,7 +939,8 @@ public class BitmapLruCache
         return bm;
     }
 
-    private boolean addInBitmapOptions(InputStreamProvider ip, BitmapFactory.Options opts) {
+    private boolean addInBitmapOptions(InputStreamProvider ip, BitmapFactory.Options opts)
+	{
         // Create InputStream for decoding the bounds
         final InputStream is = ip.getInputStream();
         // Decode the bounds so we know what size Bitmap to look for
@@ -879,9 +959,11 @@ public class BitmapLruCache
         opts.inMutable = true;
 
         // Try and find Bitmap to use for inBitmap
-        synchronized (mMemoryCache) {
+        synchronized (mMemoryCache)
+		{
             Bitmap reusableBm = mMemoryCache.getBitmapFromRemoved(opts.outWidth, opts.outHeight);
-            if (reusableBm != null) {
+            if (reusableBm != null)
+			{
                 if (Constants.DEBUG) {
                     Log.i(Constants.LOG_TAG, "Using inBitmap");
                 }
@@ -970,6 +1052,8 @@ public class BitmapLruCache
          */
         public BitmapLruCache build()
 		{
+			// TODO checkNotOnMainThread
+
             final BitmapLruCache cache = new BitmapLruCache(mContext);
 
             if (isValidOptionsForMemoryCache())
@@ -1081,9 +1165,9 @@ public class BitmapLruCache
          *                         #MAX_MEMORY_CACHE_HEAP_RATIO}.
          * @return This Builder object to allow for chaining of calls to set methods.
          */
-        public Builder setMemoryCacheMaxSizeUsingHeapSize(float percentageOfHeap) {
-            int size = Math
-                    .round(getHeapSize() * Math.min(percentageOfHeap, MAX_MEMORY_CACHE_HEAP_RATIO));
+        public Builder setMemoryCacheMaxSizeUsingHeapSize(float percentageOfHeap)
+		{
+            int size = Math.round(getHeapSize() * Math.min(percentageOfHeap, MAX_MEMORY_CACHE_HEAP_RATIO));
             return setMemoryCacheMaxSize(size);
         }
 
@@ -1094,7 +1178,8 @@ public class BitmapLruCache
          * @param recyclePolicy - New recycle policy, can not be null.
          * @return This Builder object to allow for chaining of calls to set methods.
          */
-        public Builder setRecyclePolicy(RecyclePolicy recyclePolicy) {
+        public Builder setRecyclePolicy(RecyclePolicy recyclePolicy)
+		{
             if (null == recyclePolicy) {
                 throw new IllegalArgumentException("The recycle policy can not be null");
             }
@@ -1103,7 +1188,8 @@ public class BitmapLruCache
             return this;
         }
 
-        private boolean isValidOptionsForDiskCache() {
+        private boolean isValidOptionsForDiskCache()
+		{
             boolean valid = mDiskCacheEnabled;
 
             if (valid) {
