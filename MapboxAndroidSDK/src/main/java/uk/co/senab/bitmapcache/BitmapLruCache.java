@@ -125,10 +125,11 @@ public class BitmapLruCache
     /**
      * @throws IllegalStateException if the calling thread is the main/UI thread.
      */
-    private static void checkNotOnMainThread() {
-        if (Looper.myLooper() == Looper.getMainLooper()) {
-            throw new IllegalStateException(
-                    "This method should not be called from the main/UI thread.");
+    private static void checkNotOnMainThread()
+	{
+        if (Looper.myLooper() == Looper.getMainLooper())
+		{
+            throw new IllegalStateException("This method should not be called from the main/UI thread.");
         }
     }
 
@@ -214,14 +215,28 @@ public class BitmapLruCache
      * @return {@code true} if the Disk Cache is enabled and contains the specified URL, {@code
      *         false} otherwise.
      */
-    public boolean containsInDiskCache(String url) {
-        if (null != mDiskCache) {
+    public boolean containsInDiskCache(String url)
+	{
+        if (null != mDiskCache)
+		{
             checkNotOnMainThread();
 
-            try {
-                return null != mDiskCache.get(transformUrlForDiskCacheKey(url));
-            } catch (IOException e) {
-                e.printStackTrace();
+            try
+			{
+				final DiskLruCache.Snapshot snapshot = mDiskCache.get(transformUrlForDiskCacheKey(url));
+
+				try
+				{
+					return null != snapshot;
+				}
+				finally
+				{
+					if (snapshot != null)
+						snapshot.close();
+				}
+			}
+			catch (IOException e)
+			{
             }
         }
 
