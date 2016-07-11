@@ -1115,7 +1115,9 @@ public class BitmapLruCache
                         try
 						{
                             return DiskLruCache.open(mDiskCacheLocation, 0, 1, mDiskCacheMaxSize);
-							// TODO MEMORY / RESOURCE LEAK FIXEN !!!!
+							// TODO BUGFIX MEMORY / RESOURCE LEAK FIXEN !!!!
+							// IS NEVER CLOSED !!!
+							// Dieser cache muss mit dem Activity lifecycle verbunden werden !
                         }
 						catch (IOException e)
 						{
