@@ -15,15 +15,28 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 
 public class OfflineMapTileProvider extends MapTileLayerBase implements MapboxConstants
 {
+	// =================================================================================================================================================================================================
+
     private static final String TAG = "OfflineMapTileProvider";
+
+	// =================================================================================================================================================================================================
 
     private OfflineMapDatabase offlineMapDatabase = null;
 
+	// =================================================================================================================================================================================================
+
+	/**
+	 *
+	 * @param context
+	 * @param offlineMapDatabase
+	 */
     public OfflineMapTileProvider(Context context, OfflineMapDatabase offlineMapDatabase)
 	{
         super(context, null);
         this.offlineMapDatabase = offlineMapDatabase;
     }
+
+	// =================================================================================================================================================================================================
 
     @Override
     public Drawable getMapTile(MapTile pTile, boolean allowRemote) {
