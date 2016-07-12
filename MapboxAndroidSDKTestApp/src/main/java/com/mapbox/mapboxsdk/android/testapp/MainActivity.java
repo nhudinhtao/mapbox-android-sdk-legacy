@@ -2,6 +2,7 @@ package com.mapbox.mapboxsdk.android.testapp;
 
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,7 +14,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import com.mapbox.mapboxsdk.views.MapView;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener
+{
 
 	private DrawerLayout          mDrawerLayout;
 	private ActionBarDrawerToggle mDrawerToggle;
@@ -22,11 +26,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 	private int selectedFragmentIndex = 0;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected void onCreate(Bundle savedInstanceState)
+	{
 		super.onCreate(savedInstanceState);
-		/*
-		   MapView.setDebugMode(true); //make sure to call this before the view is created!
-           */
+
+		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+				.detectAll()
+				.penaltyLog()
+				.build());
+
+		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+				.detectAll()
+				.penaltyLog()
+				.build());
+
+		MapView.setDebugMode(true); //make sure to call this before the view is created!
+
 		setContentView(R.layout.activity_main);
 
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);

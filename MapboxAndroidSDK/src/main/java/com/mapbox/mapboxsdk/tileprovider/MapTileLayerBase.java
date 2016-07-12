@@ -54,7 +54,8 @@ public abstract class MapTileLayerBase implements IMapTileProviderCallback, Tile
 	 * @param aContext
 	 * @return
 	 */
-	public MapTileCache createTileCache(final Context aContext) {
+	public MapTileCache createTileCache(final Context aContext)
+	{
 		return new MapTileCache(aContext);
 	}
 
@@ -63,7 +64,8 @@ public abstract class MapTileLayerBase implements IMapTileProviderCallback, Tile
 	 * @param aContext
 	 * @param pTileSource
 	 */
-	public MapTileLayerBase(final Context aContext, final ITileLayer pTileSource) {
+	public MapTileLayerBase(final Context aContext, final ITileLayer pTileSource)
+	{
 		this(aContext, pTileSource, null);
 	}
 
@@ -95,7 +97,10 @@ public abstract class MapTileLayerBase implements IMapTileProviderCallback, Tile
      */
     public abstract Drawable getMapTile(MapTile pTile, boolean allowRemote);
 
-    public abstract void detach();
+    public void detach()
+	{
+		mTileCache.closeCache();
+	}
 
     /**
      * Gets the minimum zoom level this tile provider can provide

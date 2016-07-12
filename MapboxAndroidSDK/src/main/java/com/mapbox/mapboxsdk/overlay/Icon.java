@@ -6,17 +6,20 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.util.BitmapUtils;
 import com.mapbox.mapboxsdk.util.MapboxUtils;
 import com.mapbox.mapboxsdk.util.NetworkUtils;
 import com.mapbox.mapboxsdk.util.constants.UtilConstants;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+
 import uk.co.senab.bitmapcache.BitmapLruCache;
 import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 
@@ -32,7 +35,8 @@ public class Icon implements MapboxConstants
     private Drawable drawable;
     private Context context;
 
-    protected static BitmapLruCache sIconCache;
+    protected static BitmapLruCache sIconCache; // TODO REMOVE THE STATIC SHIT !!!! BRING THE CACHE UNDER THE ACTIVITY LIFECYCLE !!!
+
     private static final String DISK_CACHE_SUBDIR = "mapbox_icon_cache";
 
     // Well, we only want to download the same URL once. If we request the same url rapidly
@@ -65,7 +69,7 @@ public class Icon implements MapboxConstants
 	 */
     protected BitmapLruCache getCache(final Context context)
 	{
-        if (sIconCache == null && context != null)
+		if (sIconCache == null && context != null)
 		{
             File cacheDir = getDiskCacheDir(context, DISK_CACHE_SUBDIR);
 
@@ -85,7 +89,7 @@ public class Icon implements MapboxConstants
 			final BitmapLruCache.Builder builder = new BitmapLruCache.Builder(context);
 			builder.setMemoryCacheEnabled(true);
 			builder.setMemoryCacheMaxSize(BitmapUtils.calculateMemoryCacheSize(context));
-			builder.setDiskCacheEnabled(true); // 1 MB (a marker image is around 1kb)
+			builder.setDiskCacheEnabled(false); // 1 MB (a marker image is around 1kb)
 			builder.setDiskCacheMaxSize(1024 * 1024);
 
             sIconCache = builder.build();

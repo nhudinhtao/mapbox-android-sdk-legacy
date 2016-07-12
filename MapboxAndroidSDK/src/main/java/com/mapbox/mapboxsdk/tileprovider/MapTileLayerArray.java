@@ -96,6 +96,8 @@ public class MapTileLayerArray extends MapTileLayerBase
     @Override
     public final void detach()
 	{
+		super.detach();
+
         if (getTileSource() != null)
             getTileSource().detach();
 

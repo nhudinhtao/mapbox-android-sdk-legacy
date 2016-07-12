@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.mapbox.mapboxsdk.tileprovider.constants.TileLayerConstants;
@@ -33,17 +34,16 @@ public class MapTileCache implements TileLayerConstants
 	// Static Vars
 	// =================================================================================================================================================================================================
 
-    protected static BitmapLruCache sCachedTiles = null;
-
-	// Instance Vars
+    // Instance Vars
 	// =================================================================================================================================================================================================
 
     private final Context context;
 
-
     private int mMaximumCacheSize;
 
     private boolean mDiskCacheEnabled = false;
+
+	@Nullable private BitmapLruCache mBitmapCache;
 
 	// Constructors
 	// =================================================================================================================================================================================================
@@ -65,7 +65,30 @@ public class MapTileCache implements TileLayerConstants
         this.mMaximumCacheSize = aMaximumCacheSize;
     }
 
+	// Public Methods
 	// =================================================================================================================================================================================================
+
+	public final void closeCache()
+	{
+		Log.d(TAG, "close cache");
+
+		final BitmapLruCache fBitmapCache = mBitmapCache;
+
+		if (fBitmapCache != null)
+		{
+			Runnable runnable = new Runnable()
+			{
+				public void run()
+				{
+					fBitmapCache.close();
+				}
+			};
+
+			new Thread(runnable).start();
+
+			mBitmapCache = null;
+		}
+	}
 
     /**
      * Get the BitmapLruCache that belongs to this tile cache, creating it first
@@ -75,7 +98,7 @@ public class MapTileCache implements TileLayerConstants
      */
     protected BitmapLruCache getCache()
 	{
-        if (sCachedTiles == null)
+		if (mBitmapCache == null)
 		{
             File cacheDir = getDiskCacheDir(context, DISK_CACHE_SUBDIR);
 
@@ -101,11 +124,12 @@ public class MapTileCache implements TileLayerConstants
 			builder.setDiskCacheEnabled(mDiskCacheEnabled);
 			builder.setDiskCacheMaxSize(mMaximumCacheSize);
 			builder.setDiskCacheLocation(cacheDir);
-            sCachedTiles = builder.build();
+			mBitmapCache = builder.build();
 
-            Log.i(TAG, "Disk Cache Enabled: '" + sCachedTiles.isDiskCacheEnabled() + "'; Memory Cache Enabled: '" + sCachedTiles.isMemoryCacheEnabled() + "'");
+            Log.i(TAG, "Disk Cache Enabled: '" + mBitmapCache.isDiskCacheEnabled() + "'; Memory Cache Enabled: '" + mBitmapCache.isMemoryCacheEnabled() + "'");
         }
-        return sCachedTiles;
+
+        return mBitmapCache;
     }
 
     /**
@@ -114,7 +138,8 @@ public class MapTileCache implements TileLayerConstants
      * @param aTile the tile
      * @return the key
      */
-    public String getCacheKey(MapTile aTile) {
+    public String getCacheKey(MapTile aTile)
+	{
         return aTile.getCacheKey();
     }
 
@@ -283,9 +308,12 @@ public class MapTileCache implements TileLayerConstants
 
     public void setDiskCacheEnabled(final boolean enabled)
 	{
-        if (mDiskCacheEnabled != enabled) {
+        if (mDiskCacheEnabled != enabled)
+		{
             mDiskCacheEnabled = enabled;
-            sCachedTiles = null;
+
+			// reset cache
+			closeCache();
         }
     }
 

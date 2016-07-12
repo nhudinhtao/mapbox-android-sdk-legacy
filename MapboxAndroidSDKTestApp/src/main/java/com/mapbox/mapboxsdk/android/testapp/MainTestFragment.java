@@ -140,7 +140,7 @@ public class MainTestFragment extends Fragment implements TabLayout.OnTabSelecte
 		mv.setMinZoomLevel(mv.getTileProvider().getMinimumZoomLevel());
 		mv.setMaxZoomLevel(mv.getTileProvider().getMaximumZoomLevel());
 		mv.setCenter(mv.getTileProvider().getCenterCoordinate());
-		mv.setZoom(0);
+		mv.setZoom(1);
 		Log.d("MainActivity", "zoomToBoundingBox " + box.toString());
 	}
 

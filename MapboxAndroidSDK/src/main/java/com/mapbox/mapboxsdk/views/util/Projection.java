@@ -37,7 +37,11 @@ import com.mapbox.mapboxsdk.tileprovider.constants.TileLayerConstants;
 import com.mapbox.mapboxsdk.util.GeometryMath;
 import com.mapbox.mapboxsdk.views.MapView;
 
-public class Projection implements GeoConstants {
+/**
+ *
+ */
+public class Projection implements GeoConstants
+{
     private MapView mapView = null;
     private int viewWidth2;
     private int viewHeight2;
@@ -55,7 +59,12 @@ public class Projection implements GeoConstants {
     private final Matrix mRotateMatrix = new Matrix();
     protected static int mTileSize = 256;
 
-    public Projection(final MapView mv) {
+	/**
+	 *
+	 * @param mv
+	 */
+    public Projection(final MapView mv)
+	{
         super();
         this.mapView = mv;
 
@@ -72,17 +81,21 @@ public class Projection implements GeoConstants {
 
         //TODO: optimize because right now each line re-compute the previous value
         mIntrinsicScreenRectProjection = mapView.getIntrinsicScreenRect(null);
-        if (mapView.getMapOrientation() % 180 != 0) {
+
+        if (mapView.getMapOrientation() % 180 != 0)
+		{
             // Since the canvas is shifted by getWidth/2, we can just return our
             // natural scrollX/Y
             // value since that is the same as the shifted center.
             PointF scrollPoint = mapView.getScrollPoint();
-            mScreenRectProjection = GeometryMath.getBoundingBoxForRotatedRectangle(mIntrinsicScreenRectProjection,
-                    scrollPoint.x, scrollPoint.y, this.getMapOrientation(), null);
-        } else {
+            mScreenRectProjection = GeometryMath.getBoundingBoxForRotatedRectangle(mIntrinsicScreenRectProjection, scrollPoint.x, scrollPoint.y, this.getMapOrientation(), null);
+        }
+		else
+		{
             mScreenRectProjection = mIntrinsicScreenRectProjection;
         }
-        mTransformedScreenRectProjection = new RectF(mScreenRectProjection);
+
+		mTransformedScreenRectProjection = new RectF(mScreenRectProjection);
         mapView.getInversedTransformMatrix().mapRect(mTransformedScreenRectProjection);
         mMapOrientation = mapView.getMapOrientation();
         mRotateMatrix.setRotate(-mMapOrientation, viewWidth2, viewHeight2);
@@ -96,10 +109,11 @@ public class Projection implements GeoConstants {
         return worldSize2;
     }
 
-    public BoundingBox getBoundingBox() {
-        if (mBoundingBoxProjection == null) {
+    public BoundingBox getBoundingBox()
+	{
+        if (mBoundingBoxProjection == null)
             mBoundingBoxProjection = mapView.getBoundingBoxInternal();
-        }
+
         return mBoundingBoxProjection;
     }
 
@@ -119,23 +133,30 @@ public class Projection implements GeoConstants {
         return mMapOrientation;
     }
 
-    public int getCenterX() {
-        return centerX;
-    }
+	/**
+	 *
+	 * @return
+	 */
+    public int getCenterX() { return centerX; }
 
-    public int getCenterY() {
-        return centerY;
-    }
+	/**
+	 *
+	 * @return
+	 */
+    public int getCenterY() { return centerY; }
 
-    /**
-     * Converts <I>screen coordinates</I> to the underlying LatLng.
-     *
-     * @return LatLng under x/y.
-     */
-    public ILatLng fromPixels(final float x, final float y) {
+	/**
+	 * Converts <I>screen coordinates</I> to the underlying LatLng.
+	 *
+	 * @param x
+	 * @param y
+	 *
+	 * @return LatLng under x/y.
+	 */
+    public ILatLng fromPixels(final float x, final float y)
+	{
         final Rect screenRect = getIntrinsicScreenRect();
-        return pixelXYToLatLong(screenRect.left + (int) x + worldSize2,
-                screenRect.top + (int) y + worldSize2, mZoomLevelProjection);
+        return pixelXYToLatLong(screenRect.left + (int) x + worldSize2, screenRect.top + (int) y + worldSize2, mZoomLevelProjection);
     }
 
     /**
@@ -147,10 +168,16 @@ public class Projection implements GeoConstants {
         return fromPixels((float) x, (float) y);
     }
 
-    /**
-     * Converts from map pixels to a Point value. Optionally reuses an existing Point.
-     */
-    public Point fromMapPixels(final int x, final int y, final Point reuse) {
+	/**
+	 * Converts from map pixels to a Point value. Optionally reuses an existing Point.
+	 *
+	 * @param x
+	 * @param y
+	 * @param reuse
+	 * @return
+	 */
+    public Point fromMapPixels(final int x, final int y, final Point reuse)
+	{
         final Point out = GeometryMath.reusable(reuse);
         out.set(x - viewWidth2, y - viewHeight2);
         out.offset(centerX, centerY);
@@ -164,10 +191,10 @@ public class Projection implements GeoConstants {
      * @param reuse just pass null if you do not have a Point to be 'recycled'.
      * @return the Point containing the <I>screen coordinates</I> of the LatLng passed.
      */
-    public PointF toPixels(final ILatLng in, final PointF reuse) {
+    public PointF toPixels(final ILatLng in, final PointF reuse)
+	{
         PointF result = toMapPixels(in, reuse);
-        result.offset(-mIntrinsicScreenRectProjection.exactCenterX(),
-                -mIntrinsicScreenRectProjection.exactCenterY());
+        result.offset(-mIntrinsicScreenRectProjection.exactCenterX(), -mIntrinsicScreenRectProjection.exactCenterY());
         if (mMapOrientation % 360 != 0) {
             GeometryMath.rotatePoint(0, 0, result, mMapOrientation, result);
         }
@@ -182,11 +209,11 @@ public class Projection implements GeoConstants {
      * @param reuse just pass null if you do not have a Point to be 'recycled'.
      * @return the Point containing the <I>screen coordinates</I> of the point passed.
      */
-    public PointF toPixels(final PointF mapPos, final PointF reuse) {
+    public PointF toPixels(final PointF mapPos, final PointF reuse)
+	{
         final PointF out = GeometryMath.reusable(reuse);
         out.set(mapPos);
-        out.offset(viewWidth2 - mIntrinsicScreenRectProjection.exactCenterX(),
-                viewHeight2 - mIntrinsicScreenRectProjection.exactCenterY());
+        out.offset(viewWidth2 - mIntrinsicScreenRectProjection.exactCenterX(), viewHeight2 - mIntrinsicScreenRectProjection.exactCenterY());
         return out;
     }
 
@@ -197,15 +224,32 @@ public class Projection implements GeoConstants {
      * @param reuse just pass null if you do not have a Point to be 'recycled'.
      * @return the Point containing the <I>Map coordinates</I> of the LatLng passed.
      */
-    public PointF toMapPixels(final ILatLng in, final PointF reuse) {
+    public PointF toMapPixels(final ILatLng in, final PointF reuse)
+	{
         return toMapPixels(in.getLatitude(), in.getLongitude(), reuse);
     }
 
-    public static PointF toMapPixels(final double latitude, final double longitude, final float zoom, final double centerX, final double centerY, final PointF reuse) {
+	/**
+	 *
+	 * @param latitude
+	 * @param longitude
+	 * @param zoom
+	 * @param centerX
+	 * @param centerY
+	 * @param reuse
+	 * @return
+	 */
+    public static PointF toMapPixels(final double latitude, final double longitude, final float zoom, final double centerX, final double centerY, final PointF reuse)
+	{
+		if (zoom <= 0f)
+			throw new IllegalArgumentException();
+
         final PointF out = GeometryMath.reusable(reuse);
         final int mapSize = mapSize(zoom);
+
         latLongToPixelXY(latitude, longitude, zoom, out);
-        final float worldSize2 = mapSize >> 1;
+
+		final float worldSize2 = mapSize >> 1;
         out.offset(-worldSize2, -worldSize2);
 //        if (Math.abs(out.x - centerX) > Math.abs(out.x - mapSize - centerX)) {
 //            out.x -= mapSize;
@@ -222,7 +266,15 @@ public class Projection implements GeoConstants {
         return out;
     }
 
-    public PointF toMapPixels(final double latitude, final double longitude, final PointF reuse) {
+	/**
+	 *
+	 * @param latitude
+	 * @param longitude
+	 * @param reuse
+	 * @return
+	 */
+    public PointF toMapPixels(final double latitude, final double longitude, final PointF reuse)
+	{
         return toMapPixels(latitude, longitude, getZoomLevel(), centerX, centerY, reuse);
     }
 

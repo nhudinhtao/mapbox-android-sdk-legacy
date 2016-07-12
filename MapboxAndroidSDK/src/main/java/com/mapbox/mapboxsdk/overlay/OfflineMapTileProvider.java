@@ -13,13 +13,14 @@ import java.io.ByteArrayInputStream;
 
 import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 
-public class OfflineMapTileProvider extends MapTileLayerBase implements MapboxConstants {
-
+public class OfflineMapTileProvider extends MapTileLayerBase implements MapboxConstants
+{
     private static final String TAG = "OfflineMapTileProvider";
 
     private OfflineMapDatabase offlineMapDatabase = null;
 
-    public OfflineMapTileProvider(Context context, OfflineMapDatabase offlineMapDatabase) {
+    public OfflineMapTileProvider(Context context, OfflineMapDatabase offlineMapDatabase)
+	{
         super(context, null);
         this.offlineMapDatabase = offlineMapDatabase;
     }
@@ -52,7 +53,10 @@ public class OfflineMapTileProvider extends MapTileLayerBase implements MapboxCo
     }
 
     @Override
-    public void detach() {
+    public void detach()
+	{
+		super.detach();
+
         if (getTileSource() != null) {
             getTileSource().detach();
         }

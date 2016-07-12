@@ -20,14 +20,13 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Looper;
 import android.os.Process;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.jakewharton.disklrucache.DiskLruCache;
+import com.mapbox.mapboxsdk.util.AppUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -127,10 +126,7 @@ public class BitmapLruCache
      */
     private static void checkNotOnMainThread()
 	{
-        if (Looper.myLooper() == Looper.getMainLooper())
-		{
-            throw new IllegalStateException("This method should not be called from the main/UI thread.");
-        }
+		AppUtils.checkNotOnMainThread();
     }
 
 	// Static Vars
@@ -164,7 +160,13 @@ public class BitmapLruCache
     /**
      * Disk Cache Variables
      */
-    private DiskLruCache mDiskCache;
+    @Nullable private DiskLruCache mDiskCache;
+
+	private boolean mDiskCacheEnabled;
+
+	@Nullable private File mDiskCacheLocation;
+
+	private long mDiskCacheMaxSize;
 
     // Variables which are only used when the Disk Cache is enabled
     private HashMap<String, ReentrantLock> mDiskCacheEditLocks;
@@ -181,19 +183,42 @@ public class BitmapLruCache
 
 	/**
 	 *
-	 * @param context
+	 * @param pContext
 	 */
-    BitmapLruCache(Context context)
+    BitmapLruCache(Context pContext)
 	{
-		if (context == null)
+		if (pContext == null)
 			throw new IllegalArgumentException();
 
 		// Make sure we have the application context
-		context = context.getApplicationContext();
+		pContext = pContext.getApplicationContext();
 
-		mTempDir = context.getCacheDir();
-		mResources = context.getResources();
+		mTempDir = pContext.getCacheDir();
+		mResources = pContext.getResources();
     }
+
+	/**
+	 *
+	 */
+	public final void close()
+	{
+		AppUtils.checkNotOnMainThread();
+
+		if (mDiskCache != null)
+		{
+			try
+			{
+				if (mDiskCache.isClosed() == false)
+					mDiskCache.close();
+			}
+			catch (IOException pE)
+			{
+
+			}
+		}
+
+		mMemoryCache.evictAll();
+	}
 
     /**
      * Returns whether any of the enabled caches contain the specified URL. <p/> If you have the
@@ -203,7 +228,8 @@ public class BitmapLruCache
      * @return {@code true} if any of the caches contain the specified URL, {@code false}
      *         otherwise.
      */
-    public boolean contains(String url) {
+    public boolean contains(final String url)
+	{
         return containsInMemoryCache(url) || containsInDiskCache(url);
     }
 
@@ -215,8 +241,10 @@ public class BitmapLruCache
      * @return {@code true} if the Disk Cache is enabled and contains the specified URL, {@code
      *         false} otherwise.
      */
-    public boolean containsInDiskCache(String url)
+    public boolean containsInDiskCache(final String url)
 	{
+		createDiskCacheIfConfigured();
+
         if (null != mDiskCache)
 		{
             checkNotOnMainThread();
@@ -243,7 +271,7 @@ public class BitmapLruCache
         return false;
     }
 
-    /**
+	/**
      * Returns whether the Memory Cache contains the specified URL. This method is safe to be called
      * from the main thread.
      *
@@ -312,6 +340,8 @@ public class BitmapLruCache
 	{
         CacheableBitmapDrawable result = null;
 
+		createDiskCacheIfConfigured();
+
         if (null != mDiskCache)
 		{
             checkNotOnMainThread();
@@ -320,7 +350,7 @@ public class BitmapLruCache
 			{
                 final String key = transformUrlForDiskCacheKey(url);
                 // Try and decode bitmap
-                result = decodeBitmapToDrawable(new SnapshotInputStreamProvider(key), url, decodeOpts);
+                result = decodeBitmapToDrawable(new SnapshotInputStreamProvider(key, mDiskCache), url, decodeOpts);
 
                 if (null != result)
 				{
@@ -394,7 +424,7 @@ public class BitmapLruCache
     /**
      * @return true if the Disk Cache is enabled.
      */
-    public boolean isDiskCacheEnabled() { return null != mDiskCache; }
+    public boolean isDiskCacheEnabled() { return mDiskCacheEnabled; }
 
     /**
      * @return true if the Memory Cache is enabled.
@@ -526,10 +556,12 @@ public class BitmapLruCache
 	 */
     public CacheableBitmapDrawable putInDiskCache(final String url, final CacheableBitmapDrawable drawable, Bitmap.CompressFormat compressFormat, int compressQuality)
 	{
-        if (null != mDiskCache)
-		{
-            checkNotOnMainThread();
+		checkNotOnMainThread();
 
+		createDiskCacheIfConfigured();
+
+		if (null != mDiskCache)
+		{
             final String key = transformUrlForDiskCacheKey(url);
             final ReentrantLock lock = getLockForDiskCacheEdit(key);
             lock.lock();
@@ -617,6 +649,8 @@ public class BitmapLruCache
 	{
         checkNotOnMainThread();
 
+		createDiskCacheIfConfigured();
+
         if (null == mDiskCache)
 		{
             // shortcut to avoid temporary storage on disk
@@ -700,6 +734,8 @@ public class BitmapLruCache
                     }
                 }
 
+				createDiskCacheIfConfigured();
+
                 if (null != mDiskCache)
 				{
                     final String key = transformUrlForDiskCacheKey(url);
@@ -745,14 +781,19 @@ public class BitmapLruCache
             }
         }
 
+		createDiskCacheIfConfigured();
+
         if (null != mDiskCache)
 		{
             checkNotOnMainThread();
 
-            try {
+            try
+			{
                 mDiskCache.remove(transformUrlForDiskCacheKey(url));
                 scheduleDiskCacheFlush();
-            } catch (IOException e) {
+            }
+			catch (IOException e)
+			{
                 e.printStackTrace();
             }
         }
@@ -763,8 +804,10 @@ public class BitmapLruCache
      */
     public void removeFromMemoryCache(String url)
 	{
-        if (null != mMemoryCache) {
-            synchronized (mMemoryCache) {
+        if (null != mMemoryCache)
+		{
+            synchronized (mMemoryCache)
+			{
                 mMemoryCache.remove(url);
             }
         }
@@ -775,13 +818,19 @@ public class BitmapLruCache
      */
     public void removeFromDiskCache(String url)
 	{
-        if (null != mDiskCache) {
-            checkNotOnMainThread();
+		checkNotOnMainThread();
 
-            try {
+		createDiskCacheIfConfigured();
+
+		if (null != mDiskCache)
+		{
+            try
+			{
                 mDiskCache.remove(transformUrlForDiskCacheKey(url));
                 scheduleDiskCacheFlush();
-            } catch (IOException e) {
+            }
+			catch (IOException e)
+			{
                 e.printStackTrace();
             }
         }
@@ -796,9 +845,12 @@ public class BitmapLruCache
      * not currently being displayed. A good place to call this would be from {@link
      * android.app.Application#onLowMemory() Application.onLowMemory()}.
      */
-    public void trimMemory() {
-        if (null != mMemoryCache) {
-            synchronized (mMemoryCache) {
+    public void trimMemory()
+	{
+        if (null != mMemoryCache)
+		{
+            synchronized (mMemoryCache)
+			{
                 mMemoryCache.trimMemory();
             }
         }
@@ -817,26 +869,18 @@ public class BitmapLruCache
 
     public void purgeDiskCache()
 	{
+		createDiskCacheIfConfigured();
+
         if (null != mDiskCache)
 		{
-            checkNotOnMainThread();
-            try {
+            try
+			{
                 mDiskCache.delete();
-            } catch (IOException ex) {
+            }
+			catch (IOException ex)
+			{
                 ex.printStackTrace();
             }
-        }
-    }
-
-    synchronized void setDiskCache(DiskLruCache diskCache)
-	{
-        mDiskCache = diskCache;
-
-        if (null != diskCache)
-		{
-            mDiskCacheEditLocks = new HashMap<>();
-            mDiskCacheFlusherExecutor = new ScheduledThreadPoolExecutor(1);
-            mDiskCacheFlusherRunnable = new DiskCacheFlushRunnable(diskCache);
         }
     }
 
@@ -845,6 +889,34 @@ public class BitmapLruCache
         mMemoryCache = memoryCache;
         mRecyclePolicy = memoryCache.getRecyclePolicy();
     }
+
+	/**
+	 * Set whether the Disk Cache should be enabled. Defaults to {@code false}.
+	 * @param enabled
+	 */
+	void setDiskCacheEnabled(boolean enabled)
+	{
+		mDiskCacheEnabled = enabled;
+	}
+
+	/**
+	 * Set the Disk Cache location. This location should be read-writeable.
+	 * @param location
+	 */
+	void setDiskCacheLocation(File location)
+	{
+		mDiskCacheLocation = location;
+	}
+
+	/**
+	 * Set the maximum number of bytes the Disk Cache should use to store values.
+	 * @param maxSize
+	 *
+	 */
+	void setDiskCacheMaxSize(long maxSize)
+	{
+		mDiskCacheMaxSize = maxSize;
+	}
 
     private ReentrantLock getLockForDiskCacheEdit(String url)
 	{
@@ -922,7 +994,7 @@ public class BitmapLruCache
 	 * @param source
 	 * @return
 	 */
-	public Bitmap decodeBitmap(InputStreamProvider ip, BitmapFactory.Options opts, AtomicInteger source)
+	public Bitmap decodeBitmap(InputStreamProvider ip, @Nullable BitmapFactory.Options opts, @Nullable AtomicInteger source)
 	{
         Bitmap bm = null;
         InputStream is = null;
@@ -937,31 +1009,37 @@ public class BitmapLruCache
             if (mRecyclePolicy.canInBitmap())
 			{
                 // Create an options instance if we haven't been provided with one
-                if (opts == null) {
+                if (opts == null)
                     opts = new BitmapFactory.Options();
-                }
 
-                if (opts.inSampleSize <= 1) {
+                if (opts.inSampleSize <= 1)
+				{
                     opts.inSampleSize = 1;
 
-                    if (addInBitmapOptions(ip, opts) && source != null) {
+                    if (addInBitmapOptions(ip, opts) && source != null)
                         source.set(CacheableBitmapDrawable.SOURCE_INBITMAP);
-                    }
                 }
             }
 
             // Get InputStream for actual decode
             is = ip.getInputStream();
             // Decode stream
-            if (is == null && ip instanceof ByteArrayInputStreamProvider) {
+            if (is == null && ip instanceof ByteArrayInputStreamProvider)
+			{
                 byte[] data = ((ByteArrayInputStreamProvider) ip).array;
                 bm = BitmapFactory.decodeByteArray(data, 0, data.length, opts);
-            } else {
+            }
+			else
+			{
                 bm = BitmapFactory.decodeStream(is, null, opts);
             }
-        } catch (Exception e) {
+        }
+		catch (Exception e)
+		{
             Log.e(Constants.LOG_TAG, "Unable to decode stream",  e);
-        } finally {
+        }
+		finally
+		{
             IoUtils.closeStream(is);
         }
 
@@ -1017,6 +1095,52 @@ public class BitmapLruCache
         return false;
     }
 
+	private void createDiskCacheIfConfigured()
+	{
+		if (mDiskCache != null)
+			return;
+
+		checkNotOnMainThread();
+
+		if (isValidOptionsForDiskCache())
+		{
+			try
+			{
+				DiskLruCache diskCache = DiskLruCache.open(mDiskCacheLocation, 0, 1, mDiskCacheMaxSize);
+
+				mDiskCache = diskCache;
+				mDiskCacheEditLocks = new HashMap<>();
+				mDiskCacheFlusherExecutor = new ScheduledThreadPoolExecutor(1);
+				mDiskCacheFlusherRunnable = new DiskCacheFlushRunnable(diskCache);
+			}
+			catch (IOException ex)
+			{
+				// ignore
+			}
+		}
+	}
+
+	private boolean isValidOptionsForDiskCache()
+	{
+		boolean valid = mDiskCacheEnabled;
+
+		if (valid)
+		{
+			if (null == mDiskCacheLocation)
+			{
+				Log.i(Constants.LOG_TAG, "Disk Cache has been enabled, but no location given. Please call setDiskCacheLocation(...)");
+				valid = false;
+			}
+			else if (!mDiskCacheLocation.canWrite())
+			{
+				Log.i(Constants.LOG_TAG, "Disk Cache Location is not write-able, disabling disk caching.");
+				valid = false;
+			}
+		}
+
+		return valid;
+	}
+
     /**
      * Builder class for {link {@link BitmapLruCache}. An example call:
      *
@@ -1049,7 +1173,8 @@ public class BitmapLruCache
 
         static final float MAX_MEMORY_CACHE_HEAP_PERCENTAGE = MAX_MEMORY_CACHE_HEAP_RATIO * 100;
 
-        private static long getHeapSize() {
+        private static long getHeapSize()
+		{
             return Runtime.getRuntime().maxMemory();
         }
 
@@ -1057,7 +1182,7 @@ public class BitmapLruCache
 
         private boolean mDiskCacheEnabled;
 
-        private File mDiskCacheLocation;
+        @Nullable private File mDiskCacheLocation;
 
         private long mDiskCacheMaxSize;
 
@@ -1093,47 +1218,16 @@ public class BitmapLruCache
          */
         public BitmapLruCache build()
 		{
-			// TODO checkNotOnMainThread
-
-            final BitmapLruCache cache = new BitmapLruCache(mContext);
+			final BitmapLruCache cache = new BitmapLruCache(mContext);
 
             if (isValidOptionsForMemoryCache())
 			{
-                if (Constants.DEBUG) {
-                    Log.d("BitmapLruCache.Builder", "Creating Memory Cache");
-                }
                 cache.setMemoryCache(new BitmapMemoryLruCache(mMemoryCacheMaxSize, mRecyclePolicy));
             }
 
-            if (isValidOptionsForDiskCache())
-			{
-                new AsyncTask<Void, Void, DiskLruCache>()
-				{
-                    @Override
-                    protected DiskLruCache doInBackground(Void... params)
-					{
-                        try
-						{
-                            return DiskLruCache.open(mDiskCacheLocation, 0, 1, mDiskCacheMaxSize);
-							// TODO BUGFIX MEMORY / RESOURCE LEAK FIXEN !!!!
-							// IS NEVER CLOSED !!!
-							// Dieser cache muss mit dem Activity lifecycle verbunden werden !
-                        }
-						catch (IOException e)
-						{
-                            e.printStackTrace();
-                            return null;
-                        }
-                    }
-
-                    @Override
-                    protected void onPostExecute(DiskLruCache result)
-					{
-                        cache.setDiskCache(result);
-                    }
-
-                }.execute();
-            }
+			cache.setDiskCacheLocation(mDiskCacheLocation);
+			cache.setDiskCacheEnabled(mDiskCacheEnabled);
+			cache.setDiskCacheMaxSize(mDiskCacheMaxSize);
 
             return cache;
         }
@@ -1235,27 +1329,6 @@ public class BitmapLruCache
             return this;
         }
 
-        private boolean isValidOptionsForDiskCache()
-		{
-            boolean valid = mDiskCacheEnabled;
-
-            if (valid)
-			{
-                if (null == mDiskCacheLocation)
-				{
-                    Log.i(Constants.LOG_TAG, "Disk Cache has been enabled, but no location given. Please call setDiskCacheLocation(...)");
-                    valid = false;
-                }
-				else if (!mDiskCacheLocation.canWrite())
-				{
-                    Log.i(Constants.LOG_TAG, "Disk Cache Location is not write-able, disabling disk caching.");
-                    valid = false;
-                }
-            }
-
-            return valid;
-        }
-
         private boolean isValidOptionsForMemoryCache() {
             return mMemoryCacheEnabled && mMemoryCacheMaxSize > 0;
         }
@@ -1334,16 +1407,24 @@ public class BitmapLruCache
 
     final class SnapshotInputStreamProvider implements InputStreamProvider
 	{
-        final String mKey;
+        private final String mKey;
+		private final DiskLruCache mDiskCache;
 
-        SnapshotInputStreamProvider(String key) {
+		/**
+		 *
+		 * @param key
+		 * @param pDiskCache
+		 */
+        SnapshotInputStreamProvider(final String key, final DiskLruCache pDiskCache)
+		{
             mKey = key;
+			mDiskCache = pDiskCache;
         }
 
         @Override
         public InputStream getInputStream()
 		{
-            try
+			try
 			{
                 DiskLruCache.Snapshot snapshot = mDiskCache.get(mKey);
 
