@@ -8,8 +8,11 @@ import com.mapbox.mapboxsdk.tileprovider.constants.TileLayerConstants;
 import com.mapbox.mapboxsdk.tileprovider.modules.MapTileDownloader;
 import com.mapbox.mapboxsdk.views.util.constants.MapViewConstants;
 
-public class TileLayer implements ITileLayer, TileLayerConstants, MapViewConstants {
-
+/**
+ *
+ */
+public class TileLayer implements ITileLayer, TileLayerConstants, MapViewConstants
+{
     protected String mUrl;
     protected String mCacheKey;
     protected String mName;

@@ -42,6 +42,9 @@ import com.mapbox.mapboxsdk.views.MapView;
  */
 public class Projection implements GeoConstants
 {
+	// Instance Vars
+	// =================================================================================================================================================================================================
+
     private MapView mapView = null;
     private int viewWidth2;
     private int viewHeight2;
@@ -58,6 +61,9 @@ public class Projection implements GeoConstants
     private final float mMapOrientation;
     private final Matrix mRotateMatrix = new Matrix();
     protected static int mTileSize = 256;
+
+	// Constructors
+	// =================================================================================================================================================================================================
 
 	/**
 	 *
@@ -101,6 +107,9 @@ public class Projection implements GeoConstants
         mRotateMatrix.setRotate(-mMapOrientation, viewWidth2, viewHeight2);
     }
 
+	// Public Methods
+	// =================================================================================================================================================================================================
+
     public float getZoomLevel() {
         return mZoomLevelProjection;
     }
@@ -117,7 +126,9 @@ public class Projection implements GeoConstants
         return mBoundingBoxProjection;
     }
 
-    public Rect getScreenRect() {
+    public Rect getScreenRect()
+	{
+		// Must be pre computed to be used very efficient in draw cycle.
         return mScreenRectProjection;
     }
 
@@ -194,10 +205,12 @@ public class Projection implements GeoConstants
     public PointF toPixels(final ILatLng in, final PointF reuse)
 	{
         PointF result = toMapPixels(in, reuse);
+
         result.offset(-mIntrinsicScreenRectProjection.exactCenterX(), -mIntrinsicScreenRectProjection.exactCenterY());
-        if (mMapOrientation % 360 != 0) {
+
+		if (mMapOrientation % 360 != 0)
             GeometryMath.rotatePoint(0, 0, result, mMapOrientation, result);
-        }
+
         result.offset(viewWidth2, viewHeight2);
         return result;
     }

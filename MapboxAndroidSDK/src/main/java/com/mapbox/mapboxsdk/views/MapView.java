@@ -2012,8 +2012,11 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
      *
      * @return New Projection object
      */
-    private Projection updateProjection() {
-        return new Projection(this);
+    private final Projection updateProjection()
+	{
+        final Projection projection = new Projection(this);
+		mProjection = projection;
+		return projection;
     }
 
     /**
