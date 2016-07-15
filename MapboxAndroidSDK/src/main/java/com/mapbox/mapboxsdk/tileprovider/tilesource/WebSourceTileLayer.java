@@ -223,7 +223,7 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
         // We track the active threads here, every exit point should decrement this value.
         activeThreads.incrementAndGet();
 
-		Log.d(TAG, "active threads " + activeThreads.get());
+		//Log.d(TAG, "active threads " + activeThreads.get());
 
         if (TextUtils.isEmpty(url))
 		{
@@ -237,20 +237,26 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
 
 			connection.connect();
 
-			final InputStream inputStream = connection.getInputStream();
-
 			try
 			{
-				Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+				final InputStream inputStream = connection.getInputStream();
 
-				if (bitmap != null)
-					aCache.putTileInMemoryCache(mapTile, bitmap);
+				try
+				{
+					Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
-				return bitmap;
+					if (bitmap != null)
+						aCache.putTileInMemoryCache(mapTile, bitmap);
+
+					return bitmap;
+				}
+				finally
+				{
+					inputStream.close();
+				}
 			}
 			finally
 			{
-				inputStream.close();
 				connection.disconnect();
 			}
 		}

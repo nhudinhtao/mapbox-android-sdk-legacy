@@ -38,7 +38,7 @@ public interface TileLayerConstants {
      * number of tile download threads, conforming to OSM policy:
      * http://wiki.openstreetmap.org/wiki/Tile_usage_policy
      */
-	int NUMBER_OF_TILE_DOWNLOAD_THREADS = 8;
+	int NUMBER_OF_TILE_DOWNLOAD_THREADS = 4;
 
     int TILE_DOWNLOAD_MAXIMUM_QUEUE_SIZE = 40;
 }

@@ -20,7 +20,8 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 /**
  * The {@link MapTileDownloader} loads tiles from an HTTP server.
  */
-public class MapTileDownloader extends MapTileModuleLayerBase {
+public class MapTileDownloader extends MapTileModuleLayerBase
+{
     private static final String TAG = "MapTileDownloader";
 
     private final AtomicReference<TileLayer> mTileSource = new AtomicReference<>();
@@ -31,8 +32,15 @@ public class MapTileDownloader extends MapTileModuleLayerBase {
     private boolean mUseDataConnection;
     boolean hdpi;
 
-    public MapTileDownloader(final ITileLayer pTileSource, final MapTileCache pTileCache,
-                             final NetworkAvailabilityCheck pNetworkAvailabilityCheck, final MapView mapView) {
+	/**
+	 *
+	 * @param pTileSource
+	 * @param pTileCache
+	 * @param pNetworkAvailabilityCheck
+	 * @param mapView
+	 */
+    public MapTileDownloader(final ITileLayer pTileSource, final MapTileCache pTileCache, final NetworkAvailabilityCheck pNetworkAvailabilityCheck, final MapView mapView)
+	{
         super(NUMBER_OF_TILE_DOWNLOAD_THREADS, TILE_DOWNLOAD_MAXIMUM_QUEUE_SIZE);
         mMapView = mapView;
         mUseDataConnection = true;
@@ -141,25 +149,28 @@ public class MapTileDownloader extends MapTileModuleLayerBase {
     }
 
     @Override
-    public String getCacheKey() {
+    public String getCacheKey()
+	{
         TileLayer tileLayer = mTileSource.get();
         return (tileLayer != null) ? tileLayer.getCacheKey() : "";
     }
 
-    protected class TileLoader extends MapTileModuleLayerBase.TileLoader {
-
+    protected class TileLoader extends MapTileModuleLayerBase.TileLoader
+	{
         @Override
-        public Drawable loadTile(final MapTileRequestState aState) throws CantContinueException {
+        public Drawable loadTile(final MapTileRequestState aState) throws CantContinueException
+		{
             final MapTile tile = aState.getMapTile();
 //            Log.d(TAG, "loadTile() with tile = '" + tile + "'");
-            if (mTileCache != null && mTileCache.get().containsTileInDiskCache(tile)) {
+
+            if (mTileCache != null && mTileCache.get().containsTileInDiskCache(tile))
+			{
 //                Log.d(TAG, "tile found in Disk Cache, so returning it. tile = '" + tile + "'");
                 return mTileCache.get().getMapTileFromDisk(tile);
             }
+
             TileLayer tileLayer = mTileSource.get();
-            Drawable result =
-                    (tileLayer != null) ? tileLayer.getDrawableFromTile(MapTileDownloader.this,
-                            tile, hdpi) : null;
+            Drawable result = (tileLayer != null) ? tileLayer.getDrawableFromTile(MapTileDownloader.this, tile, hdpi) : null;
 //            Log.d(TAG, "tileLayer.getDrawable() returning result = '" + result + "'");
             return result;
         }
