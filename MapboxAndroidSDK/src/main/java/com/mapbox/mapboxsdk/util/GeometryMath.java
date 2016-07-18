@@ -151,7 +151,7 @@ public class GeometryMath
         double xnew = x * cos - y * sin + centerX;
         double ynew = x * sin + y * cos + centerY;
         // translate point back to global coords:
-        out.set((float) (xnew + centerX), (float) (ynew + centerY));
+        out.set((float) (xnew + centerX), (float) (ynew + centerY)); // TODO MAYBE BUG centerX and centerY is added twice !!!
         return out;
     }
 
@@ -193,14 +193,15 @@ public class GeometryMath
      * Assert.assertEquals(-1, - getNextSquareNumberAbove(1 / 0.4f) + 1); Assert.assertEquals(-2, -
      * getNextSquareNumberAbove(1 / 0.24f) + 1);
      */
-    public static int getNextSquareNumberAbove(final float factor) {
+    public static int getNextSquareNumberAbove(final float factor)
+	{
         int out = 0;
         int cur = 1;
         int i = 1;
-        while (true) {
-            if (cur > factor) {
+        while (true)
+		{
+            if (cur > factor)
                 return out;
-            }
 
             out = i;
             cur *= 2;
@@ -208,15 +209,19 @@ public class GeometryMath
         }
     }
 
+	/**
+	 *
+	 * @param number
+	 * @param modulus
+	 * @return
+	 */
     public static int mod(int number, final int modulus)
 	{
-        if (number > 0) {
+        if (number > 0)
             return number % modulus;
-        }
 
-        while (number < 0) {
+        while (number < 0)
             number += modulus;
-        }
 
         return number;
     }
