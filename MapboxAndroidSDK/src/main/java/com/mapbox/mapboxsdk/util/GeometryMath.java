@@ -9,13 +9,26 @@ import com.mapbox.mapboxsdk.views.util.Projection;
 /**
  * @author Marc Kurtz
  */
-public class GeometryMath {
+public class GeometryMath
+{
     public static final double DEG2RAD = (Math.PI / 180.0);
     public static final double RAD2DEG = (180.0 / Math.PI);
 
-    public static Rect getBoundingBoxForRotatedRectangle(final Rect rect, final float centerX, final float centerY, final float angle, final Rect reuse) {
+	/**
+	 *
+	 * @param rect
+	 * @param centerX
+	 * @param centerY
+	 * @param angle
+	 * @param reuse
+	 * @return
+	 */
+    public static Rect getBoundingBoxForRotatedRectangle(final Rect rect, final float centerX, final float centerY, final float angle, final Rect reuse)
+	{
         final Rect out = GeometryMath.reusable(reuse);
-        if (angle % 360 == 0) {
+
+        if (angle % 360 == 0)
+		{
             out.set(rect);
             return out;
         }
@@ -45,48 +58,85 @@ public class GeometryMath {
         return out;
     }
 
-    public static PointF reusable(final PointF reuse) {
-        final PointF out;
-        if (reuse != null) {
-            out = reuse;
-        } else {
-            out = new PointF();
+	/**
+	 *
+	 * @param reuse
+	 * @return
+	 */
+    public static PointF reusable(final PointF reuse)
+	{
+        if (reuse != null)
+		{
+            return reuse;
         }
-        return out;
+		else
+		{
+            return new PointF();
+        }
     }
 
-    public static Point reusable(Point reuse) {
-        final Point out;
-        if (reuse != null) {
-            out = reuse;
-        } else {
-            out = new Point();
+	/**
+	 *
+	 * @param reuse
+	 * @return
+	 */
+    public static Point reusable(Point reuse)
+	{
+        if (reuse != null)
+		{
+            return reuse;
         }
-        return out;
+		else
+		{
+            return new Point();
+        }
     }
 
-    public static RectF reusable(final RectF reuse) {
-        final RectF out;
-        if (reuse != null) {
-            out = reuse;
-        } else {
-            out = new RectF();
+	/**
+	 *
+	 * @param reuse
+	 * @return
+	 */
+    public static RectF reusable(final RectF reuse)
+	{
+        if (reuse != null)
+		{
+            return reuse;
         }
-        return out;
+		else
+		{
+            return new RectF();
+        }
     }
 
-    public static Rect reusable(final Rect reuse) {
-        final Rect out;
-        if (reuse != null) {
-            out = reuse;
-        } else {
-            out = new Rect();
+	/**
+	 *
+	 * @param reuse
+	 * @return
+	 */
+    public static Rect reusable(final Rect reuse)
+	{
+        if (reuse != null)
+		{
+            return reuse;
         }
-        return out;
+		else
+		{
+            return new Rect();
+        }
     }
 
-    public static PointF rotatePoint(final float centerX, final float centerY, final PointF point,
-            final float angle, final PointF reuse) {
+	/**
+	 *
+	 * @param centerX
+	 * @param centerY
+	 * @param point
+	 * @param angle
+	 * @param reuse
+	 * @return
+	 */
+    public static PointF rotatePoint(final float centerX, final float centerY, final PointF point, final float angle, final PointF reuse)
+	{
         final PointF out = GeometryMath.reusable(reuse);
         double rotationRadians = angle * DEG2RAD;
         //calculate new x coord
@@ -188,16 +238,31 @@ public class GeometryMath {
      * @param multiplier
      * @return
      */
-    public static float rightShift(final float value, final float multiplier) {
+    public static float rightShift(final float value, final float multiplier)
+	{
         return (float) (value / Math.pow(2, multiplier));
     }
 
-    public static double rightShift(final double value, final float multiplier) {
+	/**
+	 *
+	 * @param value
+	 * @param multiplier
+	 * @return
+	 */
+    public static double rightShift(final double value, final float multiplier)
+	{
         return value / Math.pow(2, multiplier);
     }
 
-    public static Rect viewPortRect(final float zoomLevel, final Projection projection,
-            final Rect reuse) {
+	/**
+	 *
+	 * @param zoomLevel
+	 * @param projection
+	 * @param reuse
+	 * @return
+	 */
+    public static Rect viewPortRect(final float zoomLevel, final Projection projection, final Rect reuse)
+	{
         final Rect out = GeometryMath.reusable(reuse);
         // Get the area we are drawing to
         final Rect screenRect = projection.getScreenRect();
@@ -209,8 +274,15 @@ public class GeometryMath {
         return out;
     }
 
-    public static Rect viewPortRectForTileDrawing(final float zoomLevel,
-            final Projection projection, final Rect reuse) {
+	/**
+	 *
+	 * @param zoomLevel
+	 * @param projection
+	 * @param reuse
+	 * @return
+	 */
+    public static Rect viewPortRectForTileDrawing(final float zoomLevel, final Projection projection, final Rect reuse)
+	{
         final Rect out = GeometryMath.reusable(reuse);
         // Get the area we are drawing to
         final Rect screenRect = projection.getScreenRect();
@@ -228,11 +300,25 @@ public class GeometryMath {
         return out;
     }
 
-    public static Rect viewPortRect(final Projection projection, final Rect reuse) {
+	/**
+	 *
+	 * @param projection
+	 * @param reuse
+	 * @return
+	 */
+    public static Rect viewPortRect(final Projection projection, final Rect reuse)
+	{
         return viewPortRect(projection.getZoomLevel(), projection, reuse);
     }
 
-    public static Rect viewPortRectForTileDrawing(final Projection projection, final Rect reuse) {
+	/**
+	 *
+	 * @param projection
+	 * @param reuse
+	 * @return
+	 */
+    public static Rect viewPortRectForTileDrawing(final Projection projection, final Rect reuse)
+	{
         return viewPortRectForTileDrawing(projection.getZoomLevel(), projection, reuse);
     }
 }

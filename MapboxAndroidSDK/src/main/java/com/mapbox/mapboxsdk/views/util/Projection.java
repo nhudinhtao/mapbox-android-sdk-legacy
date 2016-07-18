@@ -485,8 +485,8 @@ public class Projection implements GeoConstants
      * @param screenDpi Resolution of the screen, in dots per inch
      * @return The map scale, expressed as the denominator N of the ratio 1 : N
      */
-    public static double mapScale(final double latitude, final int levelOfDetail,
-            final int screenDpi) {
+    public static double mapScale(final double latitude, final int levelOfDetail, final int screenDpi)
+	{
         return groundResolution(latitude, levelOfDetail) * screenDpi / 0.0254;
     }
 
@@ -500,8 +500,8 @@ public class Projection implements GeoConstants
      * @param reuse An optional Point to be recycled, or null to create a new one automatically
      * @return Output parameter receiving the X and Y coordinates in pixels
      */
-    public static PointF latLongToPixelXY(double latitude, double longitude,
-            final float levelOfDetail, final PointF reuse) {
+    public static PointF latLongToPixelXY(double latitude, double longitude, final float levelOfDetail, final PointF reuse)
+	{
         latitude = wrap(latitude, -90, 90, 180);
         longitude = wrap(longitude, -180, 180, 360);
         final PointF out = (reuse == null ? new PointF() : reuse);
@@ -519,7 +519,8 @@ public class Projection implements GeoConstants
         return out;
     }
 
-    public static double[] latLongToPixelXY(double latitude, double longitude) {
+    public static double[] latLongToPixelXY(double latitude, double longitude)
+	{
         latitude = wrap(latitude, -90, 90, 180);
         longitude = wrap(longitude, -180, 180, 360);
 
