@@ -118,12 +118,28 @@ public class Projection implements GeoConstants
         return worldSize2;
     }
 
-    public BoundingBox getBoundingBox()
+	/**
+	 *
+	 * @return
+	 * Null if the MapView has not been measured !
+	 */
+	@Nullable
+    public final BoundingBox getBoundingBox()
 	{
-        if (mBoundingBoxProjection == null)
-            mBoundingBoxProjection = mapView.getBoundingBoxInternal();
+		BoundingBox tBoundingBoxProjection = mBoundingBoxProjection;
 
-        return mBoundingBoxProjection;
+        if (tBoundingBoxProjection == null)
+		{
+			tBoundingBoxProjection = mapView.getBoundingBoxInternal();
+
+			if (tBoundingBoxProjection == null)
+				return null;
+
+			mBoundingBoxProjection = tBoundingBoxProjection;
+			// Thread Safety !!!
+		}
+
+        return tBoundingBoxProjection;
     }
 
     public Rect getScreenRect()

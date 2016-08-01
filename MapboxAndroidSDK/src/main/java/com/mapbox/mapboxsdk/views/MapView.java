@@ -11,6 +11,7 @@ import android.graphics.RectF;
 import android.location.Location;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -777,16 +778,20 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         return mTileRequestCompleteHandler;
     }
 
-    public BoundingBox getBoundingBoxInternal()
+	/**
+	 *
+	 * @return
+	 * Null if the MapView has not been measured !
+	 */
+	@Nullable
+    public final BoundingBox getBoundingBoxInternal()
 	{
         if (getMeasuredWidth() == 0 || getMeasuredHeight() == 0)
             return null;
 
         final Rect screenRect = GeometryMath.viewPortRect(getProjection(), null);
-        ILatLng neGeoPoint =
-                Projection.pixelXYToLatLong(screenRect.right, screenRect.top, mZoomLevel);
-        ILatLng swGeoPoint =
-                Projection.pixelXYToLatLong(screenRect.left, screenRect.bottom, mZoomLevel);
+        ILatLng neGeoPoint = Projection.pixelXYToLatLong(screenRect.right, screenRect.top, mZoomLevel);
+        ILatLng swGeoPoint = Projection.pixelXYToLatLong(screenRect.left, screenRect.bottom, mZoomLevel);
 
         return new BoundingBox(neGeoPoint.getLatitude(), neGeoPoint.getLongitude(), swGeoPoint.getLatitude(), swGeoPoint.getLongitude());
     }
