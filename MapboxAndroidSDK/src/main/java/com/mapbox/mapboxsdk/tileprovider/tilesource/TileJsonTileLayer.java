@@ -260,9 +260,18 @@ public class TileJsonTileLayer extends WebSourceTileLayer
                 URL url = new URL(urls[0]);
                 connection = NetworkUtils.getHttpURLConnection(url, cache);
 
-                in = connection.getInputStream();
+				byte[] response;
 
-				byte[] response = readFully(in);
+				try
+				{
+					in = connection.getInputStream();
+					response = readFully(in);
+				}
+				finally
+				{
+					try { if (in != null) in.close(); } catch (IOException e) {}
+				}
+
                 String result = new String(response, "UTF-8");
                 return new JSONObject(result);
             }
@@ -272,19 +281,7 @@ public class TileJsonTileLayer extends WebSourceTileLayer
             }
 			finally
 			{
-				try
-				{
-					if (connection != null)
-						connection.disconnect();
-				}
-				catch (Throwable t) {}
-
-                try
-				{
-                    if (in != null)
-                        in.close();
-                }
-				catch (IOException e) {}
+				try { if (connection != null) connection.disconnect(); } catch (Throwable t) {}
             }
         }
     }
