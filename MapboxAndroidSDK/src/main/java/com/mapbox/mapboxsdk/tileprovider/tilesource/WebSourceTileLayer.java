@@ -239,10 +239,12 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
 
 			try
 			{
-				final InputStream inputStream = connection.getInputStream();
+				InputStream inputStream = null;
 
 				try
 				{
+					inputStream = connection.getInputStream();
+
 					Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
 
 					if (bitmap != null)

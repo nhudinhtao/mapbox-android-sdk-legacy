@@ -72,9 +72,9 @@ public class TileJsonTileLayer extends WebSourceTileLayer
 	// Public Methods
 	// =================================================================================================================================================================================================
 
-    public JSONObject getTileJSON() { return tileJSON; }
+    public final JSONObject getTileJSON() { return tileJSON; }
 
-    public void setTileJSON(JSONObject aTileJSON) { this.tileJSON = aTileJSON; }
+    public final void setTileJSON(JSONObject aTileJSON) { this.tileJSON = aTileJSON; }
 
 	// Package Protected Methods
 	// =================================================================================================================================================================================================
@@ -86,7 +86,7 @@ public class TileJsonTileLayer extends WebSourceTileLayer
 	 *
 	 * @throws IOException
 	 */
-    byte[] readFully(final InputStream pInputStream) throws IOException
+    final byte[] readFully(final InputStream pInputStream) throws IOException
 	{
         final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -103,7 +103,8 @@ public class TileJsonTileLayer extends WebSourceTileLayer
 		}
 		finally
 		{
-			out.close();
+			try { out.close(); } catch (Throwable t) {}
+			try { pInputStream.close(); } catch (Throwable t) {}
 		}
 	}
 
@@ -116,7 +117,7 @@ public class TileJsonTileLayer extends WebSourceTileLayer
 	 * @param key
 	 * @return
 	 */
-	private float getJSONFloat(final JSONObject JSON, final String key)
+	private final float getJSONFloat(final JSONObject JSON, final String key)
 	{
 		float defaultValue = 0;
 
