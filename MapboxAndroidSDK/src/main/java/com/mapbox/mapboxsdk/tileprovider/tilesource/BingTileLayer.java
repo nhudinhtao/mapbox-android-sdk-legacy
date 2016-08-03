@@ -17,8 +17,8 @@ import java.nio.charset.Charset;
  * @deprecated
  * NOT NEEDED FOR KMT !!!
  */
-public class BingTileLayer extends WebSourceTileLayer {
-
+public class BingTileLayer extends WebSourceTileLayer
+{
     public static String TAG = "BingTileLayer";
 
     public static final String IMAGERYSET_AERIAL = "Aerial";
@@ -46,7 +46,8 @@ public class BingTileLayer extends WebSourceTileLayer {
     }
 
     @Override
-    public String getTileURL(final MapTile aTile, boolean hdpi) {
+    public String getTileURL(final MapTile aTile, boolean hdpi)
+	{
         if (!mHasMetadata) {
             getMetadata();
         }
@@ -71,9 +72,12 @@ public class BingTileLayer extends WebSourceTileLayer {
         return mStyle;
     }
 
-    public TileLayer setStyle(String style) {
-        if (!style.equals(mStyle)) {
-            synchronized (mStyle) {
+    public TileLayer setStyle(String style)
+	{
+        if (!style.equals(mStyle))
+		{
+            synchronized (mStyle)
+			{
                 mStyle = style;
                 mHasMetadata = false;
             }
@@ -82,9 +86,12 @@ public class BingTileLayer extends WebSourceTileLayer {
         return this;
     }
 
-    private void getMetadata() {
-        try {
-            synchronized (this) {
+    private void getMetadata()
+	{
+        try
+		{
+            synchronized (this)
+			{
                 if (mHasMetadata) {
                     return;
                 }

@@ -76,7 +76,7 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
     }
 
     @Override
-    public final TileLayer setURL(final String aUrl)
+    public TileLayer setURL(final String aUrl)
 	{
         if (aUrl.contains(String.format(MAPBOX_LOCALE, "http%s://", (mEnableSSL ? "" : "s"))))
 		{
@@ -95,7 +95,7 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
 	 * @param aUrl
 	 * @param enableSSL
 	 */
-    protected final void initialize(String pId, String aUrl, boolean enableSSL)
+    protected void initialize(String pId, String aUrl, boolean enableSSL)
 	{
         mEnableSSL = enableSSL;
         setURL(aUrl);
@@ -126,7 +126,8 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
 	 *
      * @return a list of tile URLs
      */
-    public final String getTileURL(final MapTile aTile, boolean hdpi) {
+    public String getTileURL(final MapTile aTile, boolean hdpi)
+	{
         return parseUrlForTile(mUrl, aTile, hdpi);
     }
 

@@ -13,6 +13,9 @@ import com.mapbox.mapboxsdk.views.util.constants.MapViewConstants;
  */
 public class TileLayer implements ITileLayer, TileLayerConstants, MapViewConstants
 {
+	// Constants
+	// =================================================================================================================================================================================================
+
     protected String mUrl;
     protected String mCacheKey;
     protected String mName;
@@ -26,15 +29,28 @@ public class TileLayer implements ITileLayer, TileLayerConstants, MapViewConstan
     protected LatLng mCenter = new LatLng(0, 0);
     private final int mTileSizePixels = DEFAULT_TILE_SIZE;
 
-    public TileLayer(final String pId, final String aUrl) {
+	// Constructors
+	// =================================================================================================================================================================================================
+
+	/**
+	 *
+	 * @param pId
+	 * @param aUrl
+	 */
+    public TileLayer(final String pId, final String aUrl)
+	{
         mUrl = aUrl;
         mCacheKey = pId;
     }
 
+	// Public Methods
+	// =================================================================================================================================================================================================
+
     /**
      * Sets the layer's tile URL template string.
      */
-    public TileLayer setURL(final String aUrl) {
+    public TileLayer setURL(final String aUrl)
+	{
         mUrl = aUrl;
         return this;
     }
@@ -42,7 +58,8 @@ public class TileLayer implements ITileLayer, TileLayerConstants, MapViewConstan
     /**
      * Sets the layer's attribution string.
      */
-    public TileLayer setAttribution(final String aAttribution) {
+    public TileLayer setAttribution(final String aAttribution)
+	{
         this.mAttribution = aAttribution;
         return this;
     }
@@ -50,7 +67,8 @@ public class TileLayer implements ITileLayer, TileLayerConstants, MapViewConstan
     /**
      * Sets the layer's description string.
      */
-    public TileLayer setDescription(final String aDescription) {
+    public TileLayer setDescription(final String aDescription)
+	{
         this.mDescription = aDescription;
         return this;
     }

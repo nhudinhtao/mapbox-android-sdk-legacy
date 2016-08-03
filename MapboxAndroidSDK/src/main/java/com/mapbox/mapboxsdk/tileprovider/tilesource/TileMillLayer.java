@@ -4,7 +4,8 @@ import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.tileprovider.MapTile;
 import com.mapbox.mapboxsdk.tileprovider.constants.TileLayerConstants;
 
-public class TileMillLayer extends WebSourceTileLayer implements MapboxConstants {
+public class TileMillLayer extends WebSourceTileLayer implements MapboxConstants
+{
 
     private static final String BASE_URL = "http://%s:20008/tile/%s";
 
@@ -26,7 +27,8 @@ public class TileMillLayer extends WebSourceTileLayer implements MapboxConstants
     }
 
     @Override
-    public TileLayer setURL(final String aUrl) {
+    public TileLayer setURL(final String aUrl)
+	{
         super.setURL(aUrl + "/%d/%d/%d.png?updated=%d");
         return this;
     }
