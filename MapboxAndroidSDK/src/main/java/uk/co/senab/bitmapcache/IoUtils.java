@@ -57,18 +57,25 @@ class IoUtils {
     /**
      * Pipe an InputStream to the given OutputStream <p /> Taken from Apache Commons IOUtils.
      */
-    private static long copy(InputStream input, OutputStream output) throws IOException {
-        try {
+    private static long copy(InputStream input, OutputStream output) throws IOException
+	{
+        try
+		{
             byte[] buffer = new byte[1024 * 4];
             long count = 0;
             int n;
-            while (-1 != (n = input.read(buffer))) {
+
+            while (-1 != (n = input.read(buffer)))
+			{
                 output.write(buffer, 0, n);
                 count += n;
             }
-            output.flush();
+
+			output.flush();
             return count;
-        } finally {
+        }
+		finally
+		{
             IoUtils.closeStream(input);
             IoUtils.closeStream(output);
         }

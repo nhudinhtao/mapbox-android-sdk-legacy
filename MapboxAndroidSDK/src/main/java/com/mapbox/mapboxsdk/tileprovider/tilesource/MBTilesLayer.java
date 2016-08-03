@@ -182,21 +182,25 @@ public class MBTilesLayer extends TileLayer implements MapViewConstants, MapboxC
     }
 
     @Override
-    public void detach() {
-        if (mbTilesFileArchive != null) {
+    public void detach()
+	{
+        if (mbTilesFileArchive != null)
+		{
             mbTilesFileArchive.close();
             mbTilesFileArchive = null;
         }
     }
 
     @Override
-    public CacheableBitmapDrawable getDrawableFromTile(final MapTileDownloader downloader,
-                                                       final MapTile aTile, boolean hdpi) {
-        if (mbTilesFileArchive != null) {
+    public CacheableBitmapDrawable getDrawableFromTile(final MapTileDownloader downloader, final MapTile aTile, boolean hdpi)
+	{
+        if (mbTilesFileArchive != null)
+		{
             InputStream stream = mbTilesFileArchive.getInputStream(this, aTile);
-            if (stream != null) {
-                CacheableBitmapDrawable result =
-                        downloader.getCache().putTileStream(aTile, stream, null);
+
+			if (stream != null)
+			{
+                CacheableBitmapDrawable result = downloader.getCache().putTileStream(aTile, stream, null);
                 if (result == null) {
                     Log.d(TAG, "error reading stream from mbtiles");
                 }
