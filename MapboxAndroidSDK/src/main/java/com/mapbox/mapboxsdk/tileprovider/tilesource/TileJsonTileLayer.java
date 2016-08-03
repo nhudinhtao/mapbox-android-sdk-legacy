@@ -81,19 +81,31 @@ public class TileJsonTileLayer extends WebSourceTileLayer
 
 	/**
 	 *
-	 * @param in
+	 * @param pInputStream
 	 * @return
+	 *
 	 * @throws IOException
 	 */
-    byte[] readFully(InputStream in) throws IOException
+    byte[] readFully(final InputStream pInputStream) throws IOException
 	{
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        byte[] buffer = new byte[1024];
-        for (int count; (count = in.read(buffer)) != -1;) {
-            out.write(buffer, 0, count);
-        }
-        return out.toByteArray();
-    }
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+		try
+		{
+			byte[] buffer = new byte[1024];
+
+			for (int count; (count = pInputStream.read(buffer)) != -1; )
+			{
+				out.write(buffer, 0, count);
+			}
+
+			return out.toByteArray();
+		}
+		finally
+		{
+			out.close();
+		}
+	}
 
 	// Private Methods
 	// =================================================================================================================================================================================================
@@ -104,9 +116,10 @@ public class TileJsonTileLayer extends WebSourceTileLayer
 	 * @param key
 	 * @return
 	 */
-	private float getJSONFloat(JSONObject JSON, String key)
+	private float getJSONFloat(final JSONObject JSON, final String key)
 	{
 		float defaultValue = 0;
+
 		if (JSON.has(key))
 		{
 			try
@@ -128,9 +141,10 @@ public class TileJsonTileLayer extends WebSourceTileLayer
 	 * @param length
 	 * @return
 	 */
-	private double[] getJSONDoubleArray(JSONObject JSON, String key, int length)
+	private double[] getJSONDoubleArray(final JSONObject JSON, final String key, final int length)
 	{
 		double[] defaultValue = null;
+
 		if (JSON.has(key))
 		{
 			try
@@ -239,31 +253,38 @@ public class TileJsonTileLayer extends WebSourceTileLayer
         protected JSONObject doInBackground(String... urls)
 		{
             InputStream in = null;
+			HttpURLConnection connection = null;
+
             try
 			{
                 URL url = new URL(urls[0]);
-                HttpURLConnection connection = NetworkUtils.getHttpURLConnection(url, cache);
+                connection = NetworkUtils.getHttpURLConnection(url, cache);
+
                 in = connection.getInputStream();
-                byte[] response = readFully(in);
+
+				byte[] response = readFully(in);
                 String result = new String(response, "UTF-8");
                 return new JSONObject(result);
             }
 			catch (Exception e)
 			{
-                e.printStackTrace();
                 return null;
             }
 			finally
 			{
+				try
+				{
+					if (connection != null)
+						connection.disconnect();
+				}
+				catch (Throwable t) {}
+
                 try
 				{
                     if (in != null)
                         in.close();
                 }
-				catch (IOException e)
-				{
-                    Log.e(TAG, "Error closing InputStream: " + e.toString());
-                }
+				catch (IOException e) {}
             }
         }
     }
