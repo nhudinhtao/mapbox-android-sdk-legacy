@@ -27,11 +27,20 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
  */
 public class WebSourceTileLayer extends TileLayer implements MapboxConstants
 {
+	// Constants
+	// =================================================================================================================================================================================================
+
     private static final String TAG = "WebSourceTileLayer";
+
+	// Instance Vars
+	// =================================================================================================================================================================================================
 
     // Tracks the number of threads active in the getBitmapFromURL method.
     private AtomicInteger activeThreads = new AtomicInteger(0);
     protected boolean mEnableSSL = false;
+
+	// Constructors
+	// =================================================================================================================================================================================================
 
 	/**
 	 *
@@ -55,12 +64,19 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
         initialize(pId, url, enableSSL);
     }
 
-    private boolean checkThreadControl() {
+	// Public Methods
+	// =================================================================================================================================================================================================
+
+	/**
+	 *
+	 * @return
+	 */
+    private final boolean checkThreadControl() {
         return activeThreads.get() == 0;
     }
 
     @Override
-    public TileLayer setURL(final String aUrl)
+    public final TileLayer setURL(final String aUrl)
 	{
         if (aUrl.contains(String.format(MAPBOX_LOCALE, "http%s://", (mEnableSSL ? "" : "s"))))
 		{
@@ -73,7 +89,13 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
         return this;
     }
 
-    protected void initialize(String pId, String aUrl, boolean enableSSL)
+	/**
+	 *
+	 * @param pId
+	 * @param aUrl
+	 * @param enableSSL
+	 */
+    protected final void initialize(String pId, String aUrl, boolean enableSSL)
 	{
         mEnableSSL = enableSSL;
         setURL(aUrl);
@@ -86,7 +108,7 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
      * @param hdpi a boolean that indicates whether the tile should be at 2x or retina size
      * @return a list of tile URLS
      */
-    public String[] getTileURLs(final MapTile aTile, boolean hdpi)
+    public final String[] getTileURLs(final MapTile aTile, boolean hdpi)
 	{
         String url = getTileURL(aTile, hdpi);
 
@@ -101,13 +123,22 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
      *
      * @param aTile a map tile
      * @param hdpi a boolean that indicates whether the tile should be at 2x or retina size
+	 *
      * @return a list of tile URLs
      */
-    public String getTileURL(final MapTile aTile, boolean hdpi) {
+    public final String getTileURL(final MapTile aTile, boolean hdpi) {
         return parseUrlForTile(mUrl, aTile, hdpi);
     }
 
-    protected String parseUrlForTile(String url, final MapTile aTile, boolean hdpi)
+	/**
+	 *
+	 * @param url
+	 * @param aTile
+	 * @param hdpi
+	 *
+	 * @return
+	 */
+    protected final String parseUrlForTile(String url, final MapTile aTile, boolean hdpi)
 	{
         return url.replace("{z}", String.valueOf(aTile.getZ()))
                 .replace("{x}", String.valueOf(aTile.getX()))
@@ -117,6 +148,13 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
 
     private static final Paint compositePaint = new Paint(Paint.FILTER_BITMAP_FLAG);
 
+	/**
+	 *
+	 * @param source
+	 * @param dest
+	 *
+	 * @return
+	 */
     private Bitmap compositeBitmaps(final Bitmap source, Bitmap dest)
 	{
         Canvas canvas = new Canvas(dest);
@@ -254,7 +292,7 @@ public class WebSourceTileLayer extends TileLayer implements MapboxConstants
 				}
 				finally
 				{
-					inputStream.close();
+					try { if (inputStream != null) inputStream.close(); } catch (Throwable t) {}
 				}
 			}
 			finally
