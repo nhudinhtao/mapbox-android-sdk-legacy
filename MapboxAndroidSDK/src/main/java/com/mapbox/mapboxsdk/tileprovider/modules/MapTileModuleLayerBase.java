@@ -26,7 +26,19 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
  */
 public abstract class MapTileModuleLayerBase implements TileLayerConstants
 {
-    /**
+	// Instance Vars
+	// =================================================================================================================================================================================================
+
+	private final ExecutorService mExecutor;
+
+	protected final Object mQueueLockObject = new Object();
+	protected final HashMap<MapTile, MapTileRequestState> mWorking;
+	protected final LinkedHashMap<MapTile, MapTileRequestState> mPending;
+
+	// Methods
+	// =================================================================================================================================================================================================
+
+	/**
      * Gets the human-friendly name assigned to this tile provider.
      *
      * @return the thread name
@@ -111,12 +123,10 @@ public abstract class MapTileModuleLayerBase implements TileLayerConstants
 
     public abstract String getCacheKey();
 
-    private final ExecutorService mExecutor;
-
-    protected final Object mQueueLockObject = new Object();
-    protected final HashMap<MapTile, MapTileRequestState> mWorking;
-    protected final LinkedHashMap<MapTile, MapTileRequestState> mPending;
-
+	/**
+	 *
+	 * @return
+	 */
     public MapTileRequestState popFirstPending()
 	{
         for (MapTile tile : mPending.keySet())
@@ -129,6 +139,10 @@ public abstract class MapTileModuleLayerBase implements TileLayerConstants
      * Initialize a new tile provider, given a thread pool and a pending queue size. The pending
      * queue
      * size must be larger than or equal to the thread pool size.
+	 *
+	 * @param pThreadPoolSize
+	 * @param pPendingQueueSize
+	 *
      */
     public MapTileModuleLayerBase(int pThreadPoolSize, final int pPendingQueueSize)
 	{
@@ -140,7 +154,7 @@ public abstract class MapTileModuleLayerBase implements TileLayerConstants
 
         mExecutor = Executors.newFixedThreadPool(pThreadPoolSize, new ConfigurablePriorityThreadFactory(Thread.NORM_PRIORITY, getThreadGroupName()));
 
-        mWorking = new HashMap<MapTile, MapTileRequestState>();
+        mWorking = new HashMap<>();
         mPending = new LinkedHashMap<MapTile, MapTileRequestState>(pPendingQueueSize + 2, 0.1f, true)
 		{
 			private static final long serialVersionUID = 6455337315681858866L;
@@ -236,14 +250,15 @@ public abstract class MapTileModuleLayerBase implements TileLayerConstants
          * load and other tile providers need to be called
          * @throws CantContinueException
          */
-        protected abstract Drawable loadTile(MapTileRequestState pState)
-                throws CantContinueException;
+        protected abstract Drawable loadTile(MapTileRequestState pState) throws CantContinueException;
 
-        protected void onTileLoaderInit() {
+        protected void onTileLoaderInit()
+		{
             // Do nothing by default
         }
 
-        protected void onTileLoaderShutdown() {
+        protected void onTileLoaderShutdown()
+		{
             // Do nothing by default
         }
 
@@ -288,10 +303,7 @@ public abstract class MapTileModuleLayerBase implements TileLayerConstants
 		{
             if (DEBUG_TILE_PROVIDERS)
 			{
-                Log.d(TAG, "TileLoader.tileLoadedExpired() on provider: "
-                        + getName()
-                        + " with tile: "
-                        + pState.getMapTile());
+                Log.d(TAG, "TileLoader.tileLoadedExpired() on provider: " + getName() + " with tile: " + pState.getMapTile());
             }
             removeTileFromQueues(pState.getMapTile());
             pState.getCallback().mapTileRequestExpiredTile(pState, pDrawable);
@@ -301,10 +313,7 @@ public abstract class MapTileModuleLayerBase implements TileLayerConstants
 		{
             if (DEBUG_TILE_PROVIDERS)
 			{
-                Log.i(TAG, "TileLoader.tileLoadedFailed() on provider: "
-                        + getName()
-                        + " with tile: "
-                        + pState.getMapTile());
+                Log.i(TAG, "TileLoader.tileLoadedFailed() on provider: " + getName() + " with tile: " + pState.getMapTile());
             }
 
             removeTileFromQueues(pState.getMapTile());

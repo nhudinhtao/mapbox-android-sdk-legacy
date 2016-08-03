@@ -20,9 +20,15 @@ import uk.co.senab.bitmapcache.CacheableBitmapDrawable;
 /**
  * The {@link MapTileDownloader} loads tiles from an HTTP server.
  */
-public class MapTileDownloader extends MapTileModuleLayerBase
+public final class MapTileDownloader extends MapTileModuleLayerBase
 {
+	// Constants
+	// =================================================================================================================================================================================================
+
     private static final String TAG = "MapTileDownloader";
+
+	// Instance Vars
+	// =================================================================================================================================================================================================
 
     private final AtomicReference<TileLayer> mTileSource = new AtomicReference<>();
     private final AtomicReference<MapTileCache> mTileCache = new AtomicReference<>();
@@ -31,6 +37,9 @@ public class MapTileDownloader extends MapTileModuleLayerBase
     private MapView mMapView;
     private boolean mUseDataConnection;
     boolean hdpi;
+
+	// Constructors
+	// =================================================================================================================================================================================================
 
 	/**
 	 *
@@ -42,11 +51,13 @@ public class MapTileDownloader extends MapTileModuleLayerBase
     public MapTileDownloader(final ITileLayer pTileSource, final MapTileCache pTileCache, final NetworkAvailabilityCheck pNetworkAvailabilityCheck, final MapView mapView)
 	{
         super(NUMBER_OF_TILE_DOWNLOAD_THREADS, TILE_DOWNLOAD_MAXIMUM_QUEUE_SIZE);
+
         mMapView = mapView;
         mUseDataConnection = true;
-        if (pTileSource instanceof MBTilesLayer) {
+
+		if (pTileSource instanceof MBTilesLayer)
             mUseDataConnection = false;
-        }
+
         mTileCache.set(pTileCache);
 
         hdpi = AppUtils.isRunningOn2xOrGreaterScreen(mapView.getContext());
@@ -56,6 +67,9 @@ public class MapTileDownloader extends MapTileModuleLayerBase
         setTileSource(pTileSource);
     }
 
+	// Public Methods
+	// =================================================================================================================================================================================================
+
     public ITileLayer getTileSource() {
         return mTileSource.get();
     }
@@ -64,85 +78,82 @@ public class MapTileDownloader extends MapTileModuleLayerBase
         return mTileCache.get();
     }
 
-    public boolean isNetworkAvailable() {
-        return (mNetworkAvailabilityCheck == null
-                || mNetworkAvailabilityCheck.getNetworkAvailable());
+    public final boolean isNetworkAvailable()
+	{
+        return (mNetworkAvailabilityCheck == null || mNetworkAvailabilityCheck.getNetworkAvailable());
     }
 
-    public TilesLoadedListener getTilesLoadedListener() {
-        return mMapView.getTilesLoadedListener();
-    }
+    public TilesLoadedListener getTilesLoadedListener() { return mMapView.getTilesLoadedListener(); }
 
-    public TileLoadedListener getTileLoadedListener() {
-        return mMapView.getTileLoadedListener();
-    }
+    public TileLoadedListener getTileLoadedListener() { return mMapView.getTileLoadedListener(); }
 
     @Override
-    public boolean getUsesDataConnection() {
-        return mUseDataConnection;
-    }
+    public boolean getUsesDataConnection() { return mUseDataConnection; }
 
     @Override
-    protected String getName() {
-        return "Online Tile Download Provider";
-    }
+    protected String getName() { return "Online Tile Download Provider"; }
 
     @Override
-    protected String getThreadGroupName() {
-        return "downloader";
-    }
+    protected String getThreadGroupName() { return "downloader"; }
 
     @Override
-    protected Runnable getTileLoader() {
-        return new TileLoader();
-    }
+    protected Runnable getTileLoader() { return new TileLoader(); }
 
     @Override
-    public float getMinimumZoomLevel() {
+    public float getMinimumZoomLevel()
+	{
         TileLayer tileLayer = mTileSource.get();
         return (tileLayer != null ? tileLayer.getMinimumZoomLevel() : MINIMUM_ZOOMLEVEL);
     }
 
     @Override
-    public float getMaximumZoomLevel() {
+    public float getMaximumZoomLevel()
+	{
         TileLayer tileLayer = mTileSource.get();
         return (tileLayer != null ? tileLayer.getMaximumZoomLevel() : MAXIMUM_ZOOMLEVEL);
     }
 
     @Override
-    public BoundingBox getBoundingBox() {
+    public BoundingBox getBoundingBox()
+	{
         TileLayer tileLayer = mTileSource.get();
         return (tileLayer != null ? tileLayer.getBoundingBox() : null);
     }
 
     @Override
-    public LatLng getCenterCoordinate() {
+    public LatLng getCenterCoordinate()
+	{
         TileLayer tileLayer = mTileSource.get();
         return (tileLayer != null ? tileLayer.getCenterCoordinate() : null);
     }
 
     @Override
-    public float getCenterZoom() {
+    public float getCenterZoom()
+	{
         TileLayer tileLayer = mTileSource.get();
-        return (tileLayer != null ? tileLayer.getCenterZoom()
-                : (getMaximumZoomLevel() + getMinimumZoomLevel()) / 2);
+        return (tileLayer != null ? tileLayer.getCenterZoom() : (getMaximumZoomLevel() + getMinimumZoomLevel()) / 2);
     }
 
     @Override
-    public int getTileSizePixels() {
+    public int getTileSizePixels()
+	{
         TileLayer tileLayer = mTileSource.get();
         return (tileLayer != null) ? tileLayer.getTileSizePixels() : 0;
     }
 
     @Override
-    public void setTileSource(final ITileLayer tileSource) {
-        if (mTileSource.get() != null) {
+    public void setTileSource(final ITileLayer tileSource)
+	{
+        if (mTileSource.get() != null)
             mTileSource.get().detach();
-        }
-        // We are only interested in TileLayer tile sources
-        if (tileSource instanceof TileLayer) {
+
+		// We are only interested in TileLayer tile sources
+        if (tileSource instanceof TileLayer)
+		{
             mTileSource.set((TileLayer) tileSource);
-        } else {
+        }
+		else
+		{
             // Otherwise shut down the tile downloader
             mTileSource.set(null);
         }
