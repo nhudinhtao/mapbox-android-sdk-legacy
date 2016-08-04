@@ -94,9 +94,11 @@ public class MapTileCache implements TileLayerConstants
      * Get the BitmapLruCache that belongs to this tile cache, creating it first
      * if there isn't one yet.
      *
+	 * Syncronized to prevent that two instance of BitmapLruCache will be created and resource leaked.
+	 *
      * @return BitmapLruCache the cache
      */
-    protected final BitmapLruCache getCache()
+    protected synchronized final BitmapLruCache getCache()
 	{
 		BitmapLruCache tBitmapCache = mBitmapCache;
 
@@ -147,36 +149,78 @@ public class MapTileCache implements TileLayerConstants
         return aTile.getCacheKey();
     }
 
+	/**
+	 *
+	 * @param aTile
+	 * @return
+	 * can be null
+	 */
+	@Nullable
     public CacheableBitmapDrawable getMapTile(final MapTile aTile)
 	{
         String key = getCacheKey(aTile);
         CacheableBitmapDrawable result = getCache().getFromMemoryCache(key);
-        if (result == null) {
+
+		if (result == null)
             result = getCache().getFromDiskCache(key, null);
-        }
+
         return result;
     }
 
+	/**
+	 *
+	 * @param aTile
+	 * @return
+	 */
+	@Nullable
     public CacheableBitmapDrawable getMapTileFromMemory(final MapTile aTile)
 	{
         return getCache().getFromMemoryCache(getCacheKey(aTile));
     }
 
+	/**
+	 *
+	 * @param aTile
+	 * @return
+	 */
+	@Nullable
     public CacheableBitmapDrawable getMapTileFromDisk(final MapTile aTile)
 	{
         return getCache().getFromDiskCache(getCacheKey(aTile), null);
     }
 
+	/**
+	 *
+	 * @param aTile
+	 * @param inputStream
+	 * @param decodeOpts
+	 * @return
+	 * can be null
+	 */
+	@Nullable
     public CacheableBitmapDrawable putTileStream(final MapTile aTile, final InputStream inputStream, final BitmapFactory.Options decodeOpts)
 	{
         return getCache().put(getCacheKey(aTile), inputStream, decodeOpts);
     }
 
+	/**
+	 *
+	 * @param aTile
+	 * @param bitmap
+	 * @return
+	 */
     public CacheableBitmapDrawable putTileBitmap(final MapTile aTile, final Bitmap bitmap)
 	{
         return getCache().put(getCacheKey(aTile), bitmap);
     }
 
+	/**
+	 *
+	 * @param aTile
+	 * @param aDrawable
+	 * @return
+	 */
+	@Nullable
     public CacheableBitmapDrawable putTile(final MapTile aTile, final Drawable aDrawable)
 	{
         if (aDrawable != null && aDrawable instanceof BitmapDrawable)
@@ -205,6 +249,13 @@ public class MapTileCache implements TileLayerConstants
         return null;
     }
 
+	/**
+	 *
+	 * @param aTile
+	 * @param aBitmap
+	 * @return
+	 */
+	@Nullable
     public CacheableBitmapDrawable putTileInMemoryCache(final MapTile aTile, final Bitmap aBitmap)
 	{
         if (aBitmap != null)
@@ -215,6 +266,13 @@ public class MapTileCache implements TileLayerConstants
         return null;
     }
 
+	/**
+	 *
+	 * @param aTile
+	 * @param aDrawable
+	 * @return
+	 */
+	@Nullable
     public CacheableBitmapDrawable putTileInMemoryCache(final MapTile aTile, final Drawable aDrawable)
 	{
         if (aDrawable != null && aDrawable instanceof BitmapDrawable)
@@ -233,7 +291,14 @@ public class MapTileCache implements TileLayerConstants
         return null;
     }
 
-    public CacheableBitmapDrawable putTileInDiskCache(final MapTile aTile, final Drawable aDrawable)
+	/**
+	 *
+	 * @param aTile
+	 * @param aDrawable
+	 * @return
+	 */
+	@Nullable
+    public final CacheableBitmapDrawable putTileInDiskCache(final MapTile aTile, final Drawable aDrawable)
 	{
         if (aDrawable != null && aDrawable instanceof BitmapDrawable)
 		{
@@ -250,6 +315,11 @@ public class MapTileCache implements TileLayerConstants
         return getCache().contains(getCacheKey(aTile));
     }
 
+	/**
+	 *
+	 * @param aTile
+	 * @return
+	 */
     public boolean containsTileInDiskCache(final MapTile aTile) {
         return getCache().isDiskCacheEnabled() && getCache().containsInDiskCache(getCacheKey(aTile));
     }
@@ -258,20 +328,26 @@ public class MapTileCache implements TileLayerConstants
         getCache().remove(getCacheKey(aTile));
     }
 
-    public void removeTileFromMemory(final MapTile aTile)
+	/**
+	 *
+	 * @param aTile
+	 */
+    public final void removeTileFromMemory(final MapTile aTile)
 	{
         String key = getCacheKey(aTile);
         getCache().removeFromMemoryCache(key);
     }
 
-    public void purgeMemoryCache() {
-        getCache().purgeMemoryCache();
-    }
+    public final void purgeMemoryCache() { getCache().purgeMemoryCache(); }
 
-    public void purgeDiskCache() {
-        getCache().purgeDiskCache();
-    }
+    public final void purgeDiskCache() { getCache().purgeDiskCache(); }
 
+	/**
+	 *
+	 * @param bitmap
+	 * @param aTile
+	 * @return
+	 */
     public CacheableBitmapDrawable createCacheableBitmapDrawable(Bitmap bitmap, MapTile aTile)
 	{
         return getCache().createCacheableBitmapDrawable(bitmap, getCacheKey(aTile), CacheableBitmapDrawable.SOURCE_UNKNOWN);
@@ -315,7 +391,7 @@ public class MapTileCache implements TileLayerConstants
 	 *
 	 * @param enabled
 	 */
-    public void setDiskCacheEnabled(final boolean enabled)
+    public final void setDiskCacheEnabled(final boolean enabled)
 	{
         if (mDiskCacheEnabled != enabled)
 		{
@@ -326,5 +402,5 @@ public class MapTileCache implements TileLayerConstants
         }
     }
 
-    public boolean isDiskCacheEnabled() { return mDiskCacheEnabled; }
+    public final boolean isDiskCacheEnabled() { return mDiskCacheEnabled; }
 }

@@ -692,8 +692,11 @@ public class BitmapLruCache
      * @param inputStream - InputStream opened from {@code url}
      * @param decodeOpts  - Options used for decoding. This does not affect what is cached in the
      *                    disk cache (if enabled).
-     * @return CacheableBitmapDrawable which can be used to display the bitmap.
-     */ //todo
+     * @return
+	 * CacheableBitmapDrawable which can be used to display the bitmap.
+	 * can be null
+     */
+	@Nullable
     public CacheableBitmapDrawable put(final String url, final InputStream inputStream, final BitmapFactory.Options decodeOpts)
 	{
         if (inputStream == null)
@@ -954,12 +957,14 @@ public class BitmapLruCache
 	 * @param url
 	 * @param source
 	 * @return
+	 * can be null
 	 */
+	@Nullable
     public CacheableBitmapDrawable createCacheableBitmapDrawable(Bitmap bitmap, String url, int source)
     {
-        if (bitmap != null) {
+        if (bitmap != null)
             return new CacheableBitmapDrawable(url, mResources, bitmap, mRecyclePolicy, source);
-        }
+
         return null;
     }
 
@@ -968,8 +973,11 @@ public class BitmapLruCache
 	 * @param ip
 	 * @param url
 	 * @param opts
+	 *
 	 * @return
+	 * can be null
 	 */
+	@Nullable
     private CacheableBitmapDrawable decodeBitmapToDrawable(InputStreamProvider ip, String url, BitmapFactory.Options opts)
 	{
         AtomicInteger source = new AtomicInteger(0);
@@ -983,7 +991,9 @@ public class BitmapLruCache
 	 * @param opts
 	 * @return
 	 */
-    public Bitmap decodeBitmap(InputStreamProvider ip, BitmapFactory.Options opts) {
+	@Nullable
+    public Bitmap decodeBitmap(InputStreamProvider ip, BitmapFactory.Options opts)
+	{
         return decodeBitmap(ip, opts, null);
     }
 
@@ -993,7 +1003,9 @@ public class BitmapLruCache
 	 * @param opts
 	 * @param source
 	 * @return
+	 * can be null
 	 */
+	@Nullable
 	public Bitmap decodeBitmap(InputStreamProvider ip, @Nullable BitmapFactory.Options opts, @Nullable AtomicInteger source)
 	{
         Bitmap bm = null;
