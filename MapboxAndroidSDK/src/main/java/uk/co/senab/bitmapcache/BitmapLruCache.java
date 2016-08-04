@@ -1107,7 +1107,10 @@ public class BitmapLruCache
         return false;
     }
 
-	private void createDiskCacheIfConfigured()
+	/**
+	 * Syncronized to prevent to create multiple disk cache instances !
+	 */
+	private final synchronized void createDiskCacheIfConfigured()
 	{
 		if (mDiskCache != null)
 			return;
