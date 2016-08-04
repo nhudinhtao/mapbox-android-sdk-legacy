@@ -551,7 +551,7 @@ public class BitmapLruCache
 	 * @param url
 	 * @param drawable
 	 * @param compressFormat
-	 * @param compressQuality
+	 * @param compressQuality<<
 	 * @return
 	 */
     public CacheableBitmapDrawable putInDiskCache(final String url, final CacheableBitmapDrawable drawable, Bitmap.CompressFormat compressFormat, int compressQuality)
@@ -719,21 +719,21 @@ public class BitmapLruCache
             Log.e(Constants.LOG_TAG, "Error writing to saving stream to temp file: " + url, e);
         }
 
-        CacheableBitmapDrawable d = null;
+        CacheableBitmapDrawable cacheableBitmapDrawable = null;
 
         if (null != tmpFile)
 		{
             // Try and decode File
-            d = decodeBitmapToDrawable(new FileInputStreamProvider(tmpFile), url, decodeOpts);
+            cacheableBitmapDrawable = decodeBitmapToDrawable(new FileInputStreamProvider(tmpFile), url, decodeOpts);
 
-            if (d != null)
+            if (cacheableBitmapDrawable != null)
 			{
                 if (null != mMemoryCache)
 				{
-                    d.setCached(true);
+                    cacheableBitmapDrawable.setCached(true);
                     synchronized (mMemoryCache)
 					{
-                        mMemoryCache.put(d.getUrl(), d);
+                        mMemoryCache.put(cacheableBitmapDrawable.getUrl(), cacheableBitmapDrawable);
                     }
                 }
 
@@ -767,7 +767,7 @@ public class BitmapLruCache
             tmpFile.delete();
         }
 
-        return d;
+        return cacheableBitmapDrawable;
     }
 
     /**

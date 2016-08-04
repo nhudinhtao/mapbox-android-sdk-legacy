@@ -24,13 +24,22 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-public class CacheableBitmapDrawable extends BitmapDrawable {
+/**
+ *
+ */
+public class CacheableBitmapDrawable extends BitmapDrawable
+{
+	// Constatns
+	// =================================================================================================================================================================================================
 
     public static final int SOURCE_UNKNOWN = -1;
     public static final int SOURCE_NEW = 0;
     public static final int SOURCE_INBITMAP = 1;
 
     static final String LOG_TAG = "CacheableBitmapDrawable";
+
+	// Instance Vars
+	// =================================================================================================================================================================================================
 
     // URL Associated with this Bitmap
     private final String mUrl;
@@ -61,11 +70,22 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
 
     private boolean mReused;
 
-    public CacheableBitmapDrawable(String url, Resources resources, Bitmap bitmap,
-            BitmapLruCache.RecyclePolicy recyclePolicy, int source) {
+	// Constructors
+	// =================================================================================================================================================================================================
+
+	/**
+	 *
+	 * @param url
+	 * @param resources
+	 * @param bitmap
+	 * @param recyclePolicy
+	 * @param source
+	 */
+    public CacheableBitmapDrawable(String url, Resources resources, Bitmap bitmap, BitmapLruCache.RecyclePolicy recyclePolicy, int source)
+	{
         super(resources, bitmap);
 
-        mMemorySize = null != bitmap ? (bitmap.getRowBytes() * bitmap.getHeight()) : 0;
+        mMemorySize = (null != bitmap) ? (bitmap.getRowBytes() * bitmap.getHeight()) : 0;
         mUrl = url;
         mRecyclePolicy = recyclePolicy;
         mDisplayingCount = 0;
@@ -75,18 +95,27 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
         mReused = false;
     }
 
+	// =================================================================================================================================================================================================
+
     @Override
-    public void draw(Canvas canvas) {
-        if (mReused == true) {
+    public void draw(Canvas canvas)
+	{
+        if (mReused == true)
+		{
             Log.e(LOG_TAG, "trying to draw a reused bitmap: " + mUrl);
             return;
         }
-        try {
+
+		try
+		{
             super.draw(canvas);
-        } catch (RuntimeException re) {
+        }
+		catch (RuntimeException re)
+		{
             // A RuntimeException has been thrown, probably due to a recycled Bitmap. If we have
             // one, print the method stack when the recycle() call happened
-            if (null != mStackTraceWhenRecycled) {
+            if (null != mStackTraceWhenRecycled)
+			{
                 mStackTraceWhenRecycled.printStackTrace();
             }
 
@@ -98,36 +127,36 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
     /**
      * @return Amount of memory currently being used by {@code Bitmap}
      */
-    int getMemorySize() {
-       return mMemorySize;
-    }
+    final int getMemorySize() { return mMemorySize; }
 
     /**
      * @return the URL associated with the BitmapDrawable
      */
-    public String getUrl() {
-        return mUrl;
-    }
+    public String getUrl() { return mUrl; }
 
     /**
      * @return One of {@link #SOURCE_NEW}, {@link #SOURCE_INBITMAP} or {@link #SOURCE_UNKNOWN}
      * depending on how this Bitmap was created.
      */
-    public int getSource() {
-        return mSource;
-    }
+    public int getSource() { return mSource; }
 
     /**
      * Returns true when this wrapper has a bitmap and the bitmap has not been recycled.
      *
      * @return true - if the bitmap has not been recycled.
      */
-    public synchronized boolean isBitmapValid() {
+    public synchronized boolean isBitmapValid()
+	{
         Bitmap bitmap = getBitmap();
         return !mReused && null != bitmap && !bitmap.isRecycled();
     }
 
-    public synchronized boolean isBitmapMutable() {
+	/**
+	 *
+	 * @return
+	 */
+    public synchronized boolean isBitmapMutable()
+	{
         Bitmap bitmap = getBitmap();
         return null != bitmap && bitmap.isMutable();
     }
@@ -135,27 +164,27 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
     /**
      * @return true - if the bitmap is currently being displayed by a {@link CacheableImageView}.
      */
-    public synchronized boolean isBeingDisplayed() {
-        return mDisplayingCount > 0;
-    }
+    public synchronized boolean isBeingDisplayed() { return mDisplayingCount > 0; }
 
     /**
      * @return true - if the wrapper is currently referenced by a cache.
      */
-    public synchronized boolean isReferencedByCache() {
-        return mCacheCount > 0;
-    }
+    public synchronized boolean isReferencedByCache() { return mCacheCount > 0; }
 
     /**
      * Used to signal to the Drawable whether it is being used or not.
      *
      * @param beingUsed - true if being used, false if not.
      */
-    public synchronized void setBeingUsed(boolean beingUsed) {
-        if (beingUsed) {
+    public synchronized void setBeingUsed(boolean beingUsed)
+	{
+        if (beingUsed)
+		{
             mDisplayingCount++;
             mHasBeenDisplayed = true;
-        } else {
+        }
+		else
+		{
             mDisplayingCount--;
         }
         checkState();
@@ -166,38 +195,48 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
      *
      * @param added - true if the wrapper has been added to a cache, false if removed.
      */
-    synchronized void setCached(boolean added) {
-        if (added) {
+    synchronized void setCached(boolean added)
+	{
+        if (added)
+		{
             mCacheCount++;
-        } else {
+        }
+		else
+		{
             mCacheCount--;
         }
-        checkState();
+
+		checkState();
     }
 
     /**
      * Used to signal to the wrapper that the attached bitmap has been reused.
      */
-    synchronized void setReused() {
+    synchronized void setReused()
+	{
         if (mReused == false) {
             mReused = true;
         }
     }
 
-
     /**
      * Try to recycle if not referenced by cache or being displayed.
      */
-    private void tryRecycle() {
+    private void tryRecycle()
+	{
         checkState(false);
     }
 
-    private void cancelCheckStateCallback() {
-        if (null != mCheckStateRunnable) {
-            if (Constants.DEBUG) {
+    private void cancelCheckStateCallback()
+	{
+        if (null != mCheckStateRunnable)
+		{
+            if (Constants.DEBUG)
+			{
                 Log.d(LOG_TAG, "Cancelling checkState() callback for: " + mUrl);
             }
-            sHandler.removeCallbacks(mCheckStateRunnable);
+
+			sHandler.removeCallbacks(mCheckStateRunnable);
             mCheckStateRunnable = null;
         }
     }
@@ -205,7 +244,8 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
     /**
      * Calls {@link #checkState(boolean)} with default parameter of <code>false</code>.
      */
-    private void checkState() {
+    private void checkState()
+	{
         checkState(false);
     }
 
@@ -223,29 +263,29 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
      *                            whether to recycle() now.
      * @see Constants#UNUSED_DRAWABLE_RECYCLE_DELAY_MS
      */
-    private synchronized void checkState(final boolean ignoreBeenDisplayed) {
-        if (Constants.DEBUG) {
-            Log.d(LOG_TAG, String.format(
-                    "checkState(). Been Displayed: %b, Displaying: %d, Caching: %d, URL: %s",
-                    mHasBeenDisplayed, mDisplayingCount, mCacheCount, mUrl));
+    private synchronized void checkState(final boolean ignoreBeenDisplayed)
+	{
+        if (Constants.DEBUG)
+		{
+            Log.d(LOG_TAG, String.format("checkState(). Been Displayed: %b, Displaying: %d, Caching: %d, URL: %s", mHasBeenDisplayed, mDisplayingCount, mCacheCount, mUrl));
         }
 
         // If the policy doesn't let us recycle, return now
-        if (!mRecyclePolicy.canRecycle()) {
-            return;
-        }
+        if (!mRecyclePolicy.canRecycle())
+		    return;
 
         // Cancel the callback, if one is queued.
         cancelCheckStateCallback();
 
         // We're not being referenced or used anywhere
-        if (mCacheCount <= 0 && mDisplayingCount <= 0 && (isBitmapValid() || mReused)) {
-
-            /**
+        if (mCacheCount <= 0 && mDisplayingCount <= 0 && (isBitmapValid() || mReused))
+		{
+		    /**
              * If we have been displayed or we don't care whether we have
              * been or not, then recycle() now. Otherwise, we retry after a delay.
              */
-            if (mHasBeenDisplayed || ignoreBeenDisplayed) {
+            if (mHasBeenDisplayed || ignoreBeenDisplayed)
+			{
                 if (Constants.DEBUG) {
                     Log.d(LOG_TAG, "Recycling bitmap with url: " + mUrl);
                 }
@@ -253,15 +293,16 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
                 mStackTraceWhenRecycled = new Throwable("Recycled Bitmap Method Stack");
 
                 getBitmap().recycle();
-            } else {
-                if (Constants.DEBUG) {
-                    Log.d(LOG_TAG,
-                            "Unused Bitmap which hasn't been displayed, delaying recycle(): "
-                                    + mUrl);
+            }
+			else
+			{
+                if (Constants.DEBUG)
+				{
+                    Log.d(LOG_TAG, "Unused Bitmap which hasn't been displayed, delaying recycle(): " + mUrl);
                 }
-                mCheckStateRunnable = new CheckStateRunnable(this);
-                sHandler.postDelayed(mCheckStateRunnable,
-                        Constants.UNUSED_DRAWABLE_RECYCLE_DELAY_MS);
+
+				mCheckStateRunnable = new CheckStateRunnable(this);
+                sHandler.postDelayed(mCheckStateRunnable, Constants.UNUSED_DRAWABLE_RECYCLE_DELAY_MS);
             }
         }
     }
@@ -272,9 +313,12 @@ public class CacheableBitmapDrawable extends BitmapDrawable {
      *
      * @author chrisbanes
      */
-    private static final class CheckStateRunnable
-            extends WeakReferenceRunnable<CacheableBitmapDrawable> {
-
+    private static final class CheckStateRunnable extends WeakReferenceRunnable<CacheableBitmapDrawable>
+	{
+		/**
+		 *
+		 * @param object
+		 */
         public CheckStateRunnable(CacheableBitmapDrawable object) {
             super(object);
         }

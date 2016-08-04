@@ -15,8 +15,6 @@
  ******************************************************************************/
 package uk.co.senab.bitmapcache;
 
-import android.util.Log;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -24,40 +22,75 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-class IoUtils {
-
-    static void closeStream(InputStream is) {
-        if (is != null) {
-            try {
+/**
+ *
+ */
+final class IoUtils
+{
+	/**
+	 *
+	 * @param is
+	 */
+    static void closeStream(InputStream is)
+	{
+        if (is != null)
+		{
+            try
+			{
                 is.close();
-            } catch (IOException e) {
-                Log.i(Constants.LOG_TAG, "Failed to close InputStream", e);
             }
+			catch (IOException e) {}
         }
     }
 
-    static void closeStream(OutputStream os) {
-        if (os != null) {
-            try {
+	/**
+	 *
+	 * @param os
+	 */
+    static void closeStream(OutputStream os)
+	{
+        if (os != null)
+		{
+            try
+			{
                 os.close();
-            } catch (IOException e) {
-                Log.i(Constants.LOG_TAG, "Failed to close OutputStream", e);
             }
+			catch (IOException e) {}
         }
     }
 
-    static long copy(File in, OutputStream out) throws IOException {
+	/**
+	 *
+	 * @param in
+	 * @param out
+	 *
+	 * @return
+	 *
+	 * @throws IOException
+	 */
+    static long copy(File in, OutputStream out) throws IOException
+	{
         return copy(new FileInputStream(in), out);
     }
 
-    static long copy(InputStream in, File out) throws IOException {
+	/**
+	 *
+	 * @param in
+	 * @param out
+	 *
+	 * @return
+	 *
+	 * @throws IOException
+	 */
+    static long copy(InputStream in, File out) throws IOException
+	{
         return copy(in, new FileOutputStream(out));
     }
 
     /**
      * Pipe an InputStream to the given OutputStream <p /> Taken from Apache Commons IOUtils.
      */
-    private static long copy(InputStream input, OutputStream output) throws IOException
+    private static long copy(final InputStream input, final OutputStream output) throws IOException
 	{
         try
 		{
@@ -80,5 +113,4 @@ class IoUtils {
             IoUtils.closeStream(output);
         }
     }
-
 }
