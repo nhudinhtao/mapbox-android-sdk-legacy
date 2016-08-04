@@ -17,8 +17,8 @@ import java.net.URL;
 
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
-import okhttp3.internal.huc.HttpURLConnectionImpl;
-import okhttp3.internal.huc.HttpsURLConnectionImpl;
+import okhttp3.internal.huc.OkHttpURLConnection;
+import okhttp3.internal.huc.OkHttpsURLConnection;
 
 /**
  * @author Arne
@@ -81,9 +81,9 @@ public class NetworkUtils
         HttpURLConnection connection;
 
 		if (url.getProtocol().equals("https"))
-			connection = new HttpsURLConnectionImpl(url, client);
+			connection = new OkHttpsURLConnection(url, client);
 		else
-			connection = new HttpURLConnectionImpl(url, client);
+			connection = new OkHttpURLConnection(url, client);
 
         connection.setRequestProperty("User-Agent", MapboxUtils.getUserAgent());
         return connection;
