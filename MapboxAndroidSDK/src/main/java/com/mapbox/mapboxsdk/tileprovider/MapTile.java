@@ -1,6 +1,7 @@
 package com.mapbox.mapboxsdk.tileprovider;
 
 import android.graphics.Rect;
+
 import com.mapbox.mapboxsdk.constants.GeoConstants;
 import com.mapbox.mapboxsdk.constants.MapboxConstants;
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
@@ -16,23 +17,31 @@ import com.mapbox.mapboxsdk.tileprovider.constants.TileLayerConstants;
  */
 public class MapTile implements GeoConstants, MapboxConstants, TileLayerConstants
 {
+	// Constants
+	// =================================================================================================================================================================================================
+
     public static final int MAPTILE_SUCCESS_ID = 0;
     public static final int MAPTILE_FAIL_ID = MAPTILE_SUCCESS_ID + 1;
+
+	// Instance Vars
+	// =================================================================================================================================================================================================
 
     // This class must be immutable because it's used as the key in the cache hash map
     // (ie all the fields are final).
     private final int x;
     private final int y;
     private final int z;
-    private final String path;
     private final String cacheKey;
-    private final int code;
+    private final int mHashCode;
     private Rect mTileRect;
 
     // For lat/lng bounds calculation
     private double tileSize = DEFAULT_TILE_SIZE;
     private double originShift = 2 * Math.PI * RADIUS_EARTH_METERS / 2.0;
     private double initialResolution = 2 * Math.PI * RADIUS_EARTH_METERS / tileSize;
+
+	// Constructors
+	// =================================================================================================================================================================================================
 
 	/**
 	 *
@@ -59,14 +68,17 @@ public class MapTile implements GeoConstants, MapboxConstants, TileLayerConstant
         this.y = ay;
 
 		final StringBuilder builder = new StringBuilder();
+		builder.append(aCacheKey).append('/');
 		builder.append(z).append('/');
 		builder.append(x).append('/');
 		builder.append(y);
 
-        this.path = builder.toString();
-        this.cacheKey = aCacheKey + "/" + path;
-        this.code = ((17 * (37 + z)) * (37 * x)) * (37 + y);
+        this.cacheKey = builder.toString();
+        this.mHashCode = ((17 * (37 + z)) * (37 * x)) * (37 + y);
     }
+
+	// Public Methods
+	// =================================================================================================================================================================================================
 
     public int getZ() {
         return z;
@@ -80,17 +92,13 @@ public class MapTile implements GeoConstants, MapboxConstants, TileLayerConstant
         return y;
     }
 
-    public String getPath() {
-        return path;
-    }
-
     public String getCacheKey() {
         return cacheKey;
     }
 
     @Override
     public String toString() {
-        return path;
+        return cacheKey;
     }
 
     @Override
@@ -110,7 +118,7 @@ public class MapTile implements GeoConstants, MapboxConstants, TileLayerConstant
 
     @Override
     public int hashCode() {
-        return this.code;
+        return this.mHashCode;
     }
 
     public void setTileRect(final Rect rect) {
@@ -121,7 +129,8 @@ public class MapTile implements GeoConstants, MapboxConstants, TileLayerConstant
         return mTileRect;
     }
 
-    public BoundingBox getTileLatLonBounds() {
+    public BoundingBox getTileLatLonBounds()
+	{
         // Returns bounds of the given tile in EPSG:900913 coordinates
         double[] bounds = TileBounds(this.getX(), this.getY(), this.getZ());
         double[] minLatLon = MetersToLatLon(bounds[0], bounds[3]);
@@ -130,14 +139,35 @@ public class MapTile implements GeoConstants, MapboxConstants, TileLayerConstant
         return new BoundingBox(maxLatLon[0], maxLatLon[1], minLatLon[0], minLatLon[1]);
     }
 
-    private double[] TileBounds(int tx, int ty, int zoom) {
+	// Private Methods
+	// =================================================================================================================================================================================================
+
+	/**
+	 *
+	 * @param tx
+	 * @param ty
+	 * @param zoom
+	 *
+	 * @return
+	 */
+    private double[] TileBounds(int tx, int ty, int zoom)
+	{
         // Returns bounds of the given tile in EPSG:900913 coordinates
         double[] wn = PixelsToMeters(tx * tileSize, ty * tileSize, zoom);
         double[] es = PixelsToMeters((tx + 1) * tileSize, (ty + 1) * tileSize, zoom);
         return new double[]{wn[0], wn[1], es[0], es[1]};
     }
 
-    private double[] PixelsToMeters(double px, double py, double zoom) {
+	/**
+	 *
+	 * @param px
+	 * @param py
+	 * @param zoom
+	 *
+	 * @return
+	 */
+    private double[] PixelsToMeters(double px, double py, double zoom)
+	{
         // Converts pixel coordinates in given zoom level of pyramid to EPSG:900913
         double res = Resolution(zoom);
         double mx = px * res - originShift;
@@ -146,7 +176,15 @@ public class MapTile implements GeoConstants, MapboxConstants, TileLayerConstant
         return new double[]{mx, my};
     }
 
-    private double[] MetersToLatLon(double mx, double my) {
+	/**
+	 *
+	 * @param mx
+	 * @param my
+	 *
+	 * @return
+	 */
+    private double[] MetersToLatLon(double mx, double my)
+	{
         // Converts XY point from Spherical Mercator EPSG:900913 to lat/lon in WGS84 Datum
         double lon = (mx / originShift) * 180.0;
         double lat = (my / originShift) * 180.0;
@@ -155,7 +193,13 @@ public class MapTile implements GeoConstants, MapboxConstants, TileLayerConstant
         return new double[]{lat, lon};
     }
 
-    private double Resolution(double zoom) {
+	/**
+	 *
+	 * @param zoom
+	 * @return
+	 */
+    private double Resolution(double zoom)
+	{
         // Resolution (meters/pixel) for given zoom level (measured at Equator)
         return initialResolution / Math.pow(2, zoom);
     }
