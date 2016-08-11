@@ -7,6 +7,7 @@ import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
 import com.mapbox.mapboxsdk.R;
@@ -434,16 +435,25 @@ public class Marker implements MapViewConstants, ClusterItem {
         return reuse;
     }
 
-    protected RectF getDrawingBounds(final Projection projection, RectF reuse) {
-        if (reuse == null) {
-            reuse = new RectF();
-        }
-        final PointF position = getPositionOnScreen(projection, null);
+	@Nullable private PointF mReuseForGetDrawingBounds;
+
+	/**
+	 *
+	 * @param projection
+	 * @param reuse
+	 * @return
+	 */
+    protected RectF getDrawingBounds(final Projection projection, RectF reuse)
+	{
+        if (reuse == null)
+		    reuse = new RectF();
+
+		mReuseForGetDrawingBounds = getPositionOnScreen(projection, mReuseForGetDrawingBounds);
         final int w = getWidth();
         final int h = isUsingMakiIcon ? getRealHeight() : getHeight();
-        final float left = position.x - mAnchor.x * w;
+        final float left = mReuseForGetDrawingBounds.x - mAnchor.x * w;
         final float right = left + w;
-        final float top = position.y - mAnchor.y * h;
+        final float top = mReuseForGetDrawingBounds.y - mAnchor.y * h;
         float bottom = top + h;
         reuse.set(left, top, right, bottom);
         return reuse;
