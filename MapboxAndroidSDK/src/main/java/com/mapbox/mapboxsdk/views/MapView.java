@@ -778,20 +778,26 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         return mTileRequestCompleteHandler;
     }
 
+
+	@Nullable private Rect mCalcBoundingBoxReuseRect = null;
+
 	/**
 	 *
 	 * @return
 	 * Null if the MapView has not been measured !
+	 *
+	 * Syncronized to prevent failures with mCalcBoundingBoxReuseRect
+	 * TODO check if the syncronize slows down somehting...
 	 */
 	@Nullable
-    public final BoundingBox getBoundingBoxInternal()
+    public final synchronized BoundingBox getBoundingBoxInternal()
 	{
         if (getMeasuredWidth() == 0 || getMeasuredHeight() == 0)
             return null;
 
-        final Rect screenRect = GeometryMath.viewPortRect(getProjection(), null);
-        ILatLng neGeoPoint = Projection.pixelXYToLatLong(screenRect.right, screenRect.top, mZoomLevel);
-        ILatLng swGeoPoint = Projection.pixelXYToLatLong(screenRect.left, screenRect.bottom, mZoomLevel);
+		mCalcBoundingBoxReuseRect = GeometryMath.viewPortRect(getProjection(), mCalcBoundingBoxReuseRect);
+        ILatLng neGeoPoint = Projection.pixelXYToLatLong(mCalcBoundingBoxReuseRect.right, mCalcBoundingBoxReuseRect.top, mZoomLevel);
+        ILatLng swGeoPoint = Projection.pixelXYToLatLong(mCalcBoundingBoxReuseRect.left, mCalcBoundingBoxReuseRect.bottom, mZoomLevel);
 
         return new BoundingBox(neGeoPoint.getLatitude(), neGeoPoint.getLongitude(), swGeoPoint.getLatitude(), swGeoPoint.getLongitude());
     }
