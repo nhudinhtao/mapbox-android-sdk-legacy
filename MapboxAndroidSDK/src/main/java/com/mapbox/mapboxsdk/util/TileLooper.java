@@ -56,7 +56,7 @@ public abstract class TileLooper
 			{
                 tileY = GeometryMath.mod(y, mapTileUpperBound);
                 tileX = GeometryMath.mod(x, mapTileUpperBound);
-                final MapTile tile = new MapTile(pCacheKey, roundedZoom, tileX, tileY);
+                final MapTile tile = new MapTile(pCacheKey, roundedZoom, tileX, tileY); // TODO OPTIMIZE CACHE 20 MapTile Objects and reuse them !
                 handleTile(pCanvas, pCacheKey, pTileSizePx, tile, x, y, pClipRect);
             }
         }
