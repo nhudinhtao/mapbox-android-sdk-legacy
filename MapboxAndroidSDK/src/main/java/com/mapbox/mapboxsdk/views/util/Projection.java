@@ -473,13 +473,14 @@ public class Projection implements GeoConstants
      *
      * @param latitude Latitude (in degrees) at which to measure the ground resolution
      * @param levelOfDetail Level of detail, from 1 (lowest detail) to 23 (highest detail)
+	 *
      * @return The ground resolution, in meters per pixel
      */
-    public static double groundResolution(final double latitude, final float levelOfDetail) {
+    public static double groundResolution(final double latitude, final float levelOfDetail)
+	{
         double result = wrap(latitude, -90, 90, 180);
         result = clip(result, MIN_LATITUDE, MAX_LATITUDE);
-        return Math.cos(result * Math.PI / 180) * 2 * Math.PI * RADIUS_EARTH_METERS / mapSize(
-                levelOfDetail);
+        return Math.cos(result * Math.PI / 180) * 2 * Math.PI * RADIUS_EARTH_METERS / mapSize(levelOfDetail);
     }
 
     /**
