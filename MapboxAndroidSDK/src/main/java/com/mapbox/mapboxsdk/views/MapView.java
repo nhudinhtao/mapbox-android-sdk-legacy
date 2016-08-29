@@ -143,6 +143,7 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
     protected final Scroller mScroller;
     protected boolean mIsFlinging;
 
+	/** -1 if not animating ! */
     private final AtomicInteger mTargetZoomLevel = new AtomicInteger();
     private final AtomicBoolean mIsAnimating = new AtomicBoolean(false);
 
@@ -1176,13 +1177,25 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
         return getZoomLevel(true);
     }
 
+	/**
+	 *
+	 * @return
+	 * -1f if there is not animation target zoom level
+	 */
     protected float getAnimatedZoom()
 	{
         return Float.intBitsToFloat(mTargetZoomLevel.get());
     }
 
+	/**
+	 *
+	 * @param value
+	 */
     protected void setAnimatedZoom(float value)
 	{
+		if (value <= 0f)
+			throw new IllegalArgumentException();
+
         mTargetZoomLevel.set(Float.floatToIntBits(value));
     }
 
@@ -1193,7 +1206,7 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
 
     protected boolean isAnimatedZoomSet()
 	{
-        return Float.intBitsToFloat(mTargetZoomLevel.get()) != -1;
+        return Float.intBitsToFloat(mTargetZoomLevel.get()) != -1f;
     }
 
     /**

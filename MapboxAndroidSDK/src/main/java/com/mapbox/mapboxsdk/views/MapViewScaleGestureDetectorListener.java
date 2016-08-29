@@ -71,9 +71,8 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
     @Override
     public void onScaleEnd(ScaleGestureDetector detector)
 	{
-        if (!scaling) {
+        if (!scaling)
             return;
-        }
 
         //delaying the "end" will prevent some crazy scroll events when finishing
         //scaling by getting 2 fingers very close to each other
@@ -90,6 +89,5 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
                 scaling = false;
             }
         }, 100);
-
     }
 }
