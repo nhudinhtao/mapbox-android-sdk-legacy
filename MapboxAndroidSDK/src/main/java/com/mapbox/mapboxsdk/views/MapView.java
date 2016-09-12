@@ -1194,7 +1194,7 @@ public class MapView extends ViewGroup implements MapViewConstants, MapEventsRec
     protected void setAnimatedZoom(float value)
 	{
 		if (value <= 0f)
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("value <= 0 / value == " + value);
 
         mTargetZoomLevel.set(Float.floatToIntBits(value));
     }

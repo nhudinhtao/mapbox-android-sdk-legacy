@@ -10,7 +10,8 @@ import android.view.ScaleGestureDetector;
  */
 public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector.OnScaleGestureListener
 {
-    private static String TAG = "MapViewScaleListener";
+	// Instance Vars
+	// =================================================================================================================================================================================================
 
     /**
      * This is the active focal point in terms of the viewport. Could be a local
@@ -24,6 +25,9 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
     private boolean scaling;
     private float currentScale;
 
+	// Constructors
+	// =================================================================================================================================================================================================
+
     /**
      * Bind a new gesture detector to a map
      *
@@ -32,6 +36,9 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
     public MapViewScaleGestureDetectorListener(final MapView mv) {
         this.mapView = mv;
     }
+
+	// Implements ScaleGestureDetector.OnScaleGestureListener
+	// =================================================================================================================================================================================================
 
     @Override
     public boolean onScaleBegin(ScaleGestureDetector detector)
@@ -74,17 +81,24 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
         if (!scaling)
             return;
 
-        //delaying the "end" will prevent some crazy scroll events when finishing
+		final float fCurrentScale = currentScale;
+
+		//delaying the "end" will prevent some crazy scroll events when finishing
         //scaling by getting 2 fingers very close to each other
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable()
 		{
             public void run()
 			{
-                float preZoom = mapView.getZoomLevel(false);
-                float newZoom = (float) (Math.log(currentScale) / Math.log(2d) + preZoom);
-                //set animated zoom so that animationEnd will correctly set it in the mapView
-                mapView.setAnimatedZoom(newZoom);
+				// failure prevention !
+				if (fCurrentScale > 0f)
+				{
+					float preZoom = mapView.getZoomLevel(false);
+					float newZoom = (float) (Math.log(fCurrentScale) / Math.log(2d) + preZoom);
+					//set animated zoom so that animationEnd will correctly set it in the mapView
+					mapView.setAnimatedZoom(newZoom);
+				}
+
                 mapView.getController().onAnimationEnd();
                 scaling = false;
             }
