@@ -91,10 +91,13 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
             public void run()
 			{
 				// failure prevention !
-				if (fCurrentScale > 0f)
+				if (fCurrentScale >= 1f)
 				{
 					float preZoom = mapView.getZoomLevel(false);
-					float newZoom = (float) (Math.log(fCurrentScale) / Math.log(2d) + preZoom);
+
+					float newZoom = Math.max(0.1f, (float) (Math.log(fCurrentScale) / Math.log(2d) + preZoom));
+					// prevent that newZomm will be <= 0f
+
 					//set animated zoom so that animationEnd will correctly set it in the mapView
 					mapView.setAnimatedZoom(newZoom);
 				}
