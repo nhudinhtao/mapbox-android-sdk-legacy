@@ -141,22 +141,18 @@ public class MapTileLayerArray extends MapTileLayerBase
 
 		try
 		{
-			mLockUnaccessibleTiles.readLock().lock();
+			// Because of a possible write to mUnaccessibleTiles we need to use a write look.
+			// Dont do the mistake to try to combine a read and a write lock.
+			// Bad code 1: read.lock(), write.lock() will cause a Deadlock !
+			// Java does not have a updateToWriteLock functionality.
+			// Bad code 2: read.lock(), read.unlock(), write.lock() is not thread safe !
+			mLockUnaccessibleTiles.writeLock().lock();
 
 			if (mUnaccessibleTiles.size() > 0)
 			{
 				if (networkAvailable() || !useDataConnection())
 				{
-					try
-					{
-						mLockUnaccessibleTiles.writeLock().lock();
-
-						mUnaccessibleTiles.clear();
-					}
-					finally
-					{
-						mLockUnaccessibleTiles.writeLock().unlock();
-					}
+					mUnaccessibleTiles.clear();
 				}
 				else if (mUnaccessibleTiles.contains(pTile))
 				{
@@ -168,7 +164,7 @@ public class MapTileLayerArray extends MapTileLayerBase
 		}
 		finally
 		{
-			mLockUnaccessibleTiles.readLock().unlock();
+			mLockUnaccessibleTiles.writeLock().unlock();
 		}
     }
 
