@@ -23,6 +23,8 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
     private float firstSpan;
     private final MapView mapView;
     private boolean scaling;
+
+	/** > 0 **/
     private float currentScale;
 
 	// Constructors
@@ -91,7 +93,7 @@ public class MapViewScaleGestureDetectorListener implements ScaleGestureDetector
             public void run()
 			{
 				// failure prevention !
-				if (fCurrentScale >= 1f)
+				if (fCurrentScale > 0f)
 				{
 					float preZoom = mapView.getZoomLevel(false);
 
