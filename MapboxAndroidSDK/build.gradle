@@ -23,19 +23,19 @@ repositories {
 
 dependencies {
     compile 'com.vividsolutions:jts:1.13'
-    compile 'com.android.support:support-v4:23.4.0'
+	compile ('com.android.support:support-core-utils:25.0.1') { force = true }	// really use the specified even if something else resolves higher
 	compile 'com.squareup.okhttp3:okhttp:3.4.1'
 	compile 'com.squareup.okhttp3:okhttp-urlconnection:3.4.1'
     compile 'com.jakewharton:disklrucache:2.0.2'
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '23.0.3'
+    compileSdkVersion 24
+    buildToolsVersion '24.0.2'
 
     defaultConfig {
         minSdkVersion 15
-        targetSdkVersion 23
+        targetSdkVersion 24
 		versionCode 25
 		versionName "1.1.5"
     }
